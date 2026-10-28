@@ -302,7 +302,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
         <label for="signInviteCode" style="color:var(--blue); font-weight:bold;">👥 ဖိတ်ခေါ်ကုဒ် (Invite Code) - မထည့်လည်းရသည်</label>
         <input type="text" id="signInviteCode" placeholder="သူငယ်ချင်း၏ ၅ လုံးပြည့် ID ထည့်ပါ" style="background:#fff; border-color:#dbe4ff;">
       </div>
-      <button class="btn-main" type="submit">အကောင့်ဖွင့်မည်</button>
+      <button class="btn-main" type="submit" id="btnSignupSub">အကောင့်ဖွင့်မည်</button>
     </form>
   </div>
 </section>
@@ -524,38 +524,16 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 const ADMIN_PHONE = '992004';
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-
 const TG_BOT_TOKEN = "8946714760:AAFPNV9YOFQ2yt5QVPYKMjUwp4gFzr59sQo";
 const TG_CHAT_ID = "6401060103";
-
-async function sendTG(msg) {
-  try {
-    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
-    });
-  } catch(e) {}
-}
-
-// ယူဇာများ၏ IP Address ကို ယူရန် API အခမဲ့သုံးခြင်း
-async function getClientIP() {
-  try {
-    let res = await fetch('https://api.ipify.org?format=json');
-    let data = await res.json();
-    return data.ip || 'unknown_ip';
-  } catch(e) {
-    return 'unknown_ip';
-  }
-}
-
 const JSONBIN_API_KEY = "$2a$10$a1albbh2l.jCXmiJimtr0efqbbw8enxHmE9LWrO94jkEU43ekZuC";
 const JSONBIN_BIN_ID = "6901842ae41b4d34f43c8d17";
+const LOCAL_KEY = 'burma_lottery_v49';
 
 let DB = {
   users: {}, session: null,
@@ -574,6 +552,31 @@ let DB = {
   }
 };
 
+// ယာယီ Local Data ယူခြင်း
+if(localStorage.getItem(LOCAL_KEY)) {
+    try { DB = JSON.parse(localStorage.getItem(LOCAL_KEY)); } catch(e){}
+}
+
+async function sendTG(msg) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
+    });
+  } catch(e) {}
+}
+
+async function getClientIP() {
+  try {
+    let res = await fetch('https://api.ipify.org?format=json');
+    let data = await res.json();
+    return data.ip || 'unknown_ip';
+  } catch(e) {
+    return 'unknown_ip';
+  }
+}
+
 async function loadCloudDB() {
     try {
         let res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -582,10 +585,17 @@ async function loadCloudDB() {
         if (res.ok) {
             let json = await res.json();
             if (json && json.record && json.record.users) {
+                let currentSession = DB.session; // လက်ရှိဖုန်းမှာ ဝင်ထားတဲ့ Session မပျောက်အောင် သိမ်းထားမည်
                 DB = json.record;
+                if(currentSession && DB.users[currentSession]) DB.session = currentSession;
+
                 if(!DB.users[ADMIN_PHONE]) {
                     DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true };
                 }
+                
+                // Cloud ကရတဲ့ Data ကို Local မှာချက်ချင်း Save ထားပါမည် (Error လုံးဝမဖြစ်စေရန်)
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
+                
                 currentUser = DB.session ? DB.users[DB.session] : null;
                 updateUI(); renderHistory();
             }
@@ -594,6 +604,8 @@ async function loadCloudDB() {
 }
 
 async function saveDB() {
+    // ပထမဆုံး Local မှာအရင် Save မည် (Login မပျောက်စေရန် အဓိကသော့ချက်)
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
     try {
         await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
             method: 'PUT',
@@ -603,17 +615,21 @@ async function saveDB() {
     } catch(e) {}
 }
 
-// Telegram Bot ကနေ အမိန့်ပေး ထိန်းချုပ်မည့် စနစ် (Polling Updates)
+// Telegram Admin Bot ချိတ်ဆက်မှု (Polling)
+let isPolling = false;
 async function pollTelegramUpdates() {
+    if(isPolling) return; // Request တွေ ထပ်မနေအောင် ကာကွယ်ခြင်း
+    isPolling = true;
     try {
         let lastUpdateId = parseInt(localStorage.getItem('tg_last_update_id') || '0');
-        let res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`);
+        let res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
         if(res.ok) {
             let data = await res.json();
             if(data.result && data.result.length > 0) {
                 for(let update of data.result) {
                     localStorage.setItem('tg_last_update_id', update.update_id);
-                    if(update.message && update.message.text) {
+                    // သတ်မှတ်ထားသော Admin Group (သို့) ချတ်မှသာ လက်ခံမည်
+                    if(update.message && update.message.text && update.message.chat.id.toString() === TG_CHAT_ID) {
                         let textMsg = update.message.text.trim();
                         await handleAdminCommand(textMsg);
                     }
@@ -621,6 +637,7 @@ async function pollTelegramUpdates() {
             }
         }
     } catch(e) {}
+    isPolling = false;
 }
 
 async function handleAdminCommand(msg) {
@@ -652,13 +669,13 @@ async function handleAdminCommand(msg) {
             sendTG(`❌ <b>အမှား</b>\nUID ${targetId} မတွေ့ရှိပါ။`);
         }
     } else if(cmd === '/set' && parts.length >= 3) {
-        let gameType = parts[1].toLowerCase(); // 30s, 1m, 3m, 5m
+        let gameType = parts[1].toLowerCase();
         let num = parseInt(parts[2]);
         let gameKey = gameType === '30s' ? 'wingo30s' : gameType === '1m' ? 'wingo1m' : gameType === '3m' ? 'wingo3m' : gameType === '5m' ? 'wingo5m' : null;
         
         if(gameKey && num >= 0 && num <= 9) {
             DB.settings.manualNum[gameKey] = num;
-            DB.settings.autoDraw[gameKey] = false; // Manual Mode သို့ပြောင်းမည်
+            DB.settings.autoDraw[gameKey] = false;
             await saveDB();
             sendTG(`🎯 <b>ဂိမ်းထိန်းချုပ်မှု အောင်မြင်သည်</b>\nGame: ${gameType}\nနောက်ထွက်မည့်ဂဏန်း: <b>${num}</b> သို့ သတ်မှတ်လိုက်ပါပြီ။`);
         } else {
@@ -685,13 +702,14 @@ window.fallbackCopyTextToClipboard = function(text) {
 }
 
 window.onload = async function() {
+    // ဝင်တာနဲ့ Cloud DB အပ်ဒိတ် အရင်ဆုံးလုပ်မည်
     await loadCloudDB();
     const urlParams = new URLSearchParams(window.location.search);
     const invite = urlParams.get('invite');
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
     init();
     setInterval(loadCloudDB, 4000); 
-    setInterval(pollTelegramUpdates, 3000); // Telegram Admin Commands များကို အမြဲစောင့်ကြည့်နေမည်
+    setInterval(pollTelegramUpdates, 3000); 
 }
 
 let audioCtx;
@@ -719,21 +737,31 @@ function generateRandom5DigitId() { let newId; do { newId = Math.floor(10000 + M
 
 window.doSignup = async function() {
   if (!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
+  
+  const btn = document.getElementById('btnSignupSub');
+  if(btn) { btn.disabled = true; btn.innerText = 'ခဏစောင့်ပါ...'; }
+
   await loadCloudDB(); 
   
   const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
   const inviteCode = $('signInviteCode').value.trim();
   
-  // မြန်မာဖုန်းနံပါတ် စစ်ဆေးခြင်း (09 ဖြင့်စရမည်၊ ၉ လုံးမှ ၁၁ လုံးအထိရှိရမည်)
-  if(!phone || !name || !pwd) return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
+  if(!phone || !name || !pwd) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ'); }
+  
+  // မြန်မာဖုန်းနံပါတ် တိကျစွာစစ်ဆေးခြင်း (09 နောက်တွင် ၇ လုံး မှ ၉ လုံး အထိရှိရမည်)
   let myanmarPhoneRegex = /^09\d{7,9}$/;
-  if(!myanmarPhoneRegex.test(phone)) return toast('ကျေးဇူးပြု၍ တရားဝင် မြန်မာဖုန်းနံပါတ် (09xxxxxxxxx) ထည့်ပါ။');
+  if(!myanmarPhoneRegex.test(phone)) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ကျေးဇူးပြု၍ တရားဝင် မြန်မာဖုန်းနံပါတ် (ဥပမာ- 09xxxxxxxxx) ထည့်ပါ။'); }
 
-  if(pwd.length < 6) return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ');
-  if(pwd !== pwd2) return toast('စကားဝှက် နှစ်ခု မတူပါ');
-  if(DB.users[phone]) return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ');
+  if(pwd.length < 6) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ'); }
+  if(pwd !== pwd2) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် နှစ်ခု မတူပါ'); }
+  if(DB.users[phone]) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ'); }
 
   let currentIP = await getClientIP();
+  
+  // IP သာမက Browser Fingerprint ပါသုံးပြီး Anti-Cheat စစ်ဆေးမည်
+  let deviceFP = localStorage.getItem('device_fp');
+  if(!deviceFP) { deviceFP = Date.now().toString(36) + Math.random().toString(36).substr(2); localStorage.setItem('device_fp', deviceFP); }
+
   let startingBalance = 0;
   let inviteMsg = "";
 
@@ -741,23 +769,24 @@ window.doSignup = async function() {
       let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
       if(inviterPhone) { 
           let inviter = DB.users[inviterPhone];
-          // IP Address တူမတူ စစ်ဆေးခြင်း (Anti-Cheat)
-          if(inviter.lastIP && inviter.lastIP === currentIP) {
-              toast('⚠️ IP Address တူညီနေသဖြင့် ဖိတ်ခေါ်ဘိုနပ်စ် မရရှိပါ');
-              inviteMsg = `\n\n⚠ <b>ဖိတ်ခေါ်ကုဒ်သုံးသော်လည်း IP တူနေ၍ ဘိုနပ်စ်မရပါ</b>`;
+          if((inviter.lastIP && inviter.lastIP === currentIP) || (inviter.fp && inviter.fp === deviceFP)) {
+              toast('⚠️ IP/Device တူညီနေသဖြင့် ဖိတ်ခေါ်ဘိုနပ်စ် မရရှိပါ');
+              inviteMsg = `\n\n⚠ <b>ဖိတ်ခေါ်ကုဒ်သုံးသော်လည်း လိမ်လည်မှု (IP/Device တူညီခြင်း) ကြောင့် ဘိုနပ်စ်ဖြတ်တောက်လိုက်ပါသည်</b>`;
           } else {
               inviter.balance += 1999; 
               startingBalance = 1999; 
               inviteMsg = `\n\n✅ <b>ဖိတ်ခေါ်ကုဒ်သုံးထားသည်</b>\nဖိတ်ခေါ်သူ ID: ${inviteCode}`;
           }
       } 
-      else { return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
+      else { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
   }
 
   let newId = generateRandom5DigitId();
-  DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP };
+  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP, fp: deviceFP };
   DB.session = phone; 
   
+  // Local တွင် ချက်ချင်းသိမ်းမည် (Login ပြန်ဝင်ခိုင်းခြင်းမှ ကင်းဝေးစေရန်)
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
   await saveDB(); 
   await sendTG(`🆕 <b>အကောင့်သစ် ဖွင့်ပါသည်</b>\n\nအမည်: ${name}\nဖုန်း: ${phone}\nUID: ${newId}${inviteMsg}`);
   
@@ -769,9 +798,12 @@ window.doLogin = async function() {
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
   if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
-  DB.session = userPhone; await saveDB(); location.reload();
+  DB.session = userPhone; 
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); // ချက်ချင်းသိမ်းမည်
+  await saveDB(); 
+  location.reload();
 };
-window.logout = async function() { DB.session = null; await saveDB(); location.reload(); };
+window.logout = async function() { DB.session = null; localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); await saveDB(); location.reload(); };
 
 function init() {
   if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
@@ -794,7 +826,7 @@ function buildGrid() {
     btn.onclick = () => openBetSheet('num', i); grid.appendChild(btn);
   }
 }
-window.switchGame = async function(k, btn) { activeGame = k; DB.currentGame = k; await saveDB(); document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m')); currentPage = 1; renderHistory(); updateUI(); };
+window.switchGame = async function(k, btn) { activeGame = k; DB.currentGame = k; localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); await saveDB(); document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m')); currentPage = 1; renderHistory(); updateUI(); };
 
 let lastTickTime = 0;
 function tick() {
