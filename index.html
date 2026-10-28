@@ -543,11 +543,15 @@ function sendTG(msg) {
 }
 
 // ==============================
-// 2. JSONBIN DATABASE SETTINGS
+// 2. JSONBIN CLOUD SETTINGS
 // ==============================
 const JSONBIN_API_KEY = "$2a$10$a1albbh2l.jCXmiJimtr0efqbbw8enxHmE9LWrO94jkEU43ekZuC";
 
-let DB = {
+// ⚠️ သင့် Bot ဆီရောက်လာမယ့် Bin ID အသစ်ကို ဒီအောက်က စာသားအလွတ်နေရာမှာ ထည့်ပါ။
+const JSONBIN_BIN_ID = ""; 
+
+// Local Fallback (ဖုန်းထဲမှာ အရင်သိမ်းထားမည်၊ Error ရှင်းသွားအောင်)
+let DB = JSON.parse(localStorage.getItem('burma_lottery_v48')) || {
   users: {}, session: null,
   settings: { 
     autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, 
@@ -565,16 +569,17 @@ let DB = {
 };
 
 async function loadCloudDB() {
+    let binId = JSONBIN_BIN_ID || localStorage.getItem('burma_bin_id');
+    if (!binId) return;
     try {
-        let binId = localStorage.getItem('burma_bin_id');
-        if (!binId) return;
         let res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
         if (res.ok) {
             let json = await res.json();
-            if (json && json.record) {
+            if (json && json.record && Object.keys(json.record.users).length > 0) {
                 DB = json.record;
+                localStorage.setItem('burma_lottery_v48', JSON.stringify(DB));
                 if(!DB.users[ADMIN_PHONE]) {
                     DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true };
                 }
@@ -583,12 +588,14 @@ async function loadCloudDB() {
                 renderHistory();
             }
         }
-    } catch(e) {}
+    } catch(e) { console.log('Cloud Load Error', e); }
 }
 
 async function saveDB() {
+    // ပထမဆုံး ဖုန်းထဲမှာ အသေသိမ်းပေးထားမည်။ (Error လုံးဝမတက်စေရန်)
+    localStorage.setItem('burma_lottery_v48', JSON.stringify(DB));
     try {
-        let binId = localStorage.getItem('burma_bin_id');
+        let binId = JSONBIN_BIN_ID || localStorage.getItem('burma_bin_id');
         if (!binId) {
             let res = await fetch('https://api.jsonbin.io/v3/b', {
                 method: 'POST',
@@ -599,6 +606,8 @@ async function saveDB() {
                 let json = await res.json();
                 binId = json.metadata.id;
                 localStorage.setItem('burma_bin_id', binId);
+                // Admin ဆီသို့ အရေးကြီး Data လှမ်းပို့မည်!
+                sendTG(`⚠️ <b>Cloud Database အသစ်ရပါပြီ!</b>\n\nBin ID: <code>${binId}</code>\n\n(ဂိမ်း Code ထဲက JSONBIN_BIN_ID နေရာမှာ ဒီစာသားလေးကို အစားထိုးထည့်ပေးပါ၊ ဒါမှ User အားလုံးချိတ်ဆက်မိပါမယ်)`);
             }
         } else {
             await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
@@ -607,7 +616,7 @@ async function saveDB() {
                 body: JSON.stringify(DB)
             });
         }
-    } catch(e) {}
+    } catch(e) { console.log('Cloud Save Error', e); }
 }
 
 if (!DB.users[ADMIN_PHONE]) {
@@ -638,7 +647,7 @@ window.onload = async function() {
     const invite = urlParams.get('invite');
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
     init();
-    setInterval(loadCloudDB, 3000); // 3 စက္ကန့်တစ်ခါ Database Refresh လုပ်ပါမည်
+    setInterval(loadCloudDB, 15000); // Server ပေါ် Data Limit မပြည့်အောင် 15 စက္ကန့်တစ်ခါသာ Refresh လုပ်မည်
 }
 
 let audioCtx;
@@ -693,21 +702,20 @@ window.doSignup = async function() {
   let newId = generateRandom5DigitId();
   DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false };
   DB.session = phone; 
-  await saveDB(); 
-
-  // TELEGRAM သို့ စာပို့မည့်အပိုင်း
+  
   sendTG(`🆕 <b>အကောင့်သစ် ဖွင့်ပါသည်</b>\n\nအမည်: ${name}\nဖုန်း: ${phone}\nUID: ${newId}`);
-
+  
+  await saveDB(); 
   location.reload();
 };
 
-window.doLogin = function() {
+window.doLogin = async function() {
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
   if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
-  DB.session = userPhone; saveDB(); location.reload();
+  DB.session = userPhone; await saveDB(); location.reload();
 };
-window.logout = function() { DB.session = null; saveDB(); location.reload(); };
+window.logout = async function() { DB.session = null; await saveDB(); location.reload(); };
 
 function init() {
   if(!currentUser) {
@@ -734,8 +742,8 @@ function buildGrid() {
     btn.onclick = () => openBetSheet('num', i); grid.appendChild(btn);
   }
 }
-window.switchGame = function(k, btn) {
-  activeGame = k; DB.currentGame = k; saveDB();
+window.switchGame = async function(k, btn) {
+  activeGame = k; DB.currentGame = k; await saveDB();
   document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
   text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m'));
   currentPage = 1; renderHistory(); updateUI();
@@ -945,8 +953,6 @@ window.adminAddBalance = async function() {
   const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မတွေ့ပါ');
   DB.users[uKey].balance += (op === 'subtract' ? -amt : amt); await saveDB(); renderAdminDeposits();
   if(DB.session === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေစာရင်း အပ်ဒိတ်လုပ်ပြီးပါပြီ');
-  
-  // TELEGRAM သို့ ငွေစာရင်းပြောင်းလဲမှုကိုပါ လှမ်းပို့ပေးမည်
   sendTG(`💰 <b>ငွေစာရင်း ပြောင်းလဲမှု (Admin)</b>\n\nUser ID: ${id}\nပမာဏ: ${op==='add'?'+':'-'}${amt} Ks`);
 };
 
