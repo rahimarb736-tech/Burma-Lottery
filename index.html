@@ -524,7 +524,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 const ADMIN_PHONE = '992004';
@@ -543,6 +543,7 @@ async function sendTG(msg) {
   } catch(e) {}
 }
 
+// ယူဇာများ၏ IP Address ကို ယူရန် API အခမဲ့သုံးခြင်း
 async function getClientIP() {
   try {
     let res = await fetch('https://api.ipify.org?format=json');
@@ -602,7 +603,7 @@ async function saveDB() {
     } catch(e) {}
 }
 
-// Telegram Bot Admin Commands (Polling)
+// Telegram Bot ကနေ အမိန့်ပေး ထိန်းချုပ်မည့် စနစ် (Polling Updates)
 async function pollTelegramUpdates() {
     try {
         let lastUpdateId = parseInt(localStorage.getItem('tg_last_update_id') || '0');
@@ -651,13 +652,13 @@ async function handleAdminCommand(msg) {
             sendTG(`❌ <b>အမှား</b>\nUID ${targetId} မတွေ့ရှိပါ။`);
         }
     } else if(cmd === '/set' && parts.length >= 3) {
-        let gameType = parts[1].toLowerCase();
+        let gameType = parts[1].toLowerCase(); // 30s, 1m, 3m, 5m
         let num = parseInt(parts[2]);
         let gameKey = gameType === '30s' ? 'wingo30s' : gameType === '1m' ? 'wingo1m' : gameType === '3m' ? 'wingo3m' : gameType === '5m' ? 'wingo5m' : null;
         
         if(gameKey && num >= 0 && num <= 9) {
             DB.settings.manualNum[gameKey] = num;
-            DB.settings.autoDraw[gameKey] = false;
+            DB.settings.autoDraw[gameKey] = false; // Manual Mode သို့ပြောင်းမည်
             await saveDB();
             sendTG(`🎯 <b>ဂိမ်းထိန်းချုပ်မှု အောင်မြင်သည်</b>\nGame: ${gameType}\nနောက်ထွက်မည့်ဂဏန်း: <b>${num}</b> သို့ သတ်မှတ်လိုက်ပါပြီ။`);
         } else {
@@ -690,7 +691,7 @@ window.onload = async function() {
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
     init();
     setInterval(loadCloudDB, 4000); 
-    setInterval(pollTelegramUpdates, 3000); 
+    setInterval(pollTelegramUpdates, 3000); // Telegram Admin Commands များကို အမြဲစောင့်ကြည့်နေမည်
 }
 
 let audioCtx;
@@ -723,6 +724,7 @@ window.doSignup = async function() {
   const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
   const inviteCode = $('signInviteCode').value.trim();
   
+  // မြန်မာဖုန်းနံပါတ် စစ်ဆေးခြင်း (09 ဖြင့်စရမည်၊ ၉ လုံးမှ ၁၁ လုံးအထိရှိရမည်)
   if(!phone || !name || !pwd) return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
   let myanmarPhoneRegex = /^09\d{7,9}$/;
   if(!myanmarPhoneRegex.test(phone)) return toast('ကျေးဇူးပြု၍ တရားဝင် မြန်မာဖုန်းနံပါတ် (09xxxxxxxxx) ထည့်ပါ။');
@@ -739,7 +741,9 @@ window.doSignup = async function() {
       let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
       if(inviterPhone) { 
           let inviter = DB.users[inviterPhone];
+          // IP Address တူမတူ စစ်ဆေးခြင်း (Anti-Cheat)
           if(inviter.lastIP && inviter.lastIP === currentIP) {
+              toast('⚠️ IP Address တူညီနေသဖြင့် ဖိတ်ခေါ်ဘိုနပ်စ် မရရှိပါ');
               inviteMsg = `\n\n⚠ <b>ဖိတ်ခေါ်ကုဒ်သုံးသော်လည်း IP တူနေ၍ ဘိုနပ်စ်မရပါ</b>`;
           } else {
               inviter.balance += 1999; 
@@ -751,8 +755,7 @@ window.doSignup = async function() {
   }
 
   let newId = generateRandom5DigitId();
-  // Corrected property assignments to prevent login issues
-  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP };
+  DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP };
   DB.session = phone; 
   
   await saveDB(); 
