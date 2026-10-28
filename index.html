@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#e71d28">
-<title>Burma Lottery  WinGo</title>
+<title>Burma Lottery · WinGo</title>
 <style>
 :root { --red: #f34649; --deep-red: #dc2028; --green: #36b67b; --orange: #ffad36; --blue: #4080ff; --purple: #a55ce6; --bg: #f6f6fa; --card: #fff; --text: #31323c; --text-light: #8b8d99; --border: #ebebf0; --shadow: 0 4px 16px #22243b08; --gradient: linear-gradient(110deg, #e71d28, #ff5558); }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Noto Sans Myanmar', 'Myanmar Text', 'Pyidaungsu', system-ui, sans-serif; background: #e9ebf1; color: var(--text); line-height: 1.65; min-height: 100vh; }
+body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #e9ebf1; color: var(--text); line-height: 1.5; min-height: 100vh; }
 button, input, select { font: inherit; outline: none; } button { cursor: pointer; border: 0; }
 button:focus-visible, a:focus-visible { outline: 3px solid #2976db; outline-offset: 3px; }
 button:disabled { cursor: not-allowed; opacity: .45; }
@@ -275,31 +275,34 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 </defs></svg>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<div id="serverOffBanner" class="hidden"> Server ကို ေခတၱပိတ္ထားပါသည္။ အေကာင့္အသစ္ဖြင့္ျခင္း ႏွင့္ ေလာင္းေၾကးထိုးျခင္းမ်ား ရပ္နားထားပါသည္။</div>
+<div id="serverOffBanner" class="hidden">⚠ Server ကို ခေတ္တပိတ်ထားပါသည်။ အကောင့်အသစ်ဖွင့်ခြင်း နှင့် လောင်းကြေးထိုးခြင်းများ ရပ်နားထားပါသည်။</div>
 
-<section id="authScreen" aria-label="အေကာင့္ဝင္ရန္">
+<section id="authScreen" aria-label="အကောင့်ဝင်ရန်">
   <div class="auth-hero">
     <div class="brand"><span class="brand-mark">B</span><div><div class="logo-area"><span>Burma</span>Lottery</div><small>BURMA LOTTERY</small></div></div>
     <div class="auth-kicker">WELCOME TO BURMA LOTTERY</div>
-    <h1>မဂၤလာပါ</h1><p>WinGo မ်က္ႏွာျပင္ကို စမ္းၾကည့္ပါ။<br>လုံၿခဳံစိတ္ခ်စြာ ကစားနိုင္ပါၿပီ။</p>
+    <h1>မင်္ဂလာပါ</h1><p>WinGo ဂိမ်းကမ္ဘာသို့ စတင်လှမ်းဝင်လိုက်ပါ။<br>လုံခြုံစိတ်ချစွာ ကစားနိုင်ပါပြီ။</p>
   </div>
   <div class="auth-panel">
-    <div class="auth-tabs" role="tablist" aria-label="အေကာင့္">
-      <button id="tabLogin" class="active" role="tab" aria-selected="true" onclick="switchAuth('login')">အေကာင့္ဝင္ရန္</button>
-      <button id="tabSignup" role="tab" aria-selected="false" onclick="switchAuth('signup')">အေကာင့္ဖြင့္ရန္</button>
+    <div class="auth-tabs" role="tablist" aria-label="အကောင့်">
+      <button id="tabLogin" class="active" role="tab" aria-selected="true" onclick="switchAuth('login')">အကောင့်ဝင်ရန်</button>
+      <button id="tabSignup" role="tab" aria-selected="false" onclick="switchAuth('signup')">အကောင့်ဖွင့်ရန်</button>
     </div>
     <form id="formLogin" class="auth-form" onsubmit="event.preventDefault();doLogin()">
-      <div class="input-wrap"><label for="loginPhone">ဖုန္းနံပါတ္ (သို႔) ID</label><input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required></div>
-      <div class="input-wrap"><label for="loginPwd">စကားဝွက္</label><input type="password" id="loginPwd" placeholder="စကားဝွက္ ထည့္ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)"></button></div>
-      <button class="btn-main" type="submit">အေကာင့္ဝင္မည္</button>
+      <div class="input-wrap"><label for="loginPhone">ဖုန်းနံပါတ် (သို့) ID</label><input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required></div>
+      <div class="input-wrap"><label for="loginPwd">စကားဝှက်</label><input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">◉</button></div>
+      <button class="btn-main" type="submit">အကောင့်ဝင်မည်</button>
     </form>
     <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
-      <div class="input-wrap"><label for="signPhone">ဖုန္းနံပါတ္</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
-      <div class="input-wrap"><label for="signName">အမည္</label><input type="text" id="signName" placeholder="သင့္အမည္" required></div>
-      <div class="input-wrap"><label for="signPwd">စကားဝွက္</label><input type="password" id="signPwd" placeholder="အနည္းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)"></button></div>
-      <div class="input-wrap"><label for="signPwd2">စကားဝွက္ အတည္ျပဳရန္</label><input type="password" id="signPwd2" placeholder="စကားဝွက္ ျပန္ထည့္ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)"></button></div>
-      <div class="input-wrap"><label for="signInviteCode">ဖိတ္ေခၚကုဒ္ (မထည့္လည္းရသည္)</label><input type="text" id="signInviteCode" placeholder="ဖိတ္ေခၚသူ၏ ၅ လုံးျပည့္ ID ထည့္ပါ"></div>
-      <button class="btn-main" type="submit">အေကာင့္ဖြင့္မည္</button>
+      <div class="input-wrap"><label for="signPhone">ဖုန်းနံပါတ်</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
+      <div class="input-wrap"><label for="signName">အမည်</label><input type="text" id="signName" placeholder="သင့်အမည်" required></div>
+      <div class="input-wrap"><label for="signPwd">စကားဝှက်</label><input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">◉</button></div>
+      <div class="input-wrap"><label for="signPwd2">စကားဝှက် အတည်ပြုရန်</label><input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">◉</button></div>
+      <div class="input-wrap" style="background:#f4f5f8; padding:10px; border-radius:8px; border:1px dashed #4080ff;">
+        <label for="signInviteCode" style="color:var(--blue); font-weight:bold;">👥 ဖိတ်ခေါ်ကုဒ် (Invite Code) - မထည့်လည်းရသည်</label>
+        <input type="text" id="signInviteCode" placeholder="သူငယ်ချင်း၏ ၅ လုံးပြည့် ID ထည့်ပါ" style="background:#fff; border-color:#dbe4ff;">
+      </div>
+      <button class="btn-main" type="submit">အကောင့်ဖွင့်မည်</button>
     </form>
   </div>
 </section>
@@ -313,12 +316,12 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   
   <section class="wallet-area">
     <div class="user-bar">
-      <div class="wallet-top"><span class="id-chip">UID <span id="userId"></span></span><span>လက္က်န္ေငြ</span><button onclick="logout()">ထြက္ရန္ </button></div>
+      <div class="wallet-top"><span class="id-chip">UID <span id="userId">—</span></span><span>လက်ကျန်ငွေ</span><button onclick="logout()">ထွက်ရန် ↗</button></div>
       <div class="balance"><span class="currency">Ks</span><span id="balance">0</span></div>
-      <div class="wallet-label"><svg class="icon"><use href="#i-wallet"/></svg>လက္က်န္ေငြ</div>
+      <div class="wallet-label"><svg class="icon"><use href="#i-wallet"/></svg>လက်ကျန်ငွေ</div>
       <div class="wallet-actions">
-        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ေငြထုတ္မည္</button>
-        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ေငြျဖည့္မည္</button>
+        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေထုတ်မည်</button>
+        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေဖြည့်မည်</button>
       </div>
     </div>
   </section>
@@ -332,32 +335,32 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
     <section class="timer-area">
       <div class="timer-left">
-        <button class="rules-link" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg>ကစားနည္း</button>
+        <button class="rules-link" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg>ကစားနည်း</button>
         <div class="timer-title" id="gameLabel">Win Go 30 second</div>
         <div class="recent-balls" id="recentBalls"></div>
-        <div class="latest-meta"><span class="latest-title">ေနာက္ဆုံးရလဒ္</span>  <span class="latest-num" id="latestNum"></span></div>
+        <div class="latest-meta"><span class="latest-title">နောက်ဆုံးရလဒ်</span> · <span class="latest-num" id="latestNum">—</span></div>
       </div>
       <div class="timer-right">
-        <div class="countdown-caption">ပြဲပိတ္ရန္ က်န္ခ်ိန္</div>
+        <div class="countdown-caption">ပွဲပိတ်ရန် ကျန်ချိန်</div>
         <div class="timer-val mono" id="timerVal">00:30</div>
-        <div class="period-val" id="periodVal"></div>
+        <div class="period-val" id="periodVal">—</div>
       </div>
     </section>
     <section class="play-card">
-      <div class="bet-options-row color-row"><button class="bet-opt-btn color-green" onclick="openBetSheet('green')">အစိမ္း</button><button class="bet-opt-btn color-purple" onclick="openBetSheet('purple')">ခရမ္း</button><button class="bet-opt-btn color-red" onclick="openBetSheet('red')">အနီ</button></div>
+      <div class="bet-options-row color-row"><button class="bet-opt-btn color-green" onclick="openBetSheet('green')">အစိမ်း</button><button class="bet-opt-btn color-purple" onclick="openBetSheet('purple')">ခရမ်း</button><button class="bet-opt-btn color-red" onclick="openBetSheet('red')">အနီ</button></div>
       <div class="num-grid" id="numGrid"></div>
-      <div class="quick-row"><button onclick="openBetSheet('num',Math.floor(Math.random()*10))">က်ပန္းေ႐ြး</button></div>
-      <div class="bet-options-row size-row"><button class="bet-opt-btn big" onclick="openBetSheet('big')">အႀကီး <span>59</span></button><button class="bet-opt-btn small" onclick="openBetSheet('small')">အေသး <span>04</span></button></div>
-      <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပြဲပိတ္ထားပါၿပီ  ေနာက္ပြဲကို ေစာင့္ပါ</p></div>
+      <div class="quick-row"><button onclick="openBetSheet('num',Math.floor(Math.random()*10))">ကျပန်းရွေး</button></div>
+      <div class="bet-options-row size-row"><button class="bet-opt-btn big" onclick="openBetSheet('big')">အကြီး <span>5–9</span></button><button class="bet-opt-btn small" onclick="openBetSheet('small')">အသေး <span>0–4</span></button></div>
+      <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပွဲပိတ်ထားပါပြီ · နောက်ပွဲကို စောင့်ပါ</p></div>
     </section>
     <section class="history-section">
       <div class="history-tabs" id="historyTabs">
-        <button class="active" onclick="setHistoryTab('game', this)">ဂိမ္းမွတ္တမ္း</button>
+        <button class="active" onclick="setHistoryTab('game', this)">ဂိမ်းမှတ်တမ်း</button>
         <button onclick="setHistoryTab('mine', this)">ကျွန်ုပ်၏မှတ်တမ်း</button>
       </div>
       <div class="table-container" id="gameHistoryTable">
-        <table><thead><tr><th>ပြဲအမွတ္စဥ္</th><th>နံပါတ္</th><th>ႀကီး / ေသး</th><th>အေရာင္</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        <div class="pagination"><button onclick="changePage(-1)"></button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)"></button></div>
+        <table><thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး / သေး</th><th>အရောင်</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
       </div>
       <div id="myBetsList" class="hidden"></div>
     </section>
@@ -365,11 +368,11 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   
   <div id="view-deposit" class="page-view hidden">
     <div class="deposit-card" style="text-align: center; padding: 30px 20px;">
-      <h3 style="color:var(--green); margin-bottom:15px;">ေငြသြင္း / ေငြထုတ္ရန္</h3>
-      <p style="font-size: 13px; color: var(--text-light); margin-bottom: 25px;">ေငြသြင္းျခင္း ႏွင့္ ေငြထုတ္ျခင္းမ်ားကို ဆက္သြယ္ေဆာင္႐ြက္နိုင္ပါသည္။</p>
+      <h3 style="color:var(--green); margin-bottom:15px;">ငွေသွင်း / ငွေထုတ်ရန်</h3>
+      <p style="font-size: 13px; color: var(--text-light); margin-bottom: 25px;">ငွေသွင်းခြင်း နှင့် ငွေထုတ်ခြင်းများကို ဆက်သွယ်ဆောင်ရွက်နိုင်ပါသည်။</p>
       <div id="cs-links-container"></div>
       <div class="copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="margin-top: 30px; text-align:left; background:#f9f9fc; padding:15px; border-radius:12px; border: 1px dashed var(--border);">
-        <span style="font-size:12px; color:var(--text-light);">သင့္အေကာင့္ User ID:</span>
+        <span style="font-size:12px; color:var(--text-light);">သင့်အကောင့် User ID:</span>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
            <b id="dep-id" style="font-size:18px; color:var(--red);">-</b>
            <span class="copy-btn">Copy ID</span>
@@ -381,39 +384,29 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   <div id="view-profile" class="page-view hidden">
     <div class="profile-card">
       <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ကျွန်ုပ်၏ Profile</h3>
-      <div class="profile-row"><span style="color:var(--text-light);">အမည္</span><span id="prof-name" style="font-weight:bold;">-</span></div>
+      <div class="profile-row"><span style="color:var(--text-light);">အမည်</span><span id="prof-name" style="font-weight:bold;">-</span></div>
       <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f4f5f8; padding:10px; border-radius:8px; align-items:center;">
           <span style="color:var(--text-light);">User ID</span>
           <div><span id="prof-id" style="font-weight:bold; font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
       </div>
-      <div class="profile-row"><span style="color:var(--text-light);">ဖုန္းနံပါတ္</span><span id="prof-phone" style="font-weight:bold;">-</span></div>
-      <div class="profile-row"><span style="color:var(--text-light);">လက္က်န္ပြိုင့္</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 က်ပ္</span></div>
+      <div class="profile-row"><span style="color:var(--text-light);">ဖုန်းနံပါတ်</span><span id="prof-phone" style="font-weight:bold;">-</span></div>
+      <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ပွိုင့်</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 ကျပ်</span></div>
     </div>
 
     <div class="profile-card">
-      <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;"> သူငယ္ခ်င္းမ်ားကို ဖိတ္ေခၚရန္</h3>
-      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ္ေခၚကုဒ္သုံးၿပီး သူငယ္ခ်င္းမ်ား အေကာင့္ဖြင့္ပါက သင္ေရာ သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရွိပါမည္။</p>
+      <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
+      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
       <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
-          <span style="color:var(--text-light);">ဖိတ္ေခၚကုဒ္</span>
+          <span style="color:var(--text-light);">ဖိတ်ခေါ်ကုဒ်</span>
           <div><span id="prof-invite-code" style="font-weight:bold; color:var(--blue); font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
-      </div>
-      
-      <!-- Link ထုတ္ေပးမည့္ေနရာ အသစ္ -->
-      <div class="profile-row copyable-row" id="linkCopyBox" style="background:#f4f5f8; padding:10px; border-radius:8px; align-items:center; margin-top:10px;">
-          <span style="color:var(--text-light);">ဖိတ္ေခၚရန္ Link</span>
-          <div>
-             <span id="prof-invite-link" style="font-size:10px; display:inline-block; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle;">-</span>
-             <span class="copy-btn">Copy Link</span>
-          </div>
-          <span id="prof-invite-link-full" class="hidden"></span>
       </div>
     </div>
   </div>
 
   <div id="view-admin-control" class="page-view hidden">
-    <div class="admin-nav"><button class="active" onclick="switchAdminTab('control', this)">ဂိမ္းထိန္းခ်ဳပ္</button><button onclick="switchAdminTab('deposits', this)">ေငြစာရင္း</button><button onclick="switchAdminTab('links', this)">ဆက္သြယ္ရန္</button></div>
+    <div class="admin-nav"><button class="active" onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
     <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဂိမ္းအလိုက္ ထိန္းခ်ဳပ္ရန္</h3>
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဂိမ်းအလိုက် ထိန်းချုပ်ရန်</h3>
       <div class="admin-sub-tabs" id="adminGameTabs">
         <button class="active" onclick="setAdminGame('wingo30s', this)">30s</button>
         <button onclick="setAdminGame('wingo1m', this)">1 Min</button>
@@ -422,58 +415,58 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       </div>
 
       <div class="admin-profit-card" id="adminProfitSummary">
-        <div class="admin-profit-title"> အျမတ္အစြန္း စာရင္းဇယား (<span id="profitGameName">30s</span>)</div>
-        <div class="admin-profit-row"><span>တစ္ပြဲစာ စုစုေပါင္းအျမတ္:</span><b id="periodProfitVal">0 Ks</b></div>
-        <div class="admin-profit-row"><span>တစ္ပြဲစာ ေကာ္မရွင္ (2%):</span><b id="periodCommVal">0 Ks</b></div>
-        <div class="admin-profit-row" style="margin-top:6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px;"><span>တစ္ေနကုန္စာ စုစုေပါင္းအျမတ္:</span><b id="todayProfitVal">0 Ks</b></div>
-        <div class="admin-profit-row"><span>တစ္ေနကုန္စာ ေကာ္မရွင္ (2%):</span><b id="todayCommVal">0 Ks</b></div>
+        <div class="admin-profit-title">💰 အမြတ်အစွန်း စာရင်းဇယား (<span id="profitGameName">30s</span>)</div>
+        <div class="admin-profit-row"><span>တစ်ပွဲစာ စုစုပေါင်းအမြတ်:</span><b id="periodProfitVal">0 Ks</b></div>
+        <div class="admin-profit-row"><span>တစ်ပွဲစာ ကော်မရှင် (2%):</span><b id="periodCommVal">0 Ks</b></div>
+        <div class="admin-profit-row" style="margin-top:6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px;"><span>တစ်နေကုန်စာ စုစုပေါင်းအမြတ်:</span><b id="todayProfitVal">0 Ks</b></div>
+        <div class="admin-profit-row"><span>တစ်နေကုန်စာ ကော်မရှင် (2%):</span><b id="todayCommVal">0 Ks</b></div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9fc; padding:15px; border-radius:12px; border:1px solid var(--border); margin-bottom: 15px;">
-         <div><strong style="font-size:14px; color:var(--text);">Server အေျခအေန</strong></div>
+         <div><strong style="font-size:14px; color:var(--text);">Server အခြေအနေ</strong></div>
          <label class="toggle-switch"><input type="checkbox" id="server-active-chk" onchange="toggleServerStatus()"><span class="slider"></span></label>
       </div>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:#fff5f5; padding:10px; border-radius:8px;">
-        <input type="checkbox" id="chk-auto-draw" style="width:20px; height:20px;" onchange="toggleAutoDraw()"><label for="chk-auto-draw" style="font-size:13px; font-weight:bold; color:var(--red)">Auto Draw</label>
+        <input type="checkbox" id="chk-auto-draw" style="width:20px; height:20px;" onchange="toggleAutoDraw()"><label for="chk-auto-draw" style="font-size:13px; font-weight:bold; color:var(--red)">Auto Draw (ဂဏန်းအလိုအလျောက်ရွေးမည်)</label>
       </div>
       <div id="manual-draw-section">
-        <p style="font-size:12px; margin-bottom:10px; color:var(--text-light)">ဂဏန္းေ႐ြးခ်ယ္ပါ</p>
+        <p style="font-size:12px; margin-bottom:10px; color:var(--text-light)">Admin မှ ထွက်စေချင်သော ဂဏန်းကို ရွေးချယ်ပါ</p>
         <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px;" id="admin-num-grid"></div>
       </div>
     </div>
     <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;"> <span id="adminRankTitle">30s</span> အတြက္ ထိုးထားမႈစာရင္း</h3>
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">📊 <span id="adminRankTitle">30s</span> အတွက် ထိုးထားမှုစာရင်း</h3>
       <div id="admin-ranking-summary"></div>
     </div>
   </div>
 
   <div id="view-admin-deposits" class="page-view hidden">
-    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ္းထိန္းခ်ဳပ္</button><button class="active" onclick="switchAdminTab('deposits', this)">ေငြစာရင္း</button><button onclick="switchAdminTab('links', this)">ဆက္သြယ္ရန္</button></div>
+    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button class="active" onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
     <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အေကာင့္သို႔ ေငြျဖည့္/ေလွ်ာ့ရန္</h3>
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အကောင့်သို့ ငွေဖြည့်/လျှော့ရန်</h3>
       <input type="text" id="admin-search-id" placeholder="User ID">
-      <select id="admin-operation" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="add">ေငြတိုးမည္ (+)</option><option value="subtract">ေငြေလွ်ာ့မည္ ()</option></select>
+      <select id="admin-operation" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="add">ငွေတိုးမည် (+)</option><option value="subtract">ငွေလျှော့မည် (−)</option></select>
       <input type="number" id="admin-amount" placeholder="ပမာဏ (Ks)">
-      <button onclick="adminAddBalance()" style="background:var(--green)">အတည္ျပဳမည္</button>
+      <button onclick="adminAddBalance()" style="background:var(--green)">အတည်ပြုမည်</button>
     </div>
     <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အားလုံး</h3><div id="adminUserList"></div></div>
   </div>
 
   <div id="view-admin-links" class="page-view hidden">
-    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ္းထိန္းခ်ဳပ္</button><button onclick="switchAdminTab('deposits', this)">ေငြစာရင္း</button><button class="active" onclick="switchAdminTab('links', this)">ဆက္သြယ္ရန္</button></div>
+    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button class="active" onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
     <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဆက္သြယ္ရန္ Link</h3>
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဆက်သွယ်ရန် Link</h3>
       <select id="admin-link-type" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="telegram">Telegram</option><option value="viber">Viber</option><option value="custom">Custom</option></select>
       <input type="text" id="admin-link-label" placeholder="စာသား">
       <input type="url" id="admin-link-url" placeholder="https://t.me/yourusername">
-      <button onclick="adminAddLink()" style="background:var(--blue)">ေပါင္းထည့္မည္</button>
+      <button onclick="adminAddLink()" style="background:var(--blue)">ပေါင်းထည့်မည်</button>
     </div>
-    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">လက္ရွိ Link မ်ား</h3><div id="admin-link-list"></div></div>
+    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">လက်ရှိ Link များ</h3><div id="admin-link-list"></div></div>
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-game" onclick="switchTab('game',this)"><span class="nav-game-icon"><svg class="icon"><use href="#i-home"/></svg></span>ကစားရန္</button>
-    <button class="nav-item" id="nav-deposit" onclick="switchTab('deposit',this)"><svg class="icon"><use href="#i-wallet"/></svg>ပိုက္ဆံအိတ္</button>
+    <button class="nav-item active" id="nav-game" onclick="switchTab('game',this)"><span class="nav-game-icon"><svg class="icon"><use href="#i-home"/></svg></span>ကစားရန်</button>
+    <button class="nav-item" id="nav-deposit" onclick="switchTab('deposit',this)"><svg class="icon"><use href="#i-wallet"/></svg>ပိုက်ဆံအိတ်</button>
     <button class="nav-item" id="nav-profile" onclick="switchTab('profile',this)"><svg class="icon"><use href="#i-user"/></svg>ကျွန်ုပ်</button>
     <button class="nav-item hidden" id="nav-admin" onclick="switchTab('admin-control',this)"><svg class="icon"><use href="#i-settings"/></svg>Admin</button>
   </nav>
@@ -483,10 +476,10 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   <div class="bet-sheet">
     <div class="bet-header-blue" id="betSheetHeaderColor">
       <span id="betSheetTitle">Win Go 30s</span>
-      <button class="bet-sheet-close" onclick="closeBetSheet()"></button>
+      <button class="bet-sheet-close" onclick="closeBetSheet()">×</button>
     </div>
     <div class="bet-sheet-body">
-      <div class="bet-row"><span class="bet-label">လက္က်န္ေငြ</span><span class="bet-bal"><span id="sheetBalance">0</span> Ks</span></div>
+      <div class="bet-row"><span class="bet-label">လက်ကျန်ငွေ</span><span class="bet-bal"><span id="sheetBalance">0</span> Ks</span></div>
       <div class="bet-label" style="margin-bottom:8px;">ပမာဏ (Amount)</div>
       <div class="bet-amount-opts" id="sheetAmountOpts">
         <button class="active" onclick="setSheetBaseAmt(10, this)">10</button>
@@ -494,18 +487,18 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
         <button onclick="setSheetBaseAmt(1000, this)">1k</button>
         <button onclick="setSheetBaseAmt(10000, this)">10k</button>
       </div>
-      <div class="bet-label" style="margin-bottom:8px;">အႀကိမ္ (Quantity)</div>
+      <div class="bet-label" style="margin-bottom:8px;">အကြိမ် (Quantity)</div>
       <div class="bet-qty-row">
         <div class="qty-control">
-          <button onclick="changeSheetQty(-1)"></button>
+          <button onclick="changeSheetQty(-1)">−</button>
           <input type="number" id="sheetQtyInput" value="1" min="1" step="1" inputmode="numeric" oninput="updateTotalBet()">
           <button onclick="changeSheetQty(1)">+</button>
         </div>
       </div>
-      <div class="bet-total">စုစုေပါင္း: <span class="bet-total-amt"><span id="totalBetDisplay">10</span> Ks</span></div>
+      <div class="bet-total">စုစုပေါင်း: <span class="bet-total-amt"><span id="totalBetDisplay">10</span> Ks</span></div>
       <div class="bet-actions">
-        <button class="btn-cancel" onclick="closeBetSheet()">မလုပ္ေတာ့ပါ</button>
-        <button class="btn-confirm" onclick="confirmBet()">အတည္ျပဳမည္</button>
+        <button class="btn-cancel" onclick="closeBetSheet()">မလုပ်တော့ပါ</button>
+        <button class="btn-confirm" onclick="confirmBet()">အတည်ပြုမည်</button>
       </div>
     </div>
   </div>
@@ -514,24 +507,24 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 <div id="resultPopupOverlay" class="result-popup-overlay">
   <div id="ckPopupCard" class="ck-popup-card win">
     <div class="ck-popup-badge" id="ckPopupBadge"></div>
-    <div class="ck-popup-title" id="ckPopupTitle">ဂုဏ္ယူပါတယ္</div>
+    <div class="ck-popup-title" id="ckPopupTitle">ဂုဏ်ယူပါတယ်</div>
     <div class="ck-popup-detail-row">
-      <span class="ck-tag-sm" id="resTagType">အႀကီး</span>
+      <span class="ck-tag-sm" id="resTagType">အကြီး</span>
       <span class="ck-tag-sm num-tag" id="resTagNum">5</span>
-      <span class="ck-tag-sm" id="resTagSize">အႀကီး</span>
+      <span class="ck-tag-sm" id="resTagSize">အကြီး</span>
     </div>
     <div class="ck-ticket">
       <div class="ck-ticket-content">
-        <div class="ck-ticket-label" id="ckTicketLabel">ေဘာနပ္စ္</div>
+        <div class="ck-ticket-label" id="ckTicketLabel">ဘောနပ်စ်</div>
         <div class="ck-ticket-amount" id="ckTicketAmt">+K 1,960.00</div>
-        <div class="ck-ticket-period" id="ckTicketPeriod">ပြဲအမွတ္စဥ္ -</div>
+        <div class="ck-ticket-period" id="ckTicketPeriod">ပွဲအမှတ်စဉ် -</div>
       </div>
     </div>
-    <div class="ck-close-btn" onclick="closeResultPopup()"></div>
+    <div class="ck-close-btn" onclick="closeResultPopup()">✕</div>
   </div>
 </div>
 
-<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည္း</h2><button onclick="closeInfo()"></button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည္ပါၿပီ</button></div></div>
+<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 const ADMIN_PHONE = '992004';
@@ -540,27 +533,26 @@ const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 3
 const TG_BOT_TOKEN = "8946714760:AAFPNV9YOFQ2yt5QVPYKMjUwp4gFzr59sQo";
 const TG_CHAT_ID = "6401060103";
 
-function sendTG(msg) {
-  const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
-  fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
-  }).catch(err => console.error(err));
+async function sendTG(msg) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
+    });
+  } catch(e) {}
 }
 
 const JSONBIN_API_KEY = "$2a$10$a1albbh2l.jCXmiJimtr0efqbbw8enxHmE9LWrO94jkEU43ekZuC";
+const JSONBIN_BIN_ID = "6901842ae41b4d34f43c8d17";
 
-//  သင့္ Bin ID အသစ္ ရလာရင္ ဒီမွာ အၿမဲ ထည့္ေပးပါ။
-const JSONBIN_BIN_ID = ""; 
-
-let DB = JSON.parse(localStorage.getItem('burma_lottery_v48')) || {
+let DB = {
   users: {}, session: null,
   settings: { 
     autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, 
     manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, 
     serverActive: true, 
-    links: [{ type: 'telegram', label: 'Telegram သို႔ ဆက္သြယ္ရန္', url: 'https://t.me/yourusername' }]
+    links: [{ type: 'telegram', label: 'Telegram သို့ ဆက်သွယ်ရန်', url: 'https://t.me/yourusername' }]
   },
   currentGame: 'wingo30s',
   games: {
@@ -572,55 +564,36 @@ let DB = JSON.parse(localStorage.getItem('burma_lottery_v48')) || {
 };
 
 async function loadCloudDB() {
-    let binId = JSONBIN_BIN_ID || localStorage.getItem('burma_bin_id');
-    if (!binId) return;
     try {
-        let res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        let res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
         if (res.ok) {
             let json = await res.json();
-            if (json && json.record && Object.keys(json.record.users).length > 0) {
+            if (json && json.record && json.record.users) {
                 DB = json.record;
-                localStorage.setItem('burma_lottery_v48', JSON.stringify(DB));
                 if(!DB.users[ADMIN_PHONE]) {
                     DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true };
                 }
                 currentUser = DB.session ? DB.users[DB.session] : null;
-                updateUI();
-                renderHistory();
+                updateUI(); renderHistory();
             }
         }
     } catch(e) {}
 }
 
 async function saveDB() {
-    localStorage.setItem('burma_lottery_v48', JSON.stringify(DB));
     try {
-        let binId = JSONBIN_BIN_ID || localStorage.getItem('burma_bin_id');
-        if (!binId) {
-            let res = await fetch('https://api.jsonbin.io/v3/b', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY, 'X-Bin-Name': 'BurmaLotteryDB' },
-                body: JSON.stringify(DB)
-            });
-            if (res.ok) {
-                let json = await res.json();
-                binId = json.metadata.id;
-                localStorage.setItem('burma_bin_id', binId);
-                sendTG(` <b>Cloud Database အသစ္ရပါၿပီ!</b>\n\nBin ID: <code>${binId}</code>\n\n(ဂိမ္း Code ထဲက JSONBIN_BIN_ID ေနရာမွာ ဒီစာသားေလးကို အစားထိုးထည့္ေပးပါ)`);
-            }
-        } else {
-            await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                body: JSON.stringify(DB)
-            });
-        }
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+            body: JSON.stringify(DB)
+        });
     } catch(e) {}
 }
 
 if (!DB.users[ADMIN_PHONE]) { DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true }; }
+
 let currentUser = DB.session ? DB.users[DB.session] : null;
 let activeGame = DB.currentGame || 'wingo30s';
 let adminActiveGame = 'wingo30s'; 
@@ -632,11 +605,8 @@ const text = (id, val) => { if($(id)) $(id).innerText = val; };
 function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
 
 window.fallbackCopyTextToClipboard = function(text) {
-  var textArea = document.createElement("textarea");
-  textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea);
-  textArea.focus(); textArea.select();
-  try { document.execCommand('copy'); toast('Copied!'); } catch (err) {}
-  document.body.removeChild(textArea);
+  var textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea);
+  textArea.focus(); textArea.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(textArea);
 }
 
 window.onload = async function() {
@@ -645,7 +615,7 @@ window.onload = async function() {
     const invite = urlParams.get('invite');
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
     init();
-    setInterval(loadCloudDB, 15000); 
+    setInterval(loadCloudDB, 4000); 
 }
 
 let audioCtx;
@@ -657,10 +627,8 @@ function playBeep() {
   try {
     if(audioCtx && audioCtx.state === 'running') {
       let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(1.0, audioCtx.currentTime); 
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = 880;
+      gain.gain.setValueAtTime(1.0, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
       osc.start(); osc.stop(audioCtx.currentTime + 0.2);
     }
   } catch(e) {}
@@ -670,63 +638,60 @@ function getPeriodBlock(gameKey, timeNow) { return Math.floor(timeNow / DURATION
 function formatPeriodString(blockNum, gameKey) { let d = new Date(blockNum * DURATIONS[gameKey]); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockNum % 10000}`; }
 
 window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
-window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '' : ''; };
+window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '◉' : '◉'; };
 function generateRandom5DigitId() { let newId; do { newId = Math.floor(10000 + Math.random() * 90000).toString(); } while (Object.values(DB.users).some(u => u.id === newId)); return newId; }
 
 window.doSignup = async function() {
-  if (!DB.settings.serverActive) return toast('Server ပိတ္ထားပါသည္');
+  if (!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
+  await loadCloudDB(); 
+  
   const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
   const inviteCode = $('signInviteCode').value.trim();
   
-  if(!phone || !name || !pwd) return toast('အခ်က္အလက္ ျပည့္စုံစြာ ျဖည့္ပါ');
-  if(!/^09\d{7,9}$/.test(phone)) return toast('ဖုန္းနံပါတ္ မွားယြင္းေနပါသည္');
-  if(pwd.length < 6) return toast('စကားဝွက္ အနည္းဆုံး ၆ လုံး ထည့္ပါ');
-  if(pwd !== pwd2) return toast('စကားဝွက္ ႏွစ္ခု မတူပါ');
-  if(DB.users[phone]) return toast('ဒီဖုန္းနံပါတ္ျဖင့္ အေကာင့္ရွိၿပီးသားပါ');
+  if(!phone || !name || !pwd) return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
+  if(!/^09\d{7,9}$/.test(phone)) return toast('ဖုန်းနံပါတ် မှားယွင်းနေပါသည်');
+  if(pwd.length < 6) return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ');
+  if(pwd !== pwd2) return toast('စကားဝှက် နှစ်ခု မတူပါ');
+  if(DB.users[phone]) return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ');
 
   let startingBalance = 0;
+  let inviteMsg = "";
   if(inviteCode) {
       let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
-      if(inviterPhone) { DB.users[inviterPhone].balance += 1999; startingBalance = 1999; } 
-      else { return toast('ဖိတ္ေခၚကုဒ္ မွားယြင္းေနပါသည္'); }
+      if(inviterPhone) { 
+          DB.users[inviterPhone].balance += 1999; startingBalance = 1999; 
+          inviteMsg = `\n\n✅ <b>ဖိတ်ခေါ်ကုဒ်သုံးထားသည်</b>\nဖိတ်ခေါ်သူ ID: ${inviteCode}`;
+      } 
+      else { return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
   }
 
   let newId = generateRandom5DigitId();
   DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false };
   DB.session = phone; 
-  sendTG(` <b>အေကာင့္သစ္ ဖြင့္ပါသည္</b>\n\nအမည္: ${name}\nဖုန္း: ${phone}\nUID: ${newId}`);
-  await saveDB(); location.reload();
+  
+  await saveDB(); 
+  await sendTG(`🆕 <b>အကောင့်သစ် ဖွင့်ပါသည်</b>\n\nအမည်: ${name}\nဖုန်း: ${phone}\nUID: ${newId}${inviteMsg}`);
+  
+  location.reload();
 };
 
 window.doLogin = async function() {
+  await loadCloudDB();
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
-  if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အခ်က္အလက္ မွားယြင္းေနပါသည္');
+  if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
   DB.session = userPhone; await saveDB(); location.reload();
 };
 window.logout = async function() { DB.session = null; await saveDB(); location.reload(); };
 
 function init() {
-  if(!currentUser) {
-    $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden');
-  } else {
+  if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
+  else {
     $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
     if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
     if (!DB.settings.serverActive) $('serverOffBanner').classList.remove('hidden');
-    
-    updateUI(); buildGrid();
-    switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
-    
-    // Setup Invite Features
-    let hostURL = window.location.href.split('?')[0];
-    $('prof-invite-code').innerText = currentUser.id;
-    if($('prof-invite-link-full')) {
-        $('prof-invite-link-full').innerText = `${hostURL}?invite=${currentUser.id}`;
-        $('prof-invite-link').innerText = `${hostURL}?invite=${currentUser.id}`;
-        $('linkCopyBox').onclick = function() { window.fallbackCopyTextToClipboard(`${hostURL}?invite=${currentUser.id}`); };
-    }
-    
-    requestAnimationFrame(tickLoop);
+    updateUI(); buildGrid(); switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
+    $('prof-invite-code').innerText = currentUser.id; requestAnimationFrame(tickLoop);
   }
 }
 
@@ -744,10 +709,7 @@ window.switchGame = async function(k, btn) { activeGame = k; DB.currentGame = k;
 
 let lastTickTime = 0;
 function tick() {
-  if(!currentUser) return;
-  const timeNow = Date.now();
-  if (timeNow - lastTickTime < 200) return; lastTickTime = timeNow;
-
+  if(!currentUser) return; const timeNow = Date.now(); if (timeNow - lastTickTime < 200) return; lastTickTime = timeNow;
   let dbChanged = false;
   Object.keys(DURATIONS).forEach(k => {
       const g = DB.games[k]; const currentBlock = getPeriodBlock(k, timeNow);
@@ -759,12 +721,10 @@ function tick() {
       }
   });
   if (dbChanged) saveDB();
-
   const activeDur = DURATIONS[activeGame]; const activeRem = activeDur - (timeNow % activeDur); const activeBlock = getPeriodBlock(activeGame, timeNow);
   text('periodVal', formatPeriodString(activeBlock, activeGame));
   const sec = Math.ceil(activeRem/1000); const m = Math.floor(sec/60), s = sec%60;
   if($('timerVal')) $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  
   if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
     if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
@@ -777,60 +737,28 @@ function processDrawLogic(gameKey, targetBlock, isCatchup) {
     if (DB.settings.manualNum[gameKey] !== null) { num = DB.settings.manualNum[gameKey]; DB.settings.manualNum[gameKey] = null; if(!isCatchup && adminActiveGame === gameKey) renderAdminControl(); } else { num = Math.floor(Math.random() * 10); }
   } else {
     let liabilities = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
-    g.bets.forEach(b => {
-      let eff = b.amount * 0.98;
-      if(b.type === 'num') liabilities[b.num] += eff * 9;
-      else if(b.type === 'big') for(let i=5; i<=9; i++) liabilities[i] += eff * 2;
-      else if(b.type === 'small') for(let i=0; i<=4; i++) liabilities[i] += eff * 2;
-      else if(b.type === 'green') { [1,3,7,9].forEach(i => liabilities[i] += eff * 2); liabilities[5] += eff * 1.5; }
-      else if(b.type === 'red') { [2,4,6,8].forEach(i => liabilities[i] += eff * 2); liabilities[0] += eff * 1.5; }
-      else if(b.type === 'purple') { [0,5].forEach(i => liabilities[i] += eff * 4.5); }
-    });
-    let minL = Infinity, candidates = [];
-    for(let i=0; i<=9; i++) { if(liabilities[i] < minL) { minL = liabilities[i]; candidates = [i]; } else if(liabilities[i] === minL) candidates.push(i); }
-    num = candidates[Math.floor(Math.random() * candidates.length)];
+    g.bets.forEach(b => { let eff = b.amount * 0.98; if(b.type === 'num') liabilities[b.num] += eff * 9; else if(b.type === 'big') for(let i=5; i<=9; i++) liabilities[i] += eff * 2; else if(b.type === 'small') for(let i=0; i<=4; i++) liabilities[i] += eff * 2; else if(b.type === 'green') { [1,3,7,9].forEach(i => liabilities[i] += eff * 2); liabilities[5] += eff * 1.5; } else if(b.type === 'red') { [2,4,6,8].forEach(i => liabilities[i] += eff * 2); liabilities[0] += eff * 1.5; } else if(b.type === 'purple') { [0,5].forEach(i => liabilities[i] += eff * 4.5); } });
+    let minL = Infinity, candidates = []; for(let i=0; i<=9; i++) { if(liabilities[i] < minL) { minL = liabilities[i]; candidates = [i]; } else if(liabilities[i] === minL) candidates.push(i); } num = candidates[Math.floor(Math.random() * candidates.length)];
   }
-
-  const strPeriod = formatPeriodString(targetBlock, gameKey);
-  let currentUserBet = g.bets.find(b => b.userKey === DB.session);
+  const strPeriod = formatPeriodString(targetBlock, gameKey); let currentUserBet = g.bets.find(b => b.userKey === DB.session);
   let totalBetInPeriod = 0, totalPayoutInPeriod = 0, totalCommissionInPeriod = 0;
-
   g.bets.forEach(b => {
-    totalBetInPeriod += b.amount;
-    let comm = b.amount * 0.02; totalCommissionInPeriod += comm;
+    totalBetInPeriod += b.amount; let comm = b.amount * 0.02; totalCommissionInPeriod += comm;
     let win = false, mult = 0; let eff = b.amount * 0.98;
-    if(b.type === 'num' && b.num === num) { win=true; mult=9; }
-    else if(b.type === 'big' && num >= 5) { win=true; mult=2; }
-    else if(b.type === 'small' && num <= 4) { win=true; mult=2; }
-    else if(b.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } }
-    else if(b.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } }
-    else if(b.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
-
+    if(b.type === 'num' && b.num === num) { win=true; mult=9; } else if(b.type === 'big' && num >= 5) { win=true; mult=2; } else if(b.type === 'small' && num <= 4) { win=true; mult=2; } else if(b.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } } else if(b.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } } else if(b.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
     if(DB.users[b.userKey]) {
-      let payout = 0;
-      if(win) { payout = Math.floor(eff * mult); DB.users[b.userKey].balance += payout; totalPayoutInPeriod += payout; }
+      let payout = 0; if(win) { payout = Math.floor(eff * mult); DB.users[b.userKey].balance += payout; totalPayoutInPeriod += payout; }
       if(b.userKey === DB.session) { g.myBets.unshift({ type: b.type, num: b.num, amount: b.amount, result: num, win: win, payout: win ? payout : -b.amount, period: strPeriod, date: new Date().toLocaleTimeString() }); }
     }
   });
-
-  let periodNetProfit = totalBetInPeriod - totalPayoutInPeriod;
-  g.currentPeriodProfit = periodNetProfit; g.currentPeriodComm = totalCommissionInPeriod;
-  g.todayProfit += periodNetProfit; g.todayComm += totalCommissionInPeriod;
-  g.history.unshift({ period: strPeriod, num: num }); g.bets = []; saveDB();
-
+  let periodNetProfit = totalBetInPeriod - totalPayoutInPeriod; g.currentPeriodProfit = periodNetProfit; g.currentPeriodComm = totalCommissionInPeriod; g.todayProfit += periodNetProfit; g.todayComm += totalCommissionInPeriod; g.history.unshift({ period: strPeriod, num: num }); g.bets = []; saveDB();
   if (!isCatchup && gameKey === activeGame) {
       if (currentUserBet) {
           let win = false, mult = 0; let eff = currentUserBet.amount * 0.98;
-          if(currentUserBet.type === 'num' && currentUserBet.num === num) { win=true; mult=9; }
-          else if(currentUserBet.type === 'big' && num >= 5) { win=true; mult=2; }
-          else if(currentUserBet.type === 'small' && num <= 4) { win=true; mult=2; }
-          else if(currentUserBet.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } }
-          else if(currentUserBet.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } }
-          else if(currentUserBet.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
+          if(currentUserBet.type === 'num' && currentUserBet.num === num) { win=true; mult=9; } else if(currentUserBet.type === 'big' && num >= 5) { win=true; mult=2; } else if(currentUserBet.type === 'small' && num <= 4) { win=true; mult=2; } else if(currentUserBet.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } } else if(currentUserBet.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } } else if(currentUserBet.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
           if (win) { showResult(true, Math.floor(eff * mult), currentUserBet, num, strPeriod); } else { showResult(false, currentUserBet.amount, currentUserBet, num, strPeriod); }
       }
-      text('latestNum', num); if($('latestNum')) $('latestNum').style.color = (num===0||num===5)?'#9b5de5':[1,3,7,9].includes(num)?'#2dbd7e':'#ff4b4b';
-      renderHistory(); if(DB.session) { currentUser = DB.users[DB.session]; updateUI(); }
+      text('latestNum', num); if($('latestNum')) $('latestNum').style.color = (num===0||num===5)?'#9b5de5':[1,3,7,9].includes(num)?'#2dbd7e':'#ff4b4b'; renderHistory(); if(DB.session) { currentUser = DB.users[DB.session]; updateUI(); }
   }
 }
 
@@ -840,16 +768,16 @@ function renderHistory() {
   hist.forEach(h => {
     let isBig = h.num >= 5; let c = (h.num===0||h.num===5)?'#9b5de5':[1,3,7,9].includes(h.num)?'#2dbd7e':'#ff4b4b';
     let bg = h.num===0?'bg-purple-red':h.num===5?'bg-purple-green':[1,3,7,9].includes(h.num)?'bg-green':'bg-red';
-    tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အႀကီး':'အေသး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
+    tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
   });
   text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/10)||1}`);
   if(historyTab === 'mine') {
     const myBetsContainer = $('myBetsList');
-    if(g.myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မွတ္တမ္းမရွိပါ</p>'; } else {
+    if(g.myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>'; } else {
         myBetsContainer.innerHTML = g.myBets.slice(0,30).map(b => {
-            let labelText = b.type === 'big' ? 'အႀကီး (big)' : b.type === 'small' ? 'အေသး (small)' : b.type === 'green' ? 'အစိမ္း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ္း' : 'နံပါတ္ ' + b.num;
+            let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
             let tagClass = 'ck-tag-sm '; if(b.type === 'big') tagClass += 'orange'; else if(b.type === 'small') tagClass += 'blue'; else if(b.type === 'green') tagClass += 'green'; else if(b.type === 'red') tagClass += 'red'; else if(b.type === 'purple') tagClass += 'purple'; else if(b.type === 'num') { tagClass += (b.num === 0 ? 'bg-purple-red' : b.num === 5 ? 'bg-purple-green' : [1,3,7,9].includes(b.num) ? 'bg-green' : 'bg-red'); }
-            let statusText = b.win ? 'ေအာင္ျမင္' : 'က်ရႈံး'; let statusClass = b.win ? 'win' : 'lose';
+            let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး'; let statusClass = b.win ? 'win' : 'lose';
             let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
             return `<div class="ck-bet-item"><div class="ck-bet-left"><span class="${tagClass}">${labelText}</span><span class="ck-bet-period">${b.period}</span><span class="ck-bet-time">${b.date}</span></div><div class="ck-bet-right"><div class="ck-bet-status ${statusClass}">${statusText}</div><div class="ck-bet-amt ${statusClass}">${amtStr}</div></div></div>`;
         }).join('');
@@ -860,10 +788,10 @@ window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].histo
 window.setHistoryTab = function(tab, btn) { historyTab = tab; document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); $('gameHistoryTable').classList.toggle('hidden', tab !== 'game'); $('myBetsList').classList.toggle('hidden', tab !== 'mine'); renderHistory(); };
 
 window.openBetSheet = function(type, num=null) {
-  if(!currentUser) return toast('အေကာင့္ဝင္ပါ'); 
-  if(!DB.settings.serverActive) return toast('Server ပိတ္ထားပါသည္');
+  if(!currentUser) return toast('အကောင့်ဝင်ပါ'); 
+  if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
   const timeNow = Date.now(); const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
-  if(activeRem <= 5000) return toast('ပြဲပိတ္ထားပါၿပီ');
+  if(activeRem <= 5000) return toast('ပွဲပိတ်ထားပါပြီ');
   betType = type; betNum = num; baseAmt = 10; sheetQty = 1;
   text('betSheetTitle', `Win Go ${activeGame.replace('wingo','')} - ${type}`);
   $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show');
@@ -873,14 +801,18 @@ window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelec
 window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
 window.confirmBet = async function() {
-  if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ္ထားပါသည္'); }
-  const total = baseAmt * sheetQty; if(currentUser.balance < total) return toast('လက္က်န္မလုံေလာက္ပါ');
+  if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
+  await loadCloudDB();
+  const total = baseAmt * sheetQty; if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
   currentUser.balance -= total; 
   DB.games[activeGame].bets.push({ userKey: DB.session, type: betType, num: betNum, amount: total });
-  await saveDB(); updateUI(); closeBetSheet(); toast('ထိုးၿပီးပါၿပီ');
+  await saveDB(); updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ');
 };
 
-function renderUserLinks() { const container = $('cs-links-container'); if(!container) return; const links = DB.settings.links || []; container.innerHTML = links.map(l => `<a href="${l.url}" target="_blank" class="cs-btn tg-btn">${l.label}</a>`).join(''); }
+function renderUserLinks() {
+  const container = $('cs-links-container'); if(!container) return;
+  const links = DB.settings.links || []; container.innerHTML = links.map(l => `<a href="${l.url}" target="_blank" class="cs-btn tg-btn">${l.label}</a>`).join('');
+}
 
 window.switchTab = function(tab, el) {
   ['game','deposit','profile','admin-control','admin-deposits','admin-links'].forEach(x => { let t = $('view-'+x); if(t) t.classList.add('hidden'); });
@@ -893,42 +825,102 @@ window.switchTab = function(tab, el) {
   if(tab === 'admin-links') renderAdminLinks();
 };
 
-window.toggleServerStatus = async function() { DB.settings.serverActive = $('server-active-chk').checked; await saveDB(); toast(DB.settings.serverActive ? 'Server ဖြင့္လိုက္ပါၿပီ' : 'Server ပိတ္ထားပါသည္'); };
-
+window.toggleServerStatus = async function() { DB.settings.serverActive = $('server-active-chk').checked; await saveDB(); toast(DB.settings.serverActive ? 'Server ဖွင့်လိုက်ပါပြီ' : 'Server ပိတ်ထားပါသည်'); };
 window.setAdminGame = function(game, btn) { adminActiveGame = game; document.querySelectorAll('#adminGameTabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); text('adminRankTitle', game.replace('wingo', '')); text('profitGameName', game.replace('wingo', '')); renderAdminControl(); };
 
 function renderAdminControl() {
-  $('server-active-chk').checked = DB.settings.serverActive; $('chk-auto-draw').checked = DB.settings.autoDraw[adminActiveGame]; $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
+  $('server-active-chk').checked = DB.settings.serverActive; 
+  $('chk-auto-draw').checked = DB.settings.autoDraw[adminActiveGame]; 
+  $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
+  
   const aGrid = $('admin-num-grid'); aGrid.innerHTML = '';
-  for(let i=0; i<=9; i++) { let btn = document.createElement('button'); btn.innerText = i; btn.style.cssText = `padding:10px; border-radius:5px; font-weight:bold; color:#fff; background:${DB.settings.manualNum[adminActiveGame] === i ? 'var(--red)' : '#ccc'}`; btn.onclick = async () => { DB.settings.manualNum[adminActiveGame] = i; await saveDB(); renderAdminControl(); toast(`နံပါတ္ ${i} သတ္မွတ္ၿပီး`); }; aGrid.appendChild(btn); }
+  for(let i=0; i<=9; i++) {
+    let btn = document.createElement('button'); btn.innerText = i; 
+    let bgGradient = 'linear-gradient(140deg, #ff8587, #f14d56)';
+    if(i === 0) bgGradient = 'linear-gradient(135deg, #ad67e6 48%, #f45363 52%)';
+    else if(i === 5) bgGradient = 'linear-gradient(135deg, #ad67e6 48%, #3ec48b 52%)';
+    else if([1,3,7,9].includes(i)) bgGradient = 'linear-gradient(140deg, #7ddba9, #2db67e)';
+    let isSelected = DB.settings.manualNum[adminActiveGame] === i;
+    btn.style.cssText = `padding:12px 5px; border-radius:8px; font-weight:900; font-size:18px; color:#fff; background:${bgGradient}; border: ${isSelected ? '3px solid #333' : '3px solid transparent'}; opacity: ${isSelected ? '1' : '0.4'}; transform: ${isSelected ? 'scale(1.1)' : 'scale(1)'}; transition: 0.2s;`;
+    btn.onclick = async () => { DB.settings.manualNum[adminActiveGame] = i; await saveDB(); renderAdminControl(); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); }; 
+    aGrid.appendChild(btn);
+  }
+
   const g = DB.games[adminActiveGame]; 
-  text('periodProfitVal', (g.currentPeriodProfit || 0).toLocaleString() + ' Ks'); text('periodCommVal', Math.floor(g.currentPeriodComm || 0).toLocaleString() + ' Ks'); text('todayProfitVal', (g.todayProfit || 0).toLocaleString() + ' Ks'); text('todayCommVal', Math.floor(g.todayComm || 0).toLocaleString() + ' Ks');
+  text('periodProfitVal', (g.currentPeriodProfit || 0).toLocaleString() + ' Ks'); text('periodCommVal', Math.floor(g.currentPeriodComm || 0).toLocaleString() + ' Ks');
+  text('todayProfitVal', (g.todayProfit || 0).toLocaleString() + ' Ks'); text('todayCommVal', Math.floor(g.todayComm || 0).toLocaleString() + ' Ks');
+
   let nBets = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0}; g.bets.forEach(b => { if(b.type === 'num') nBets[b.num] += b.amount; });
-  let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title"> ဂဏန္းအလိုက္ ထိုးေငြ</div>`; Object.keys(nBets).forEach(num => { rankHTML += `<div class="admin-rank-row"><span>နံပါတ္ (${num})</span><b>${nBets[num].toLocaleString()} Ks</b></div>`; }); rankHTML += `</div>`; $('admin-ranking-summary').innerHTML = rankHTML;
+  let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title">🔢 ဂဏန်းအလိုက် ထိုးငွေ</div>`; Object.keys(nBets).forEach(num => { rankHTML += `<div class="admin-rank-row"><span>နံပါတ် (${num})</span><b>${nBets[num].toLocaleString()} Ks</b></div>`; }); rankHTML += `</div>`; $('admin-ranking-summary').innerHTML = rankHTML;
 }
 
-window.toggleAutoDraw = async function() { DB.settings.autoDraw[adminActiveGame] = $('chk-auto-draw').checked; $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; await saveDB(); };
+window.toggleAutoDraw = async function() { 
+    DB.settings.autoDraw[adminActiveGame] = $('chk-auto-draw').checked; 
+    $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
+    await saveDB(); 
+};
+
 window.switchAdminTab = function(tab, btn) { document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); ['control','deposits', 'links'].forEach(t => $('view-admin-'+t).classList.add('hidden')); $('view-admin-'+tab).classList.remove('hidden'); if(tab==='control') renderAdminControl(); if(tab==='deposits') renderAdminDeposits(); if(tab==='links') renderAdminLinks(); };
 function renderAdminDeposits() { $('adminUserList').innerHTML = Object.values(DB.users).map(u => `<div class="user-item"><b>${u.name} (${u.id})</b> <span>${Math.floor(u.balance)} Ks</span></div>`).join(''); }
 
 window.adminAddBalance = async function() {
+  await loadCloudDB();
   const id = $('admin-search-id').value, amt = +$('admin-amount').value, op = $('admin-operation').value;
-  if(!id || !amt) return toast('ျဖည့္ပါ');
-  const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မေတြ႕ပါ');
+  if(!id || !amt) return toast('ဖြည့်ပါ');
+  const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မတွေ့ပါ');
   DB.users[uKey].balance += (op === 'subtract' ? -amt : amt); await saveDB(); renderAdminDeposits();
-  if(DB.session === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ေငြစာရင္း အပ္ဒိတ္လုပ္ၿပီးပါၿပီ');
-  sendTG(` <b>ေငြစာရင္း ေျပာင္းလဲမႈ (Admin)</b>\n\nUser ID: ${id}\nပမာဏ: ${op==='add'?'+':'-'}${amt} Ks`);
+  if(DB.session === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေစာရင်း အပ်ဒိတ်လုပ်ပြီးပါပြီ');
+  await sendTG(`💰 <b>ငွေစာရင်း ပြောင်းလဲမှု (Admin)</b>\n\nUser ID: ${id}\nပမာဏ: ${op==='add'?'+':'-'}${amt} Ks`);
 };
 
-window.adminAddLink = async function() { const type = $('admin-link-type').value, label = $('admin-link-label').value.trim(), url = $('admin-link-url').value.trim(); if (!label || !url) return toast('အခ်က္အလက္ ျဖည့္ပါ'); DB.settings.links.push({ type, label, url }); await saveDB(); renderAdminLinks(); toast('ထည့္ၿပီးပါၿပီ'); };
-function renderAdminLinks() { const list = DB.settings.links, container = $('admin-link-list'); container.innerHTML = list.map((l, idx) => `<div class="admin-link-item"><div><span>${l.label}</span></div></div>`).join(''); }
+window.adminDeleteLink = async function(index) {
+  DB.settings.links.splice(index, 1);
+  await saveDB();
+  renderAdminLinks();
+  toast('ဖျက်လိုက်ပါပြီ');
+};
 
-function showResult(win, amt, betObj, num, period) { $('resultPopupOverlay').classList.add('show'); }
+window.adminAddLink = async function() { 
+  const type = $('admin-link-type').value, label = $('admin-link-label').value.trim(), url = $('admin-link-url').value.trim(); 
+  if (!label || !url) return toast('အချက်အလက် ဖြည့်ပါ'); 
+  DB.settings.links.push({ type, label, url }); 
+  await saveDB(); 
+  renderAdminLinks(); 
+  toast('ထည့်ပြီးပါပြီ'); 
+};
+
+function renderAdminLinks() { 
+  const list = DB.settings.links, container = $('admin-link-list'); 
+  if (!container) return;
+  if (list.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:#999;">Link မရှိသေးပါ</p>'; return; }
+  container.innerHTML = list.map((l, idx) => `<div class="admin-link-item"><div><strong style="color:var(--blue);">${l.type.toUpperCase()}</strong><br><span>${l.label}</span><br><a href="${l.url}" target="_blank" style="color:#777; font-size:10px;">${l.url}</a></div><button onclick="adminDeleteLink(${idx})">ဖျက်မည်</button></div>`).join(''); 
+}
+
+function showResult(win, amt, betObj, num, period) {
+  const card = document.getElementById('ckPopupCard');
+  if(win) {
+      card.className = 'ck-popup-card win';
+      document.getElementById('ckPopupTitle').innerHTML = 'ဂုဏ်ယူပါတယ်';
+      document.getElementById('ckTicketLabel').innerText = 'ဘောနပ်စ်';
+      document.getElementById('ckTicketAmt').innerText = '+K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount';
+  } else {
+      card.className = 'ck-popup-card lose';
+      document.getElementById('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ';
+      document.getElementById('ckTicketLabel').innerText = 'ရှုံးနိမ့်သည်';
+      document.getElementById('ckTicketAmt').innerText = '-K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount lose-text';
+  }
+  document.getElementById('resTagNum').innerText = num;
+  document.getElementById('ckTicketPeriod').innerText = 'ပွဲအမှတ်စဉ် ' + period;
+  $('resultPopupOverlay').classList.add('show');
+}
+
 window.closeResultPopup = function() { $('resultPopupOverlay').classList.remove('show'); };
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
 window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
-window.showRules = function() { openInfo('ကစားနည္း', 'ကစားနည္းစည္းမ်ဥ္းမ်ား'); };
-window.showHelp = function() { openInfo('အကူအညီ', 'ဆက္သြယ္ရန္'); };
+window.showRules = function() { openInfo('ကစားနည်း', 'ကစားနည်းစည်းမျဉ်းများ'); };
+window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်'); };
 window.toggleSound = function() { toast('အသံ'); };
 
 init();
