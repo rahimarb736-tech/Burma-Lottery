@@ -918,7 +918,10 @@ function showResult(win, amt, betObj, num, period) {
 
 window.closeResultPopup = function() { $('resultPopupOverlay').classList.remove('show'); };
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
-window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
+
+// အောက်ပါ function ထဲတွင် classList.remove('show') ဟု အမှန်ပြင်ဆင်ပေးထားပါသည်
+window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
+
 window.showRules = function() { openInfo('ကစားနည်း', 'ကစားနည်းစည်းမျဉ်းများ'); };
 window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်'); };
 window.toggleSound = function() { toast('အသံ'); };
