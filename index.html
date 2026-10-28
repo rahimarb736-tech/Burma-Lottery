@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e71d28">
+<title>Burma Lottery · WinGo</title>
+<style>
+:root { --red: #f34649; --deep-red: #dc2028; --green: #36b67b; --orange: #ffad36; --blue: #4080ff; --purple: #a55ce6; --bg: #f6f6fa; --card: #fff; --text: #31323c; --text-light: #8b8d99; --border: #ebebf0; --shadow: 0 4px 16px #22243b08; --gradient: linear-gradient(110deg, #e71d28, #ff5558); }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Noto Sans Myanmar', 'Myanmar Text', 'Pyidaungsu', system-ui, sans-serif; background: #e9ebf1; color: var(--text); line-height: 1.65; min-height: 100vh; }
+button, input, select { font: inherit; outline: none; } button { cursor: pointer; border: 0; }
+button:focus-visible, a:focus-visible { outline: 3px solid #2976db; outline-offset: 3px; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+.hidden { display: none !important; }
+.icon { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.svg-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.mono { font-variant-numeric: tabular-nums; font-family: system-ui, sans-serif; }
+
+#app-container { width: 100%; max-width: 480px; min-height: 100dvh; background: var(--bg); margin: auto; position: relative; padding-bottom: calc(86px + env(safe-area-inset-bottom)); box-shadow: 0 0 50px #22243b13; }
+.header { height: 62px; padding: 0 16px; background: var(--gradient); display: flex; align-items: center; justify-content: space-between; color: #fff; position: sticky; top: 0; z-index: 100; }
+.brand { display: flex; gap: 8px; align-items: center; }
+.brand-mark { font: italic 900 27px/1 system-ui, sans-serif; color: #fff4af; background: linear-gradient(145deg, #ffe1a1, #ffc446); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 1px 10px #ffc73b22; }
+.logo-area { font: 800 19px/1.1 system-ui, sans-serif; letter-spacing: -.7px; } .logo-area span { color: #ffecb0; }
+.brand small { display: block; font: 9px system-ui, sans-serif; letter-spacing: 2.3px; opacity: .8; margin-top: 4px; }
+.header-icons { display: flex; gap: 5px; }
+.icon-btn { background: transparent; color: inherit; display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; transition: 0.2s; }
+.icon-btn:hover { background: #ffffff20; } .icon-btn:active { transform: scale(0.9); }
+.wallet-area { padding: 16px 15px 13px; background: var(--gradient); border-radius: 0 0 24px 24px; }
+.user-bar { background: #fff; border-radius: 15px; padding: 18px 18px 14px; box-shadow: 0 5px 16px #bd182b12; text-align: center; }
+.wallet-top { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-light); line-height: 1.4; }
+.id-chip { background: #f5f5f8; border-radius: 5px; padding: 3px 8px; font-family: system-ui, sans-serif; }
+.wallet-top button { background: none; color: var(--text-light); font-size: 11px; }
+.balance { display: flex; align-items: center; justify-content: center; gap: 9px; color: #30313c; margin-top: 9px; font: 750 28px/1.4 system-ui, sans-serif; letter-spacing: -.6px; }
+.balance .currency { font-size: 17px; font-weight: 500; color: #8e8d98; }
+.wallet-label { display: flex; gap: 5px; align-items: center; justify-content: center; color: #8a8994; font-size: 11px; margin-top: 3px; }
+.wallet-label .icon { color: var(--red); width: 16px; height: 16px; }
+.wallet-actions { display: flex; gap: 30px; margin-top: 16px; }
+.wallet-actions button { flex: 1; border-radius: 30px; padding: 8px; color: #fff; font-size: 13px; font-weight: 700; background: linear-gradient(90deg, #ff6e70, #f24a50); transition: 0.1s; }
+.wallet-actions button:active { transform: scale(0.95); } .wallet-actions button:last-child { background: linear-gradient(90deg, #31c28b, #1fa86e); }
+
+/* Banner Styles */
+#serverOffBanner { background: var(--deep-red); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; position: sticky; top: 62px; z-index: 95; letter-spacing: 0.5px; animation: slideDown 0.3s; }
+@keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Toggle Switch Styles */
+.toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d2d8; transition: .3s; border-radius: 26px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: var(--green); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.game-tabs { margin: 0 15px 15px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; gap: 0; }
+.game-tabs button { background: #fff; color: #989aa5; padding: 13px 2px 11px; font: 12px/1.35 system-ui, sans-serif; border-radius: 11px; position: relative; transition: 0.2s; }
+.game-tabs .clock-wrap { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 8px; background: linear-gradient(150deg, #f3f3f5, #d7d8de); box-shadow: inset 0 2px 3px #fff, 0 2px 3px #0000000c; color: #a1a2ab; transition: 0.2s; }
+.clock-wrap .icon { width: 23px; height: 23px; stroke-width: 1.5; }
+.game-tabs b { display: block; font-weight: 500; margin-bottom: 2px; }
+.game-tabs button.active { background: linear-gradient(155deg, #ff7779, #f34349); color: #fff; box-shadow: 0 4px 8px #ff414330; }
+.game-tabs button.active .clock-wrap { background: linear-gradient(155deg, #ffb6b7, #f77276); color: white; box-shadow: inset 0 2px 3px #ffc6c6, 0 2px 3px #ae292824; }
+.timer-area { background: linear-gradient(110deg, #ff7274, #f84950); color: #fff; margin: 15px 15px 14px; padding: 15px; border-radius: 13px; display: flex; justify-content: space-between; gap: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 8px #f8495012; }
+.timer-area:after { content: ''; position: absolute; right: 39%; top: 0; width: 1px; height: 100%; background: #fff3; }
+.timer-left { max-width: 55%; min-width: 0; }
+.rules-link { border: 1px solid #ffc4c5; background: transparent; border-radius: 20px; padding: 3px 11px; display: flex; align-items: center; justify-content: center; gap: 4px; color: #fff; font-size: 10px; min-width: 125px; transition: 0.2s; }
+.rules-link:active { transform: scale(0.95); background: #ffffff20; } .rules-link .icon { width: 12px; height: 12px; }
+.timer-title { font: 11px/1.4 system-ui, sans-serif; margin-top: 9px; }
+.recent-balls { display: flex; gap: 5px; margin-top: 9px; align-items: center; }
+.mini-ball { display: inline-grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; font: 700 12px system-ui; color: white; box-shadow: inset 0 0 0 2px #ffffff90, 0 2px 2px #d6363b20; }
+.timer-right { text-align: right; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+.countdown-caption { font-size: 10px; white-space: nowrap; }
+.timer-val { font: 800 clamp(24px, 7vw, 34px)/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #fff !important; letter-spacing: 3px; white-space: nowrap; text-shadow: 1px 1px 0 #cb3b40; margin: 2px 0; }
+.period-val { font: 600 11px system-ui, sans-serif; letter-spacing: .2px; }
+.latest-meta { font-size: 9px; opacity: .9; margin-top: 6px; } .latest-num { font-weight: bold; } .latest-title { display: inline; }
+.play-card { margin: 0 15px 15px; padding: 15px 12px; background: #fff; border-radius: 13px; box-shadow: var(--shadow); position: relative; }
+.bet-options-row { display: flex; gap: 12px; } .color-row { margin-bottom: 17px; }
+.bet-opt-btn { flex: 1; color: #fff; min-height: 35px; font-size: 12px; border-radius: 7px; box-shadow: 0 3px 5px #0000000a; font-weight: 600; transition: transform .15s; border: none; }
+.bet-opt-btn:active:not(:disabled), .num-btn:active:not(:disabled) { transform: scale(.94); }
+.color-green { background: var(--green); border-radius: 0 10px 0 10px; } .color-purple { background: var(--purple); } .color-red { background: var(--red); border-radius: 10px 0 10px 0; }
+.num-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 11px 10px; margin: 0 4px 16px; }
+.num-btn { width: 100%; aspect-ratio: 1; border-radius: 50%; font: 800 clamp(23px, 7.5vw, 33px)/1 system-ui, sans-serif; color: #fff; position: relative; isolation: isolate; border: 3px solid #f1f2f5; box-shadow: 0 2px 4px #1e244214; transition: transform .15s; }
+.num-btn:before { content: ''; position: absolute; inset: 4px; border: 2px solid #ffffffb8; border-radius: 50%; z-index: -1; background: linear-gradient(145deg, #ffffff65, transparent 55%, #0000000a); box-shadow: inset 0 1px 2px #fff; }
+.num-btn:after { content: ''; position: absolute; top: 5px; left: 12px; width: 12px; height: 4px; border-radius: 50%; background: #ffffffa0; transform: rotate(-30deg); }
+.bg-red { background: linear-gradient(140deg, #ff8587, #f14d56); } .bg-green { background: linear-gradient(140deg, #7ddba9, #2db67e); }
+.bg-purple-red { background: linear-gradient(135deg, #ad67e6 48%, #f45363 52%); } .bg-purple-green { background: linear-gradient(135deg, #ad67e6 48%, #3ec48b 52%); }
+.quick-row { display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
+.quick-row button { min-width: 0; flex: 1; border-radius: 5px; background: #f2f3f6; padding: 6px 1px; font: 11px system-ui, sans-serif; color: #777985; transition: 0.1s; }
+.quick-row button:first-child { flex: 1.7; background: #fff; border: 1px solid #f2969a; color: #e9747c; padding: 5px 1px; font-size: 10px; }
+.quick-row button.active { background: var(--green); color: white; } .quick-row button:active { transform: scale(0.95); }
+.size-row { gap: 0; border-radius: 24px; overflow: hidden; margin: 0 5px; }
+.size-row .bet-opt-btn { border-radius: 0; min-height: 37px; box-shadow: none; font-size: 13px; }
+.size-row .big { background: var(--orange); } .size-row .small { background: var(--blue); }
+.size-row span { font: 10px system-ui, sans-serif; opacity: .85; margin-left: 6px; }
+.lock-overlay { position: absolute; inset: 0; z-index: 15; background: #ffffffd9; border-radius: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.lock-overlay h2 { font: 800 90px/1 system-ui; color: var(--red); font-variant-numeric: tabular-nums; animation: pop .5s ease; }
+.lock-overlay p { font-size: 12px; color: #a1646a; margin-top: 12px; }
+@keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.history-section { padding: 0 15px 18px; }
+.history-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.history-tabs button { flex: 1; padding: 10px 2px; background: #e9e9ef; border-radius: 8px; font-size: 11px; color: #8b8c99; transition: 0.2s; }
+.history-tabs button.active { background: var(--gradient); color: white; box-shadow: 0 3px 7px #f3464920; }
+.table-container { background: #fff; border-radius: 11px; overflow: hidden; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+th { padding: 13px 3px; background: linear-gradient(90deg, #f84b50, #f84e54); color: #fff; font-weight: 500; font-size: 10px; }
+td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { border-bottom: 0; }
+.td-period { font: 11px system-ui; color: #747582; } .td-num { font: 800 21px system-ui; }
+.td-bs { font-size: 10px; } .td-bs.big { color: #e99b25; } .td-bs.small { color: #6495d7; }
+.color-dots { display: flex; gap: 4px; justify-content: center; } .dot { width: 10px; height: 10px; border-radius: 50%; }
+.pagination { display: flex; gap: 25px; align-items: center; justify-content: center; padding: 17px 0 5px; }
+.pagination button { height: 32px; width: 36px; border-radius: 6px; background: var(--red); color: #fff; font: 20px system-ui; transition: 0.1s; }
+.pagination button:active { transform: scale(0.9); } .pagination button:disabled { background: #e3e4eb; color: #999ba7; opacity: 1; }
+.pagination span { font: 12px system-ui; color: var(--text-light); }
+.empty-state { text-align: center; color: var(--text-light); padding: 30px 10px; font-size: 12px; }
+
+/* CK Lottery Style My Bet Item */
+.ck-bet-item { background: #fff; padding: 12px 15px; border-bottom: 1px solid #f0f0f5; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.ck-bet-left { display: flex; flex-direction: column; gap: 4px; }
+.ck-bet-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; width: max-content; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.ck-bet-tag.small { background: #4080ff; }
+.ck-bet-tag.big { background: #ffad36; }
+.ck-bet-tag.green { background: #36b67b; }
+.ck-bet-tag.red { background: #f34649; }
+.ck-bet-tag.purple { background: #a55ce6; }
+.ck-bet-tag.bg-purple-red { background: linear-gradient(135deg, #a55ce6 50%, #f34649 50%); border:none; text-shadow:none;}
+.ck-bet-tag.bg-purple-green { background: linear-gradient(135deg, #a55ce6 50%, #36b67b 50%); border:none; text-shadow:none;}
+.ck-bet-tag.bg-green { background: linear-gradient(140deg, #7ddba9, #2db67e); border:none; text-shadow:none;}
+.ck-bet-tag.bg-red { background: linear-gradient(140deg, #ff8587, #f14d56); border:none; text-shadow:none;}
+
+.ck-bet-period { font-size: 12px; color: #444; font-weight: bold; font-family: monospace; }
+.ck-bet-time { font-size: 10px; color: #999; }
+.ck-bet-right { text-align: right; }
+.ck-bet-status { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
+.ck-bet-status.win { color: #36b67b; }
+.ck-bet-status.lose { color: #f34649; }
+.ck-bet-amt { font-size: 12px; font-weight: bold; }
+.ck-bet-amt.win { color: #36b67b; }
+.ck-bet-amt.lose { color: #888; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -3px 18px #24283b07; padding: 8px 8px calc(7px + env(safe-area-inset-bottom)); z-index: 100; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: transparent; color: #a2a3ae; padding: 4px 0; font-size: 10px; transition: 0.2s; }
+.nav-item .icon { width: 22px; height: 22px; stroke-width: 1.8; }
+.nav-item.active { color: var(--red); font-weight: 600; } .nav-item.active .icon { fill: #fff0f0; }
+.nav-game-icon { background: var(--gradient); border-radius: 50%; padding: 8px; width: 42px; height: 42px; display: grid; place-items: center; color: white; margin-top: -21px; border: 4px solid #fff; box-shadow: 0 3px 8px #f4454c25; transition: 0.2s; }
+.nav-item:active .nav-game-icon { transform: scale(0.9); } .nav-game-icon .icon { width: 22px !important; height: 22px !important; fill: none !important; }
+.nav-item#nav-game { gap: 5px; }
+
+/* AUTH SCREEN */
+#authScreen { max-width: 480px; min-height: 100dvh; margin: auto; background: var(--bg); padding-bottom: 30px; box-shadow: 0 0 50px #22243b13; }
+.auth-hero { background: var(--gradient); padding: 24px 24px 60px; color: white; border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
+.auth-hero:before, .auth-hero:after { content: ''; position: absolute; width: 190px; height: 190px; border: 1px solid #ffffff15; border-radius: 50%; right: -60px; top: 35px; }
+.auth-hero:after { width: 250px; height: 250px; right: -90px; top: 5px; }
+.auth-hero .brand { margin-bottom: 35px; } .auth-hero h1 { font-size: 23px; font-weight: 700; margin-bottom: 6px; }
+.auth-hero p { font-size: 12px; color: #ffe3e4; max-width: 280px; }
+.auth-kicker { font: 10px system-ui, sans-serif; letter-spacing: 1.8px; color: #ffe6aa; margin-bottom: 12px; }
+.auth-panel { position: relative; margin: -30px 20px 20px; padding: 22px 20px; background: white; border-radius: 18px; box-shadow: 0 8px 30px #4d1e3010; }
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.auth-tabs button { flex: 1; padding: 10px 0 14px; background: none; color: #999aa6; font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; transition: 0.2s; }
+.auth-tabs button.active { color: var(--red); border-bottom-color: var(--red); }
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.auth-form label { font-size: 11px; display: block; margin-bottom: 5px; color: #666975; }
+.input-wrap { position: relative; }
+.auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; }
+.auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
+.eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; font-size: 16px; }
+.btn-main { width: 100%; padding: 12px; border-radius: 25px; background: var(--gradient); color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 9px #f3464920; margin-top: 3px; transition: 0.1s; }
+.btn-main:active { transform: scale(0.97); }
+.page-view { padding: 16px 15px; }
+.profile-card, .deposit-card, .admin-card { background: #fff; padding: 20px; border-radius: 13px; box-shadow: var(--shadow); margin-bottom: 15px; }
+.page-view h3 { font-size: 16px; }
+.profile-row { display: flex; justify-content: space-between; gap: 10px; padding: 13px 0; border-bottom: 1px dashed var(--border); font-size: 12px; overflow-wrap: anywhere; }
+.profile-row:last-child { border: 0; }
+.deposit-card input, .admin-content input, .admin-card input { width: 100%; border: 1px solid var(--border); background: #f8f8fb; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; transition: 0.2s; }
+.deposit-card input:focus, .admin-card input:focus { border-color: #f58e92; background: #fff; }
+.deposit-card > button, .admin-content > button { background: var(--green); color: white; padding: 12px; border-radius: 8px; width: 100%; font-size: 13px; font-weight: bold; transition: 0.1s; }
+.deposit-card > button:active, .admin-content > button:active { transform: scale(0.97); }
+.info-overlay, .forgot-modal { position: fixed; inset: 0; background: rgba(22,24,36,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity .2s; backdrop-filter: blur(2px); }
+.info-overlay.show, .forgot-modal.show { opacity: 1; pointer-events: auto; }
+.info-box, .forgot-content { width: 100%; max-width: 400px; background: #fff; padding: 22px; border-radius: 16px; max-height: 85dvh; overflow-y: auto; }
+
+/* ======== BET SHEET CSS ======== */
+.bet-sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; display: flex; justify-content: center; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.bet-sheet-overlay.show { opacity: 1; pointer-events: auto; }
+.bet-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; transform: translateY(100%); transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1); overflow: hidden; display: flex; flex-direction: column; }
+.bet-sheet-overlay.show .bet-sheet { transform: translateY(0); }
+.bet-header-blue { background: #4080ff; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
+.bet-header-green { background: #36b67b; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
+.bet-header-red { background: #f34649; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
+.bet-header-purple { background: #a55ce6; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
+.bet-header-orange { background: #ffad36; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
+.bet-sheet-close { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; color: white; font-size: 26px; border: none; padding: 0; line-height: 1; }
+.bet-sheet-body { padding: 20px; background: #f9f9f9; }
+.bet-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.bet-label { font-size: 13px; color: #666; }
+.bet-bal { font-size: 14px; font-weight: bold; color: var(--text); }
+.bet-amount-opts { display: flex; gap: 8px; margin-bottom: 15px; }
+.bet-amount-opts button { flex: 1; background: #fff; border: 1px solid #ddd; padding: 8px 0; border-radius: 6px; font-size: 13px; font-weight: 600; color: #555; transition: 0.1s; }
+.bet-amount-opts button.active { background: var(--blue); border-color: var(--blue); color: white; }
+.bet-qty-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+.qty-control button { width: 36px; height: 36px; background: #f0f0f0; border: none; font-size: 18px; color: #555; font-weight: bold; }
+.qty-control input { width: 50px; height: 36px; border: none; text-align: center; font-size: 16px; font-weight: bold; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background: #fff; }
+.qty-multipliers { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; justify-content: flex-end; }
+.qty-multipliers button { background: #e0e0e0; color: #555; font-size: 11px; padding: 6px 8px; border-radius: 4px; font-weight: bold; transition: 0.1s; }
+.qty-multipliers button.active { background: var(--blue); color: white; }
+.bet-total { margin-bottom: 20px; font-size: 13px; color: #666; }
+.bet-total-amt { font-size: 18px; font-weight: bold; color: var(--blue); margin-left: 5px; }
+.bet-actions { display: flex; gap: 12px; }
+.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; transition: 0.1s; }
+.btn-cancel { background: #e0e0e0; color: #555; } 
+.btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
+
+/* ======== 4K EXACT RESULT POPUP CSS ======== */
+.result-popup-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+.result-popup-overlay.show { opacity: 1; pointer-events: auto; }
+
+.ck-popup-card {
+    width: 320px; border-radius: 20px; padding: 45px 20px 25px; text-align: center; position: relative;
+    transform: scale(0.7) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.result-popup-overlay.show .ck-popup-card { transform: scale(1) translateY(0); }
+
+.ck-popup-card.win { background: linear-gradient(180deg, #ff4c29 0%, #d82b12 100%); border: 3px solid #ff9a44; }
+.ck-popup-card.win .ck-popup-badge { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="%23ffc107" stroke="%23fff" stroke-width="3"/><path d="M60 25 L65 50 L90 55 L65 60 L60 85 L55 60 L30 55 L55 50 Z" fill="%23fff"/></svg>') no-repeat center; background-size: contain; filter: drop-shadow(0 5px 15px rgba(255, 193, 7, 0.6)); }
+.ck-popup-card.lose { background: linear-gradient(180deg, #d3e0ea 0%, #a8c0d6 100%); border: 3px solid #f1f6f9; }
+.ck-popup-card.lose .ck-popup-badge { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" fill="%2390a4ae" stroke="%23fff" stroke-width="3"/><path d="M40 40 L80 80 M80 40 L40 80" stroke="%23fff" stroke-width="10" stroke-linecap="round"/></svg>') no-repeat center; background-size: contain; filter: drop-shadow(0 5px 15px rgba(144, 164, 174, 0.6)); }
+.ck-popup-badge { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 120px; height: 120px; border-radius: 50%; }
+
+.ck-popup-title { font-size: 24px; font-weight: 900; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); line-height: 1.4; }
+.ck-popup-card.win .ck-popup-title { color: #ffffff; }
+.ck-popup-card.lose .ck-popup-title { color: #2c3e50; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+
+.ck-popup-detail-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 25px; font-size: 13px; font-weight: bold; flex-wrap: wrap; }
+.ck-popup-card.win .ck-popup-detail-row { color: #ffebee; }
+.ck-popup-card.lose .ck-popup-detail-row { color: #455a64; }
+
+.ck-tag-sm { padding: 4px 12px; border-radius: 12px; font-weight: bold; border: 1px solid rgba(255,255,255,0.4); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.ck-tag-sm.green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.ck-tag-sm.red { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); }
+.ck-tag-sm.purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+.ck-tag-sm.orange { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+.ck-tag-sm.blue { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: #333; text-shadow: none; }
+.ck-tag-sm.num-tag { font-size: 18px; padding: 2px 14px; background: #fff; color: #d82b12; border: 2px solid #ff9a44; text-shadow: none; }
+.ck-popup-card.lose .ck-tag-sm.num-tag { color: #455a64; border-color: #90a4ae; }
+
+.ck-ticket { background: #fff; border-radius: 12px; padding: 20px 15px; position: relative; margin-top: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.ck-ticket:before { content: ''; position: absolute; top: -15px; left: 5%; width: 90%; height: 30px; background: #f0f0f0; border-radius: 15px; z-index: 0; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1); }
+.ck-ticket-content { position: relative; z-index: 1; }
+.ck-ticket-label { font-size: 14px; color: #d82b12; font-weight: 900; margin-bottom: 5px; }
+.ck-popup-card.lose .ck-ticket-label { color: #455a64; }
+.ck-ticket-amount { font-size: 32px; font-weight: 900; color: #d82b12; margin-bottom: 8px; letter-spacing: -1px; }
+.ck-ticket-amount.lose-text { color: #78909c; }
+.ck-ticket-period { font-size: 11px; color: #888; border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 8px; font-family: monospace; }
+.ck-close-btn { margin-top: 30px; display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.8); background: rgba(0,0,0,0.3); color: white; font-size: 22px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.ck-close-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.5); }
+
+.info-box h2 { font-size: 18px; color: var(--red); margin-bottom: 14px; }
+.info-box p { font-size: 12px; margin-bottom: 10px; }
+.info-header { display: flex; align-items: center; justify-content: space-between; }
+.info-header button { width: auto; background: none; color: #999; padding: 0; margin: 0; font: 24px system-ui; }
+.admin-nav { display: flex; background: #fff; padding: 10px; gap: 10px; overflow-x: auto; box-shadow: var(--shadow); margin-bottom: 15px; border-radius: 10px; }
+.admin-nav button { flex: 1; padding: 8px; border-radius: 6px; background: #f2f3f6; font-size: 12px; font-weight: bold; white-space: nowrap; transition: 0.2s; }
+.admin-nav button.active { background: var(--gradient); color: #fff; }
+.admin-sub-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+.admin-sub-tabs button { flex: 1; padding: 8px; font-size: 12px; background: #e9e9ef; border-radius: 6px; font-weight: bold; color: #666; transition: 0.2s;}
+.admin-sub-tabs button.active { background: var(--blue); color: #fff; box-shadow: 0 4px 8px rgba(64,128,255,0.3); }
+
+/* Admin Profit & Ranking Card Styling */
+.admin-profit-card { background: linear-gradient(135deg, #1e222d, #2d3242); color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.admin-profit-title { font-size: 13px; font-weight: bold; color: #ffeb3b; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+.admin-profit-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+.admin-profit-row b { color: #4cd137; }
+
+.admin-rank-card { background: #fff5f5; border: 1px solid #ffd8d8; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
+.admin-rank-title { font-weight: bold; color: var(--red); margin-bottom: 6px; }
+.admin-rank-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #ffebeb; }
+
+.user-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 12px; }
+.user-item:last-child { border-bottom: none; }
+#toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px); max-width: 90%; width: max-content; background: #252631ed; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 12px; text-align: center; z-index: 9999; opacity: 0; pointer-events: none; transition: .2s; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.cs-btn { display: flex; align-items: center; justify-content: center; gap: 8px; color: white; padding: 14px 20px; border-radius: 12px; font-weight: bold; font-size: 15px; text-decoration: none; width: 100%; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transition: 0.2s; }
+.cs-btn:active { transform: scale(0.96); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
+.cs-btn svg { width: 22px; height: 22px; fill: white; }
+.tg-btn { background: #229ED9; } .viber-btn { background: #7360F2; } .custom-btn { background: var(--orange); }
+.admin-link-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9fc; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+.admin-link-item button { background: var(--red); color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; }
+.copy-btn { background: #fff; color: #4080ff; padding: 3px 8px; border-radius: 4px; font-size: 10px; border: 1px solid #4080ff; margin-left: 8px; font-weight: bold; transition:0.2s; }
+.copy-btn:active { background: #4080ff; color:#fff; }
+.copyable-row { cursor: pointer; transition: 0.2s; }
+.copyable-row:active { transform: scale(0.98); opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6M12 2v3M18 5l2 2"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7M20 11h-6v6h6"/><circle cx="16" cy="14" r=".5"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 12H2v6h4v-6H4m16 0h2v6h-4v-6h2M20 18v1a2 2 0 0 1-2 2h-4"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8M18 4a11 11 0 0 1 0 16"/></symbol>
+<symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m4 9 16-5v16L4 15H2V9h2m3 7 1 5h4l-2-4M16 6v12"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 3h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v17h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4zM12 4v17M7 7h2M15 7h2M7 11h2M15 11h2"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/></symbol>
+</defs></svg>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Server Offline Banner -->
+<div id="serverOffBanner" class="hidden">⚠ Server ကို ခေတ္တပိတ်ထားပါသည်။ အကောင့်အသစ်ဖွင့်ခြင်း နှင့် လောင်းကြေးထိုးခြင်းများ ရပ်နားထားပါသည်။</div>
+
+<!-- AUTH SCREEN -->
+<section id="authScreen" aria-label="အကောင့်ဝင်ရန်">
+  <div class="auth-hero">
+    <div class="brand"><span class="brand-mark">B</span><div><div class="logo-area"><span>Burma</span>Lottery</div><small>BURMA LOTTERY</small></div></div>
+    <div class="auth-kicker">WELCOME TO BURMA LOTTERY</div>
+    <h1>မင်္ဂလာပါ</h1><p>WinGo မျက်နှာပြင်ကို စမ်းကြည့်ပါ။<br>လုံခြုံစိတ်ချစွာ ကစားနိုင်ပါပြီ။</p>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-tabs" role="tablist" aria-label="အကောင့်">
+      <button id="tabLogin" class="active" role="tab" aria-selected="true" onclick="switchAuth('login')">အကောင့်ဝင်ရန်</button>
+      <button id="tabSignup" role="tab" aria-selected="false" onclick="switchAuth('signup')">အကောင့်ဖွင့်ရန်</button>
+    </div>
+    <form id="formLogin" class="auth-form" onsubmit="event.preventDefault();doLogin()">
+      <div class="input-wrap"><label for="loginPhone">ဖုန်းနံပါတ် (သို့) ID</label><input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required></div>
+      <div class="input-wrap"><label for="loginPwd">စကားဝှက်</label><input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">◉</button></div>
+      <div style="text-align: right; margin-top: -5px; margin-bottom: 5px;"><a href="#" onclick="openForgotPassword(); return false;" style="font-size: 12px; color: var(--red); text-decoration: none;">စကားဝှက် မေ့နေပါသလား?</a></div>
+      <button class="btn-main" type="submit">အကောင့်ဝင်မည်</button>
+    </form>
+    <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
+      <div class="input-wrap"><label for="signPhone">ဖုန်းနံပါတ်</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
+      <div class="input-wrap"><label for="signName">အမည်</label><input type="text" id="signName" placeholder="သင့်အမည်" required></div>
+      <div class="input-wrap"><label for="signPwd">စကားဝှက်</label><input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">◉</button></div>
+      <div class="input-wrap"><label for="signPwd2">စကားဝှက် အတည်ပြုရန်</label><input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">◉</button></div>
+      <div class="input-wrap"><label for="signInviteCode">ဖိတ်ခေါ်ကုဒ် (မထည့်လည်းရသည်)</label><input type="text" id="signInviteCode" placeholder="ဖိတ်ခေါ်သူ၏ ၅ လုံးပြည့် ID ထည့်ပါ"></div>
+      <button class="btn-main" type="submit">အကောင့်ဖွင့်မည်</button>
+    </form>
+  </div>
+</section>
+
+<main id="app-container" class="hidden">
+  <header class="header">
+    <button class="icon-btn" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg></button>
+    <div class="brand"><span class="brand-mark">B</span><div class="logo-area"><span>Burma</span>Lottery</div></div>
+    <div class="header-icons"><button class="icon-btn" onclick="showHelp()"><svg class="icon"><use href="#i-help"/></svg></button><button class="icon-btn" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button></div>
+  </header>
+  
+  <section class="wallet-area">
+    <div class="user-bar">
+      <div class="wallet-top"><span class="id-chip">UID <span id="userId">—</span></span><span>လက်ကျန်ငွေ</span><button onclick="logout()">ထွက်ရန် ↗</button></div>
+      <div class="balance"><span class="currency">Ks</span><span id="balance">0</span></div>
+      <div class="wallet-label"><svg class="icon"><use href="#i-wallet"/></svg>လက်ကျန်ငွေ</div>
+      <div class="wallet-actions">
+        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေထုတ်မည်</button>
+        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေဖြည့်မည်</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME VIEW -->
+  <section id="view-game">
+    <div class="game-tabs" id="gameTabs">
+      <button class="active" onclick="switchGame('wingo30s',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>30 second</button>
+      <button onclick="switchGame('wingo1m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>1 Min</button>
+      <button onclick="switchGame('wingo3m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>3 Min</button>
+      <button onclick="switchGame('wingo5m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>5 Min</button>
+    </div>
+    <section class="timer-area">
+      <div class="timer-left">
+        <button class="rules-link" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg>ကစားနည်း</button>
+        <div class="timer-title" id="gameLabel">Win Go 30 second</div>
+        <div class="recent-balls" id="recentBalls"></div>
+        <div class="latest-meta"><span class="latest-title">နောက်ဆုံးရလဒ်</span> · <span class="latest-num" id="latestNum">—</span></div>
+      </div>
+      <div class="timer-right">
+        <div class="countdown-caption">ပွဲပိတ်ရန် ကျန်ချိန်</div>
+        <div class="timer-val mono" id="timerVal">00:30</div>
+        <div class="period-val" id="periodVal">—</div>
+      </div>
+    </section>
+    <section class="play-card">
+      <div class="bet-options-row color-row"><button class="bet-opt-btn color-green" onclick="openBetSheet('green')">အစိမ်း</button><button class="bet-opt-btn color-purple" onclick="openBetSheet('purple')">ခရမ်း</button><button class="bet-opt-btn color-red" onclick="openBetSheet('red')">အနီ</button></div>
+      <div class="num-grid" id="numGrid"></div>
+      <div class="quick-row"><button onclick="openBetSheet('num',Math.floor(Math.random()*10))">ကျပန်းရွေး</button></div>
+      <div class="bet-options-row size-row"><button class="bet-opt-btn big" onclick="openBetSheet('big')">အကြီး <span>5–9</span></button><button class="bet-opt-btn small" onclick="openBetSheet('small')">အသေး <span>0–4</span></button></div>
+      <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပွဲပိတ်ထားပါပြီ · နောက်ပွဲကို စောင့်ပါ</p></div>
+    </section>
+    <section class="history-section">
+      <div class="history-tabs" id="historyTabs">
+        <button class="active" onclick="setHistoryTab('game', this)">ဂိမ်းမှတ်တမ်း</button>
+        <button onclick="setHistoryTab('mine', this)">ကျွန်ုပ်၏မှတ်တမ်း</button>
+      </div>
+      <div class="table-container" id="gameHistoryTable">
+        <table><thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး / သေး</th><th>အရောင်</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
+      </div>
+      <div id="myBetsList" class="hidden"></div>
+    </section>
+  </section>
+  
+  <!-- DEPOSIT / WITHDRAW VIEW -->
+  <div id="view-deposit" class="page-view hidden">
+    <div class="deposit-card" style="text-align: center; padding: 30px 20px;">
+      <h3 style="color:var(--green); margin-bottom:15px;">ငွေသွင်း / ငွေထုတ်ရန်</h3>
+      <p style="font-size: 13px; color: var(--text-light); margin-bottom: 25px;">
+        ငွေသွင်းခြင်း နှင့် ငွေထုတ်ခြင်းများကို အောက်ပါစနစ်များမှတစ်ဆင့် လုံခြုံမြန်ဆန်စွာ ဆက်သွယ်ဆောင်ရွက်နိုင်ပါသည်။
+      </p>
+      <div id="cs-links-container"></div>
+      <div class="copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="margin-top: 30px; text-align:left; background:#f9f9fc; padding:15px; border-radius:12px; border: 1px dashed var(--border);">
+        <span style="font-size:12px; color:var(--text-light);">သင့်အကောင့် User ID:</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+           <b id="dep-id" style="font-size:18px; color:var(--red);">-</b>
+           <span class="copy-btn">Copy ID</span>
+        </div>
+        <p style="margin-top:10px; color:#777; font-size:11px;">* ငွေသွင်း/ထုတ်ရာတွင် အထက်ပါ <b>User ID</b> ကို Admin ထံသို့ ပေးပို့ရပါမည်။</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW -->
+  <div id="view-profile" class="page-view hidden">
+    <div class="profile-card">
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ကျွန်ုပ်၏ Profile</h3>
+      <div class="profile-row"><span style="color:var(--text-light);">အမည်</span><span id="prof-name" style="font-weight:bold;">-</span></div>
+      
+      <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f4f5f8; padding:10px; border-radius:8px; align-items:center;">
+          <span style="color:var(--text-light);">User ID</span>
+          <div><span id="prof-id" style="font-weight:bold; font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
+      </div>
+      
+      <div class="profile-row"><span style="color:var(--text-light);">ဖုန်းနံပါတ်</span><span id="prof-phone" style="font-weight:bold;">-</span></div>
+      <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ပွိုင့်</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 ကျပ်</span></div>
+    </div>
+
+    <div class="profile-card">
+      <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
+      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">သင့်ရဲ့ ဖိတ်ခေါ်ကုဒ် (သို့) Link ကိုသုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူငယ်ချင်းပါ <b style="color:var(--red)">1,999 Ks</b> စီ အလိုအလျောက် ရရှိပါမည်။</p>
+      
+      <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
+          <span style="color:var(--text-light);">ဖိတ်ခေါ်ကုဒ်</span>
+          <div><span id="prof-invite-code" style="font-weight:bold; color:var(--blue); font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
+      </div>
+      
+      <div class="profile-row copyable-row" id="linkCopyBox" style="background:#f4f5f8; padding:10px; border-radius:8px; align-items:center; margin-top:10px;">
+          <span style="color:var(--text-light);">ဖိတ်ခေါ်ရန် Link</span>
+          <div>
+             <span id="prof-invite-link" style="font-size:10px; display:inline-block; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle;">-</span>
+             <span class="copy-btn">Copy</span>
+          </div>
+          <span id="prof-invite-link-full" class="hidden"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEWS -->
+  <div id="view-admin-control" class="page-view hidden">
+    <div class="admin-nav"><button class="active" onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
+    
+    <div class="admin-card">
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဂိမ်းအလိုက် ထိန်းချုပ်ရန်</h3>
+      <div class="admin-sub-tabs" id="adminGameTabs">
+        <button class="active" onclick="setAdminGame('wingo30s', this)">30s</button>
+        <button onclick="setAdminGame('wingo1m', this)">1 Min</button>
+        <button onclick="setAdminGame('wingo3m', this)">3 Min</button>
+        <button onclick="setAdminGame('wingo5m', this)">5 Min</button>
+      </div>
+
+      <!-- PROFIT SUMMARY CARD -->
+      <div class="admin-profit-card" id="adminProfitSummary">
+        <div class="admin-profit-title">💰 အမြတ်အစွန်း စာရင်းဇယား (<span id="profitGameName">30s</span>)</div>
+        <div class="admin-profit-row"><span>တစ်ပွဲစာ စုစုပေါင်းအမြတ်:</span><b id="periodProfitVal">0 Ks</b></div>
+        <div class="admin-profit-row"><span>တစ်ပွဲစာ ကော်မရှင် (2%):</span><b id="periodCommVal">0 Ks</b></div>
+        <div class="admin-profit-row" style="margin-top:6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px;"><span>တစ်နေကုန်စာ စုစုပေါင်းအမြတ်:</span><b id="todayProfitVal">0 Ks</b></div>
+        <div class="admin-profit-row"><span>တစ်နေကုန်စာ ကော်မရှင် (2%):</span><b id="todayCommVal">0 Ks</b></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9fc; padding:15px; border-radius:12px; border:1px solid var(--border); margin-bottom: 15px;">
+         <div><strong style="font-size:14px; color:var(--text);">Server အခြေအနေ</strong><div style="font-size:11px; color:var(--text-light); margin-top:3px;">ပိတ်ထားပါက အကောင့်ဖွင့်ခြင်းနှင့် ထိုးခြင်းများ ရပ်နားထားမည်။</div></div>
+         <label class="toggle-switch"><input type="checkbox" id="server-active-chk" onchange="toggleServerStatus()"><span class="slider"></span></label>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:#fff5f5; padding:10px; border-radius:8px;">
+        <input type="checkbox" id="chk-auto-draw" style="width:20px; height:20px;" onchange="toggleAutoDraw()"><label for="chk-auto-draw" style="font-size:13px; font-weight:bold; color:var(--red)">Auto Draw (အနည်းဆုံးထိုးထားသည့်အရာ)</label>
+      </div>
+      <div id="manual-draw-section">
+        <p style="font-size:12px; margin-bottom:10px; color:var(--text-light)">အောက်ပါဂဏန်းကို ရွေးချယ်ပါ (ရွေးထားရင် နောက်ပွဲမှာ ထွက်ပါမည်)</p>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px;" id="admin-num-grid"></div>
+      </div>
+    </div>
+    
+    <div class="admin-card">
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">📊 <span id="adminRankTitle">30s</span> အတွက် ထိုးထားမှုစာရင်း</h3>
+      <div id="admin-ranking-summary"></div>
+    </div>
+  </div>
+
+  <div id="view-admin-deposits" class="page-view hidden">
+    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button class="active" onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
+    <div class="admin-card">
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အကောင့်သို့ ငွေဖြည့်/လျှော့ရန်</h3>
+      <input type="text" id="admin-search-id" placeholder="User ID">
+      <select id="admin-operation" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="add">ငွေတိုးမည် (+)</option><option value="subtract">ငွေလျှော့မည် (−)</option></select>
+      <input type="number" id="admin-amount" placeholder="ပမာဏ (Ks)">
+      <button onclick="adminAddBalance()" style="background:var(--green)">အတည်ပြုမည်</button>
+    </div>
+    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အားလုံး</h3><div id="adminUserList"></div></div>
+  </div>
+
+  <div id="view-admin-links" class="page-view hidden">
+    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button class="active" onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
+    <div class="admin-card">
+      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဆက်သွယ်ရန် Link အသစ်ထည့်မည်</h3>
+      <select id="admin-link-type" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="telegram">Telegram</option><option value="viber">Viber</option><option value="custom">အခြား / Custom</option></select>
+      <input type="text" id="admin-link-label" placeholder="စာသား (ဥပမာ - Telegram သို့ဆက်သွယ်ရန်)">
+      <input type="url" id="admin-link-url" placeholder="https://t.me/yourusername">
+      <button onclick="adminAddLink()" style="background:var(--blue)">ပေါင်းထည့်မည်</button>
+    </div>
+    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">လက်ရှိ Link များ</h3><div id="admin-link-list"></div></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-game" onclick="switchTab('game',this)"><span class="nav-game-icon"><svg class="icon"><use href="#i-home"/></svg></span>ကစားရန်</button>
+    <button class="nav-item" id="nav-deposit" onclick="switchTab('deposit',this)"><svg class="icon"><use href="#i-wallet"/></svg>ပိုက်ဆံအိတ်</button>
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile',this)"><svg class="icon"><use href="#i-user"/></svg>ကျွန်ုပ်</button>
+    <button class="nav-item hidden" id="nav-admin" onclick="switchTab('admin-control',this)"><svg class="icon"><use href="#i-settings"/></svg>Admin</button>
+  </nav>
+</main>
+
+<div class="forgot-modal" id="forgotPasswordModal"><div class="forgot-content"><div class="info-header" style="margin-bottom: 15px;"><h2 style="color:var(--red); font-size: 18px;">စကားဝှက် ပြန်လည်သတ်မှတ်ရန်</h2><button onclick="document.getElementById('forgotPasswordModal').classList.remove('show')">×</button></div><div id="forgotStep1"><p style="font-size: 12px; color: var(--text-light); margin-bottom: 15px;">သင့်အကောင့်ရဲ့ ဖုန်းနံပါတ်ကို ထည့်ပါ။</p><input type="text" id="resetPhone" placeholder="09xxxxxxxxx" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; margin-bottom:10px; font-size:14px;"><button class="btn-main" onclick="sendResetOTP()">အတည်ပြုမည်</button></div><div id="forgotStep2" class="hidden"><input type="password" id="resetNewPwd" placeholder="စကားဝှက် အသစ် (အနည်းဆုံး ၆ လုံး)" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; margin-bottom:15px; font-size:14px;"><button class="btn-main" onclick="submitResetPassword()">အတည်ပြုမည်</button></div></div></div>
+
+<!-- BET SHEET -->
+<div class="bet-sheet-overlay" id="betSheetOverlay">
+  <div class="bet-sheet">
+    <div class="bet-header-blue" id="betSheetHeaderColor">
+      <span id="betSheetTitle">Win Go 30s</span>
+      <button class="bet-sheet-close" onclick="closeBetSheet()">×</button>
+    </div>
+    <div class="bet-sheet-body">
+      <div class="bet-row"><span class="bet-label">လက်ကျန်ငွေ</span><span class="bet-bal"><span id="sheetBalance">0</span> Ks</span></div>
+      <div class="bet-label" style="margin-bottom:8px;">ပမာဏ ရွေးချယ်ပါ (Amount)</div>
+      <div class="bet-amount-opts" id="sheetAmountOpts">
+        <button class="active" onclick="setSheetBaseAmt(10, this)">10</button>
+        <button onclick="setSheetBaseAmt(100, this)">100</button>
+        <button onclick="setSheetBaseAmt(1000, this)">1k</button>
+        <button onclick="setSheetBaseAmt(10000, this)">10k</button>
+      </div>
+      <div class="bet-label" style="margin-bottom:8px;">အကြိမ်အရေအတွက် (Quantity)</div>
+      <div class="bet-qty-row">
+        <div class="qty-control">
+          <button onclick="changeSheetQty(-1)">−</button>
+          <input type="number" id="sheetQtyInput" value="1" min="1" step="1" inputmode="numeric" oninput="updateTotalBet()">
+          <button onclick="changeSheetQty(1)">+</button>
+        </div>
+        <div class="qty-multipliers" id="sheetQtyMultipliers">
+          <button class="active" onclick="setSheetQty(1, this)">X1</button>
+          <button onclick="setSheetQty(5, this)">X5</button>
+          <button onclick="setSheetQty(10, this)">X10</button>
+          <button onclick="setSheetQty(20, this)">X20</button>
+          <button onclick="setSheetQty(50, this)">X50</button>
+          <button onclick="setSheetQty(100, this)">X100</button>
+        </div>
+      </div>
+      <div class="bet-total">စုစုပေါင်းကျသင့်ငွေ: <span class="bet-total-amt"><span id="totalBetDisplay">10</span> Ks</span></div>
+      <div class="bet-actions">
+        <button class="btn-cancel" onclick="closeBetSheet()">မလုပ်တော့ပါ</button>
+        <button class="btn-confirm" onclick="confirmBet()">အတည်ပြုမည်</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXACT 4K CK LOTTERY RESULT POPUP -->
+<div id="resultPopupOverlay" class="result-popup-overlay">
+  <div id="ckPopupCard" class="ck-popup-card win">
+    <div class="ck-popup-badge" id="ckPopupBadge"></div>
+    <div class="ck-popup-title" id="ckPopupTitle">သင့်အနိုင်ရတဲ့အတွက်<br>ဂုဏ်ယူပါတယ်</div>
+    
+    <div class="ck-popup-detail-row">
+      <span style="font-weight:normal; margin-right:5px;">ထီပေါက်ရလဒ်များ:</span>
+      <span class="ck-tag-sm" id="resTagType">အကြီး</span>
+      <span class="ck-tag-sm num-tag" id="resTagNum">5</span>
+      <span class="ck-tag-sm" id="resTagSize">အကြီး</span>
+    </div>
+
+    <div class="ck-ticket">
+      <div class="ck-ticket-content">
+        <div class="ck-ticket-label" id="ckTicketLabel">ဘောနပ်စ်</div>
+        <div class="ck-ticket-amount" id="ckTicketAmt">+K 1,960.00</div>
+        <div class="ck-ticket-period" id="ckTicketPeriod">ပွဲအမှတ်စဉ် -</div>
+      </div>
+    </div>
+
+    <div class="ck-close-btn" onclick="closeResultPopup()">✕</div>
+  </div>
+</div>
+
+<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+
+<script>
+const ADMIN_PHONE = '992004';
+const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
+
+let DB = JSON.parse(localStorage.getItem('burma_lottery_v48')) || {
+  users: {}, session: null,
+  settings: { 
+    autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, 
+    manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, 
+    serverActive: true, 
+    links: [{ type: 'telegram', label: 'Telegram သို့ ဆက်သွယ်ရန်', url: 'https://t.me/yourusername' }]
+  },
+  currentGame: 'wingo30s',
+  games: {
+    wingo30s: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
+    wingo1m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
+    wingo3m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
+    wingo5m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 }
+  }
+};
+
+// Ensure profit fields exist in games storage
+Object.keys(DURATIONS).forEach(k => {
+    if(DB.games[k].todayProfit === undefined) DB.games[k].todayProfit = 0;
+    if(DB.games[k].todayComm === undefined) DB.games[k].todayComm = 0;
+    if(DB.games[k].currentPeriodProfit === undefined) DB.games[k].currentPeriodProfit = 0;
+    if(DB.games[k].currentPeriodComm === undefined) DB.games[k].currentPeriodComm = 0;
+});
+
+if(typeof DB.settings.autoDraw !== 'object') {
+    DB.settings.autoDraw = { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true };
+    DB.settings.manualNum = { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null };
+}
+
+if (!DB.users[ADMIN_PHONE]) {
+  DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true };
+  saveDB();
+}
+
+let currentUser = DB.session ? DB.users[DB.session] : null;
+let activeGame = DB.currentGame || 'wingo30s';
+let adminActiveGame = 'wingo30s'; 
+let currentPage = 1, lastBeepedSec = -1, historyTab = 'game';
+let betType = null, betNum = null, baseAmt = 10, sheetQty = 1;
+
+const $ = id => document.getElementById(id);
+const text = (id, val) => { if($(id)) $(id).innerText = val; };
+function saveDB() { localStorage.setItem('burma_lottery_v48', JSON.stringify(DB)); }
+function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
+
+window.fallbackCopyTextToClipboard = function(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed";
+  document.body.appendChild(textArea);
+  textArea.focus(); textArea.select();
+  try {
+    document.execCommand('copy');
+    toast('Copied!');
+  } catch (err) { toast('Copy failed'); }
+  document.body.removeChild(textArea);
+}
+
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const invite = urlParams.get('invite');
+    if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
+}
+
+let audioCtx;
+document.addEventListener('click', function initAudio() {
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}, {once:true});
+function playBeep() {
+  try {
+    if(audioCtx && audioCtx.state === 'running') {
+      let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(1.0, audioCtx.currentTime); 
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    }
+  } catch(e) {}
+}
+
+function getPeriodBlock(gameKey, timeNow) { return Math.floor(timeNow / DURATIONS[gameKey]); }
+function formatPeriodString(blockNum, gameKey) {
+    let d = new Date(blockNum * DURATIONS[gameKey]);
+    return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockNum % 10000}`;
+}
+
+window.switchAuth = function(type) {
+  $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup');
+  $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup');
+};
+window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '◉' : '◉'; };
+
+function generateRandom5DigitId() {
+    let newId; do { newId = Math.floor(10000 + Math.random() * 90000).toString(); } while (Object.values(DB.users).some(u => u.id === newId)); return newId;
+}
+
+window.doSignup = function() {
+  if (!DB.settings.serverActive) return toast('Server ကို ခေတ္တပိတ်ထားပါသည်။ အကောင့်အသစ်ဖွင့်၍မရပါ။');
+  const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
+  const inviteCode = $('signInviteCode').value.trim();
+  
+  if(!phone || !name || !pwd) return toast('အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပါ');
+  if(!/^09\d{7,9}$/.test(phone)) return toast('ဖုန်းနံပါတ် မှားယွင်းနေပါသည်');
+  if(pwd.length < 6) return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ');
+  if(pwd !== pwd2) return toast('စကားဝှက် နှစ်ခု မတူပါ');
+  if(DB.users[phone]) return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ');
+
+  let startingBalance = 0;
+  if(inviteCode) {
+      let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
+      if(inviterPhone) { 
+          DB.users[inviterPhone].balance += 1999; 
+          startingBalance = 1999;
+      } 
+      else { return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည် (မရှိပါ)'); }
+  }
+
+  let newId = generateRandom5DigitId();
+  DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false };
+  DB.session = phone; saveDB(); location.reload();
+};
+
+window.doLogin = function() {
+  const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
+  let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
+  if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
+  DB.session = userPhone; saveDB(); location.reload();
+};
+window.logout = function() { DB.session = null; saveDB(); location.reload(); };
+
+function init() {
+  if(!currentUser) {
+    $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden');
+  } else {
+    $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
+    if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
+    if (!DB.settings.serverActive) $('serverOffBanner').classList.remove('hidden');
+    
+    updateUI(); buildGrid();
+    switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
+    
+    let hostURL = window.location.href.split('?')[0];
+    $('prof-invite-code').innerText = currentUser.id;
+    $('prof-invite-link-full').innerText = `${hostURL}?invite=${currentUser.id}`;
+    $('prof-invite-link').innerText = `${hostURL}?invite=${currentUser.id}`;
+    
+    $('linkCopyBox').onclick = function() { window.fallbackCopyTextToClipboard(`${hostURL}?invite=${currentUser.id}`); };
+    
+    requestAnimationFrame(tickLoop);
+  }
+}
+
+function tickLoop() { tick(); requestAnimationFrame(tickLoop); }
+function updateUI() { if(currentUser) { text('userId', currentUser.id); text('balance', currentUser.balance.toLocaleString()); text('sheetBalance', currentUser.balance.toLocaleString()); } }
+function buildGrid() {
+  const grid = $('numGrid'); grid.innerHTML = '';
+  for(let i=0; i<=9; i++) {
+    let bg = i===0?'bg-purple-red':i===5?'bg-purple-green':[1,3,7,9].includes(i)?'bg-green':'bg-red';
+    let btn = document.createElement('button'); btn.className = `num-btn ${bg}`; btn.innerText = i;
+    btn.onclick = () => openBetSheet('num', i); grid.appendChild(btn);
+  }
+}
+window.switchGame = function(k, btn) {
+  activeGame = k; DB.currentGame = k; saveDB();
+  document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
+  text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m'));
+  currentPage = 1; renderHistory(); updateUI();
+};
+
+let lastTickTime = 0;
+function tick() {
+  if(!currentUser) return;
+  const timeNow = Date.now();
+  if (timeNow - lastTickTime < 200) return;
+  lastTickTime = timeNow;
+
+  let dbChanged = false;
+  Object.keys(DURATIONS).forEach(k => {
+      const g = DB.games[k];
+      const currentBlock = getPeriodBlock(k, timeNow);
+      if (!g.lastBlock) { g.lastBlock = currentBlock; dbChanged = true; }
+      if (currentBlock > g.lastBlock) {
+          let startBlock = Math.max(g.lastBlock, currentBlock - 50);
+          for (let b = startBlock; b < currentBlock; b++) {
+              let isCatchup = (b < currentBlock - 1); processDrawLogic(k, b, isCatchup);
+          }
+          g.lastBlock = currentBlock; dbChanged = true;
+      }
+  });
+  if (dbChanged) saveDB();
+
+  const activeDur = DURATIONS[activeGame];
+  const activeRem = activeDur - (timeNow % activeDur);
+  const activeBlock = getPeriodBlock(activeGame, timeNow);
+  
+  text('periodVal', formatPeriodString(activeBlock, activeGame));
+  const sec = Math.ceil(activeRem/1000); 
+  const m = Math.floor(sec/60), s = sec%60;
+  if($('timerVal')) $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  
+  if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
+    $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
+    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
+  } else { $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1; }
+}
+
+function processDrawLogic(gameKey, targetBlock, isCatchup) {
+  const g = DB.games[gameKey]; let num = null;
+
+  if (!DB.settings.autoDraw[gameKey]) {
+    if (DB.settings.manualNum[gameKey] !== null) { 
+        num = DB.settings.manualNum[gameKey]; 
+        DB.settings.manualNum[gameKey] = null; 
+        if(!isCatchup && adminActiveGame === gameKey) renderAdminControl(); 
+    } else { num = Math.floor(Math.random() * 10); }
+  } else {
+    let liabilities = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
+    g.bets.forEach(b => {
+      let eff = b.amount * 0.98;
+      if(b.type === 'num') liabilities[b.num] += eff * 9;
+      else if(b.type === 'big') for(let i=5; i<=9; i++) liabilities[i] += eff * 2;
+      else if(b.type === 'small') for(let i=0; i<=4; i++) liabilities[i] += eff * 2;
+      else if(b.type === 'green') { [1,3,7,9].forEach(i => liabilities[i] += eff * 2); liabilities[5] += eff * 1.5; }
+      else if(b.type === 'red') { [2,4,6,8].forEach(i => liabilities[i] += eff * 2); liabilities[0] += eff * 1.5; }
+      else if(b.type === 'purple') { [0,5].forEach(i => liabilities[i] += eff * 4.5); }
+    });
+    let minL = Infinity, candidates = [];
+    for(let i=0; i<=9; i++) {
+      if(liabilities[i] < minL) { minL = liabilities[i]; candidates = [i]; } else if(liabilities[i] === minL) candidates.push(i);
+    }
+    num = candidates[Math.floor(Math.random() * candidates.length)];
+  }
+
+  const strPeriod = formatPeriodString(targetBlock, gameKey);
+  let currentUserBet = g.bets.find(b => b.userKey === DB.session);
+
+  // Calculate Financials (Total Bets, Payouts, Commission) for this period
+  let totalBetInPeriod = 0;
+  let totalPayoutInPeriod = 0;
+  let totalCommissionInPeriod = 0;
+
+  g.bets.forEach(b => {
+    totalBetInPeriod += b.amount;
+    let comm = b.amount * 0.02; // 2% service fee commission
+    totalCommissionInPeriod += comm;
+
+    let win = false, mult = 0;
+    let eff = b.amount * 0.98;
+
+    if(b.type === 'num' && b.num === num) { win=true; mult=9; }
+    else if(b.type === 'big' && num >= 5) { win=true; mult=2; }
+    else if(b.type === 'small' && num <= 4) { win=true; mult=2; }
+    else if(b.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } }
+    else if(b.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } }
+    else if(b.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
+
+    if(DB.users[b.userKey]) {
+      let payout = 0;
+      if(win) {
+        payout = Math.floor(eff * mult);
+        DB.users[b.userKey].balance += payout; 
+        totalPayoutInPeriod += payout;
+      }
+      if(b.userKey === DB.session) {
+          g.myBets.unshift({ 
+              type: b.type, num: b.num, amount: b.amount, result: num, win: win, 
+              payout: win ? payout : -b.amount, period: strPeriod, date: new Date().toLocaleTimeString() 
+          });
+      }
+    }
+  });
+
+  // Admin Profit = Total Bets - Total Payouts
+  let periodNetProfit = totalBetInPeriod - totalPayoutInPeriod;
+  g.currentPeriodProfit = periodNetProfit;
+  g.currentPeriodComm = totalCommissionInPeriod;
+  g.todayProfit += periodNetProfit;
+  g.todayComm += totalCommissionInPeriod;
+
+  g.history.unshift({ period: strPeriod, num: num });
+  g.bets = [];
+  saveDB();
+
+  if (!isCatchup && gameKey === activeGame) {
+      if (currentUserBet) {
+          let win = false, mult = 0;
+          let eff = currentUserBet.amount * 0.98;
+          if(currentUserBet.type === 'num' && currentUserBet.num === num) { win=true; mult=9; }
+          else if(currentUserBet.type === 'big' && num >= 5) { win=true; mult=2; }
+          else if(currentUserBet.type === 'small' && num <= 4) { win=true; mult=2; }
+          else if(currentUserBet.type === 'green') { if ([1,3,7,9].includes(num)) { win=true; mult=2; } else if (num === 5) { win=true; mult=1.5; } }
+          else if(currentUserBet.type === 'red') { if ([2,4,6,8].includes(num)) { win=true; mult=2; } else if (num === 0) { win=true; mult=1.5; } }
+          else if(currentUserBet.type === 'purple' && [0,5].includes(num)) { win=true; mult=4.5; }
+
+          if (win) {
+              showResult(true, Math.floor(eff * mult), currentUserBet, num, strPeriod);
+          } else {
+              showResult(false, currentUserBet.amount, currentUserBet, num, strPeriod);
+          }
+      }
+      text('latestNum', num);
+      if($('latestNum')) $('latestNum').style.color = (num===0||num===5)?'#9b5de5':[1,3,7,9].includes(num)?'#2dbd7e':'#ff4b4b';
+      renderHistory();
+      if(DB.session) { currentUser = DB.users[DB.session]; updateUI(); }
+  }
+}
+
+function renderHistory() {
+  const g = DB.games[activeGame]; const tbody = $('historyTableBody'); if(!tbody) return; tbody.innerHTML = '';
+  const hist = g.history.slice((currentPage-1)*10, currentPage*10);
+  hist.forEach(h => {
+    let isBig = h.num >= 5;
+    let c = (h.num===0||h.num===5)?'#9b5de5':[1,3,7,9].includes(h.num)?'#2dbd7e':'#ff4b4b';
+    let bg = h.num===0?'bg-purple-red':h.num===5?'bg-purple-green':[1,3,7,9].includes(h.num)?'bg-green':'bg-red';
+    tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
+  });
+  text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/10)||1}`);
+  
+  if(historyTab === 'mine') {
+    const myBetsContainer = $('myBetsList');
+    if(g.myBets.length === 0) {
+        myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>';
+    } else {
+        myBetsContainer.innerHTML = g.myBets.slice(0,30).map(b => {
+            let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
+            
+            let tagClass = 'ck-tag-sm ';
+            if(b.type === 'big') tagClass += 'orange';
+            else if(b.type === 'small') tagClass += 'blue';
+            else if(b.type === 'green') tagClass += 'green';
+            else if(b.type === 'red') tagClass += 'red';
+            else if(b.type === 'purple') tagClass += 'purple';
+            else if(b.type === 'num') {
+                if(b.num === 0) tagClass += 'bg-purple-red';
+                else if(b.num === 5) tagClass += 'bg-purple-green';
+                else if([1,3,7,9].includes(b.num)) tagClass += 'bg-green';
+                else tagClass += 'bg-red';
+            }
+
+            let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး';
+            let statusClass = b.win ? 'win' : 'lose';
+            let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
+            
+            return `
+            <div class="ck-bet-item">
+              <div class="ck-bet-left">
+                <span class="${tagClass}">${labelText}</span>
+                <span class="ck-bet-period">${b.period}</span>
+                <span class="ck-bet-time">${b.date}</span>
+              </div>
+              <div class="ck-bet-right">
+                <div class="ck-bet-status ${statusClass}">${statusText}</div>
+                <div class="ck-bet-amt ${statusClass}">${amtStr}</div>
+              </div>
+            </div>`;
+        }).join('');
+    }
+  }
+}
+window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].history.length/10)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
+window.setHistoryTab = function(tab, btn) { 
+  historyTab = tab; 
+  document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active')); 
+  btn.classList.add('active'); 
+  $('gameHistoryTable').classList.toggle('hidden', tab !== 'game'); 
+  $('myBetsList').classList.toggle('hidden', tab !== 'mine'); 
+  renderHistory(); 
+};
+
+window.openBetSheet = function(type, num=null) {
+  if(!currentUser) return toast('အကောင့်ဝင်ပါ'); 
+  if(!DB.settings.serverActive) return toast('Server ကို ခေတ္တပိတ်ထားပါသည်။ လောင်းကြေးထိုး၍မရပါ။');
+  const timeNow = Date.now(); const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
+  if(activeRem <= 5000) return toast('ပွဲပိတ်ထားပါပြီ');
+  
+  betType = type; betNum = num; baseAmt = 10; sheetQty = 1;
+  let label = type==='num' ? `Select ${num}` : type==='big'?'Select Big':type==='small'?'Select Small':type==='green'?'Select Green':type==='red'?'Select Red':'Select Purple';
+  text('betSheetTitle', `Win Go ${activeGame.replace('wingo','')} - ${label}`);
+  
+  const header = $('betSheetHeaderColor'); header.className = 'bet-header-blue'; 
+  if(type === 'green') header.className = 'bet-header-green'; if(type === 'red') header.className = 'bet-header-red';
+  if(type === 'purple') header.className = 'bet-header-purple'; if(type === 'big' || type === 'small') header.className = 'bet-header-orange';
+
+  document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); document.querySelector('#sheetAmountOpts button').classList.add('active');
+  document.querySelectorAll('#sheetQtyMultipliers button').forEach(b => b.classList.remove('active')); document.querySelector('#sheetQtyMultipliers button').classList.add('active');
+  $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show');
+};
+window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
+window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
+window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; document.querySelectorAll('#sheetQtyMultipliers button').forEach(b => b.classList.remove('active')); updateTotalBet(); };
+window.setSheetQty = function(q, btn) { sheetQty = q; $('sheetQtyInput').value = q; document.querySelectorAll('#sheetQtyMultipliers button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
+window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
+window.confirmBet = function() {
+  if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်။'); }
+  const total = baseAmt * sheetQty; if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
+  currentUser.balance -= total; 
+  DB.games[activeGame].bets.push({ userKey: DB.session, type: betType, num: betNum, amount: total });
+  saveDB(); updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ');
+};
+
+function renderUserLinks() {
+  const container = $('cs-links-container'); if(!container) return;
+  const links = DB.settings.links || [];
+  if (links.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:#999;">Link မရှိသေးပါ</p>'; return; }
+  container.innerHTML = links.map(l => {
+    let iconId = l.type === 'viber' ? 'i-viber' : (l.type === 'telegram' ? 'i-telegram' : 'i-link');
+    let btnClass = l.type === 'viber' ? 'viber-btn' : (l.type === 'telegram' ? 'tg-btn' : 'custom-btn');
+    return `<a href="${l.url}" target="_blank" class="cs-btn ${btnClass}"><svg><use href="#${iconId}"/></svg> ${l.label}</a>`;
+  }).join('');
+}
+
+window.switchTab = function(tab, el) {
+  ['game','deposit','profile','admin-control','admin-deposits','admin-links'].forEach(x => { let t = $('view-'+x); if(t) t.classList.add('hidden'); });
+  let activeView = $('view-'+tab); if(activeView) activeView.classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active');
+  
+  if(tab === 'deposit') { $('dep-id').innerText = currentUser.id; renderUserLinks(); }
+  if(tab === 'profile') { text('prof-name', currentUser.name); text('prof-id', currentUser.id); text('prof-phone', currentUser.phone); text('prof-bal', currentUser.balance.toLocaleString() + ' Ks'); }
+  if(tab === 'admin-control') renderAdminControl(); 
+  if(tab === 'admin-deposits') renderAdminDeposits();
+  if(tab === 'admin-links') renderAdminLinks();
+};
+
+window.toggleServerStatus = function() {
+    DB.settings.serverActive = $('server-active-chk').checked; saveDB();
+    toast(DB.settings.serverActive ? 'Server ဖွင့်လိုက်ပါပြီ' : 'Server ပိတ်ထားပါသည်');
+    if (DB.settings.serverActive) { $('serverOffBanner').classList.add('hidden'); } else { $('serverOffBanner').classList.remove('hidden'); }
+};
+
+window.setAdminGame = function(game, btn) {
+    adminActiveGame = game;
+    document.querySelectorAll('#adminGameTabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    text('adminRankTitle', game.replace('wingo', ''));
+    text('profitGameName', game.replace('wingo', ''));
+    renderAdminControl();
+};
+
+function renderAdminControl() {
+  $('server-active-chk').checked = DB.settings.serverActive;
+  $('chk-auto-draw').checked = DB.settings.autoDraw[adminActiveGame]; 
+  $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
+  
+  const aGrid = $('admin-num-grid'); aGrid.innerHTML = '';
+  for(let i=0; i<=9; i++) {
+    let btn = document.createElement('button'); btn.innerText = i;
+    btn.style.cssText = `padding:10px; border-radius:5px; font-weight:bold; color:#fff; background:${DB.settings.manualNum[adminActiveGame] === i ? 'var(--red)' : '#ccc'}`;
+    btn.onclick = () => { DB.settings.manualNum[adminActiveGame] = i; saveDB(); renderAdminControl(); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); }; aGrid.appendChild(btn);
+  }
+
+  const g = DB.games[adminActiveGame]; 
+
+  // Render Profit Metrics
+  text('periodProfitVal', (g.currentPeriodProfit || 0).toLocaleString() + ' Ks');
+  text('periodCommVal', Math.floor(g.currentPeriodComm || 0).toLocaleString() + ' Ks');
+  text('todayProfitVal', (g.todayProfit || 0).toLocaleString() + ' Ks');
+  text('todayCommVal', Math.floor(g.todayComm || 0).toLocaleString() + ' Ks');
+
+  let nBets = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  let otherBets = { big: 0, small: 0, green: 0, red: 0, purple: 0 };
+
+  g.bets.forEach(b => {
+    let eff = b.amount;
+    if(b.type === 'num') nBets[b.num] += eff;
+    else if(b.type === 'big') otherBets.big += eff;
+    else if(b.type === 'small') otherBets.small += eff;
+    else if(b.type === 'green') otherBets.green += eff;
+    else if(b.type === 'red') otherBets.red += eff;
+    else if(b.type === 'purple') otherBets.purple += eff;
+  });
+
+  let sortedNums = Object.keys(nBets).sort((a,b) => nBets[b] - nBets[a]);
+  let valMap = {big:otherBets.big, small:otherBets.small, green:otherBets.green, red:otherBets.red, purple:otherBets.purple};
+  let sortedOthersKeys = Object.keys(valMap).sort((a,b) => valMap[b] - valMap[a]);
+
+  let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title">🔢 ဂဏန်းအလိုက် ထိုးငွေ (အများဆုံးမှ အနည်းဆုံး)</div>`;
+  sortedNums.forEach(num => {
+      rankHTML += `<div class="admin-rank-row"><span>နံပါတ် (${num})</span><b>${nBets[num].toLocaleString()} Ks</b></div>`;
+  });
+  rankHTML += `</div><div class="admin-rank-card"><div class="admin-rank-title">🏷 အရောင်နှင့် အကြီး/အသေး ထိုးငွေ</div>`;
+  sortedOthersKeys.forEach(ot => {
+      let nameMap = { big: 'အကြီး (Big)', small: 'အသေး (Small)', green: 'အစိမ်း (Green)', red: 'အနီ (Red)', purple: 'ခရမ်း (Purple)' };
+      rankHTML += `<div class="admin-rank-row"><span>${nameMap[ot]}</span><b>${valMap[ot].toLocaleString()} Ks</b></div>`;
+  });
+  rankHTML += `</div>`;
+
+  $('admin-ranking-summary').innerHTML = rankHTML;
+}
+
+window.toggleAutoDraw = function(silent = false) { 
+    DB.settings.autoDraw[adminActiveGame] = $('chk-auto-draw').checked; 
+    $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
+    if(!silent) saveDB(); 
+};
+
+window.switchAdminTab = function(tab, btn) {
+  document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  ['control','deposits', 'links'].forEach(t => $('view-admin-'+t).classList.add('hidden')); $('view-admin-'+tab).classList.remove('hidden');
+  if(tab==='control') renderAdminControl(); if(tab==='deposits') renderAdminDeposits(); if(tab==='links') renderAdminLinks();
+};
+
+function renderAdminDeposits() { $('adminUserList').innerHTML = Object.values(DB.users).map(u => `<div class="user-item"><b>${u.name} (${u.id})</b> <span>${Math.floor(u.balance)} Ks</span></div>`).join(''); }
+
+window.adminAddBalance = function() {
+  const id = $('admin-search-id').value, amt = +$('admin-amount').value, op = $('admin-operation').value;
+  if(!id || !amt) return toast('ဖြည့်ပါ');
+  const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မတွေ့ပါ');
+  if (op === 'subtract' && DB.users[uKey].balance < amt) return toast('User တွင် ငွေလုံလောက်မှု မရှိပါ');
+  DB.users[uKey].balance += (op === 'subtract' ? -amt : amt); saveDB(); renderAdminDeposits();
+  if(DB.session === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေပြောင်းလဲမှု သိမ်းပြီးပါပြီ'); $('admin-amount').value = '';
+};
+
+window.adminAddLink = function() {
+  const type = $('admin-link-type').value, label = $('admin-link-label').value.trim(), url = $('admin-link-url').value.trim();
+  if (!label || !url) return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
+  DB.settings.links.push({ type, label, url }); saveDB();
+  $('admin-link-label').value = ''; $('admin-link-url').value = ''; renderAdminLinks(); toast('ပေါင်းထည့်ပြီးပါပြီ');
+};
+window.adminDeleteLink = function(index) { DB.settings.links.splice(index, 1); saveDB(); renderAdminLinks(); toast('ဖျက်လိုက်ပါပြီ'); };
+function renderAdminLinks() {
+  const list = DB.settings.links, container = $('admin-link-list');
+  if (list.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:#999;">Link မရှိသေးပါ</p>'; return; }
+  container.innerHTML = list.map((l, idx) => `<div class="admin-link-item"><div><strong style="color:var(--${l.type==='viber'?'purple':'blue'});">${l.type.toUpperCase()}</strong><br><span>${l.label}</span><br><a href="${l.url}" target="_blank" style="color:#777; font-size:10px;">${l.url}</a></div><button onclick="adminDeleteLink(${idx})">ဖျက်မည်</button></div>`).join('');
+}
+
+function showResult(win, amt, betObj, num, period) {
+  const card = document.getElementById('ckPopupCard');
+  
+  let typeLabel = betObj.type === 'big' ? 'အကြီး' : betObj.type === 'small' ? 'အသေး' : betObj.type === 'green' ? 'အစိမ်း' : betObj.type === 'red' ? 'အနီ' : betObj.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + betObj.num;
+  let tagClass = betObj.type === 'big' ? 'orange' : betObj.type === 'small' ? 'blue' : betObj.type === 'green' ? 'green' : betObj.type === 'red' ? 'red' : 'purple';
+  if(betObj.type === 'num') {
+      if(betObj.num === 0) tagClass = 'bg-purple-red';
+      else if(betObj.num === 5) tagClass = 'bg-purple-green';
+      else if([1,3,7,9].includes(betObj.num)) tagClass = 'green';
+      else tagClass = 'red';
+  }
+  
+  $('resTagType').className = `ck-tag-sm ${tagClass}`;
+  $('resTagType').innerText = typeLabel;
+  $('resTagNum').innerText = num;
+  $('resTagSize').className = `ck-tag-sm ${num >= 5 ? 'orange' : 'blue'}`;
+  $('resTagSize').innerText = num >= 5 ? 'အကြီး' : 'အသေး';
+
+  if(win) {
+      card.className = 'ck-popup-card win';
+      document.getElementById('ckPopupTitle').innerHTML = 'သင့်အနိုင်ရတဲ့အတွက်<br>ဂုဏ်ယူပါတယ်';
+      document.getElementById('ckTicketLabel').innerText = 'ဘောနပ်စ်';
+      let amtFormatted = 'K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').innerText = amtFormatted;
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount';
+  } else {
+      card.className = 'ck-popup-card lose';
+      document.getElementById('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ';
+      document.getElementById('ckTicketLabel').innerText = 'မနိုင်ပါ';
+      let amtFormatted = '-K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').innerText = amtFormatted;
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount lose-text';
+  }
+
+  document.getElementById('ckTicketPeriod').innerText = 'ပွဲအမှတ်စဉ် ' + activeGame.replace('wingo','') + ' ' + period;
+  $('resultPopupOverlay').classList.add('show');
+}
+
+window.closeResultPopup = function() { $('resultPopupOverlay').classList.remove('show'); };
+window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
+window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
+window.showRules = function() { 
+  let rulesHTML = `
+  <div style="font-size:12px; line-height:1.6; color:#444;">
+      <p style="color:var(--red); font-weight:bold; margin-bottom:8px;">* လောင်းကြေးပမာဏမှ Service Fee 2% ကို အရင်ဖြတ်ပါမည်။</p>
+      <b>🟢 အစိမ်း (Green)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>1, 3, 7, 9 ထွက်လျှင် (2 ဆ)</li><li>5 ထွက်လျှင် (1.5 ဆ)</li></ul>
+      <b>🔴 အနီ (Red)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>2, 4, 6, 8 ထွက်လျှင် (2 ဆ)</li><li>0 ထွက်လျှင် (1.5 ဆ)</li></ul>
+      <b>🟣 ခရမ်း (Violet)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>0 သို့မဟုတ် 5 ထွက်လျှင် (4.5 ဆ)</li></ul>
+      <b>🔢 နံပါတ်အတိအကျ (Number)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>0 မှ 9 အထိ ရွေးထားသောနံပါတ် ထွက်လျှင် (9 ဆ)</li></ul>
+      <b>🔵 အကြီး (Big)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>5, 6, 7, 8, 9 ထွက်လျှင် (2 ဆ)</li></ul>
+      <b>🟠 အသေး (Small)</b><ul style="margin-left:20px; margin-bottom:8px;"><li>0, 1, 2, 3, 4 ထွက်လျှင် (2 ဆ)</li></ul>
+  </div>`;
+  openInfo('ကစားနည်း နှင့် ဆတိုးများ', rulesHTML); 
+};
+window.showHelp = function() { openInfo('အသုံးပြုမှု အကြောင်း', '<p>Burma Lottery တွင် လုံခြုံစိတ်ချစွာ ကစားနိုင်ပါသည်။</p>'); };
+window.toggleSound = function() { toast('အသံ ဖွင့်ထားသည်'); };
+
+init();
+</script>
+</body>
+</html>
