@@ -8,18 +8,18 @@ app.use(cors());
 app.use(express.json());
 
 // ==========================================
-// 🔥 Bot Token များ
+// 🔥 Bot Token များ (Polling စနစ်ဖြင့်)
 // ==========================================
 const SET_BOT_TOKEN = '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
 const USER_BOT_TOKEN = '9092936025:AAGDYORAcX50Z0EjjYTlUXwUOZa-cOaO0tc';
 
-const botSet = new TelegramBot(SET_BOT_TOKEN, {polling: true});
-const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, {polling: true});
-const botUser = new TelegramBot(USER_BOT_TOKEN, {polling: true});
+const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
+const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
+const botUser = new TelegramBot(USER_BOT_TOKEN, { polling: true });
 
 // ==========================================
-// 🔥 Database ဖိုင်ဖြင့် အသေသိမ်းမည့်စနစ်
+// 🔥 Database ဖိုင်စနစ်
 // ==========================================
 const DB_FILE = './db.json';
 let DB;
@@ -42,7 +42,6 @@ const DEFAULT_DB = {
   }
 };
 
-// ဖိုင်ထဲမှ ဒေတာများကို ဆွဲထုတ်ခြင်း
 try {
     if (fs.existsSync(DB_FILE)) {
         DB = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
@@ -53,9 +52,10 @@ try {
     DB = DEFAULT_DB;
 }
 
-// ဒေတာပြောင်းလဲတိုင်း ဖိုင်ထဲသို့ အသေသိမ်းခြင်း
 function saveDB() {
-    fs.writeFileSync(DB_FILE, JSON.stringify(DB), 'utf8');
+    try {
+        fs.writeFileSync(DB_FILE, JSON.stringify(DB), 'utf8');
+    } catch(e) {}
 }
 
 function isAdmin(chatId) {
@@ -63,27 +63,18 @@ function isAdmin(chatId) {
 }
 
 // ====================================================
-// 🔥 Telegram Admin ချိတ်ဆက်ခြင်း
+// 🔥 Telegram Commands (Admin ချိတ်ဆက်ခြင်း)
 // ====================================================
 [botSet, botFinance, botUser].forEach(bot => {
     bot.onText(/\/admin/, (msg) => {
-        if (!DB.settings.adminChatId) {
-            DB.settings.adminChatId = msg.chat.id.toString();
-            saveDB();
-            bot.sendMessage(msg.chat.id, `✅ သင်သည် Admin အဖြစ် အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ။`);
-        } else if (isAdmin(msg.chat.id)) {
-            bot.sendMessage(msg.chat.id, `✅ သင်သည် လက်ရှိ Admin ဖြစ်ပါသည်။`);
-        } else {
-            bot.sendMessage(msg.chat.id, `❌ သင့်တွင် အသုံးပြုခွင့် မရှိပါ။`);
-        }
+        DB.settings.adminChatId = msg.chat.id.toString();
+        saveDB();
+        bot.sendMessage(msg.chat.id, `✅ Admin အဖြစ် အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ။ (Chat ID: ${msg.chat.id})`);
     });
 });
 
-// ====================================================
-// ၁။ Set Bot & Result Bot (ဂဏန်းကြိုတင်သတ်မှတ်ရန်) 
-// ====================================================
 botSet.onText(/\/set (\w+) (\d)/, (msg, match) => {
-    if(!isAdmin(msg.chat.id)) return;
+    if(!isAdmin(msg.chat.id)) return botSet.sendMessage(msg.chat.id, "❌ ခွင့်ပြုချက်မရှိပါ။ /admin ကို အရင်ရိုက်ပါ။");
     const game = match[1];
     const num = parseInt(match[2]);
 
@@ -91,15 +82,12 @@ botSet.onText(/\/set (\w+) (\d)/, (msg, match) => {
         DB.settings.manualNum[game] = num;
         DB.settings.autoDraw[game] = false;
         saveDB();
-        botSet.sendMessage(msg.chat.id, `🎯 ${game} အတွက် ထွက်မည့်ဂဏန်းကို [ ${num} ] ဟု သတ်မှတ်ပြီးပါပြီ။`);
+        botSet.sendMessage(msg.chat.id, `🎯 ${game} အတွက် ထွက်မည့်ဂဏန်း [ ${num} ] သတ်မှတ်ပြီးပါပြီ။`);
     }
 });
 
-// ====================================================
-// ၂။ Finance Bot (ငွေစာရင်း) 
-// ====================================================
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
-    if(!isAdmin(msg.chat.id)) return;
+    if(!isAdmin(msg.chat.id)) return botFinance.sendMessage(msg.chat.id, "❌ ခွင့်ပြုချက်မရှိပါ။");
     const cmd = match[1];
     const uid = match[2];
     const amount = parseInt(match[3]);
@@ -109,31 +97,28 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
 
     if(cmd === 'add') {
         DB.users[userKey].balance += amount;
-        botFinance.sendMessage(msg.chat.id, `✅ ငွေသွင်းအောင်မြင်ပါသည်။\n👤 အမည်: ${DB.users[userKey].name}\n💰 လက်ကျန်ငွေ: ${DB.users[userKey].balance} Ks`);
+        botFinance.sendMessage(msg.chat.id, `✅ ငွေသွင်းပြီးပါပြီ။ UID: ${uid} | လက်ကျန်: ${DB.users[userKey].balance} Ks`);
     } else {
         DB.users[userKey].balance -= amount;
-        botFinance.sendMessage(msg.chat.id, `✅ ငွေဖြတ်တောက်မှု အောင်မြင်ပါသည်။\n👤 အမည်: ${DB.users[userKey].name}\n💰 လက်ကျန်ငွေ: ${DB.users[userKey].balance} Ks`);
+        botFinance.sendMessage(msg.chat.id, `✅ ငွေဖြတ်ပြီးပါပြီ။ UID: ${uid} | လက်ကျန်: ${DB.users[userKey].balance} Ks`);
     }
     saveDB();
 });
 
-// ====================================================
-// ၃။ User Bot (အချက်အလက် စစ်ဆေးရန်) 
-// ====================================================
 botUser.onText(/\/check (\w+)/, (msg, match) => {
-    if(!isAdmin(msg.chat.id)) return;
+    if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, "❌ ခွင့်ပြုချက်မရှိပါ။");
     const uid = match[1];
     let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid);
     if(userKey) {
         let u = DB.users[userKey];
-        botUser.sendMessage(msg.chat.id, `👤 User အချက်အလက်\n▫️ အမည်: ${u.name}\n▫️ ဖုန်း: ${u.phone}\n▫️ UID: ${u.id}\n▫️ ငွေ: ${u.balance} Ks\n▫️ စကားဝှက်: ${u.pwd}`);
+        botUser.sendMessage(msg.chat.id, `👤 အမည်: ${u.name}\nUID: ${u.id}\nဖုန်း: ${u.phone}\nငွေ: ${u.balance} Ks`);
     } else {
-        botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} ရှာမတွေ့ပါ။`);
+        botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} မရှိပါ။`);
     }
 });
 
 // ====================================================
-// 🔥 WinGo Game Loop (အချိန်ပြည့်တိုင်း ဂဏန်းအလိုအလျောက်ထွက်ခြင်း)
+// 🔥 WinGo Game Loop (ဂဏန်းအလိုအလျောက်ထွက်ခြင်း)
 // ====================================================
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 
@@ -157,21 +142,16 @@ function drawResult(game, blockIndex, dur) {
     let d = new Date(blockIndex * dur);
     let periodStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockIndex % 10000}`;
 
-    // Admin ကြိုတင်သတ်မှတ်ထားသော ဂဏန်းရှိမရှိ စစ်ဆေးခြင်း
     let winNum = DB.settings.manualNum[game] !== null ? DB.settings.manualNum[game] : Math.floor(Math.random() * 10);
-
-    // Auto ပြန်ပြောင်းပေးခြင်း
     DB.settings.manualNum[game] = null;
     DB.settings.autoDraw[game] = true;
 
-    // History ထဲသို့ ထည့်ခြင်း
     DB.games[game].history.unshift({ period: periodStr, num: winNum });
     if(DB.games[game].history.length > 50) DB.games[game].history.pop();
 
-    // အနိုင်/အရှုံး တွက်ချက်ခြင်း
     let totalBets = 0, totalPayout = 0;
     let activeBets = DB.games[game].bets || [];
-    DB.games[game].bets = []; // လောင်းကြေးများကို ရှင်းလင်းမည်
+    DB.games[game].bets = [];
 
     activeBets.forEach(bet => {
         totalBets += bet.amount;
@@ -185,14 +165,13 @@ function drawResult(game, blockIndex, dur) {
         else if (bet.type === 'red' && [2,4,6,8,0].includes(winNum)) { isWin = true; multiplier = (winNum===0)? 1.5 : 2; }
         else if (bet.type === 'purple' && [0,5].includes(winNum)) { isWin = true; multiplier = 4.5; }
 
-        let payout = isWin ? (bet.amount * multiplier * 0.98) : 0; // ၂% ဝန်ဆောင်ခ နှုတ်မည်
+        let payout = isWin ? (bet.amount * multiplier * 0.98) : 0;
         
         if (isWin) {
             totalPayout += payout;
             if(DB.users[bet.userKey]) DB.users[bet.userKey].balance += payout;
         }
 
-        // ကစားသူ၏ ကိုယ်ပိုင်မှတ်တမ်းသို့ ထည့်ခြင်း
         if(DB.users[bet.userKey]) {
             if(!DB.users[bet.userKey].myBets) DB.users[bet.userKey].myBets = [];
             DB.users[bet.userKey].myBets.unshift({
@@ -203,63 +182,33 @@ function drawResult(game, blockIndex, dur) {
         }
     });
 
-    // အမြတ်အစွန်းတွက်ချက်ခြင်း
     let profit = totalBets - totalPayout;
     DB.games[game].currentPeriodProfit = profit;
     DB.games[game].currentPeriodComm = totalBets * 0.02;
     DB.games[game].todayProfit += profit;
     DB.games[game].todayComm += (totalBets * 0.02);
 
-    saveDB(); // တွက်ချက်မှုပြီးတိုင်း ဖိုင်ထဲ သိမ်းမည်
+    saveDB();
 
-    // 🚀 Telegram Bot (botSet) မှတစ်ဆင့် Admin ထံ ဂဏန်းထွက်ကြောင်း ပို့ပေးခြင်း
     if (DB.settings.adminChatId) {
-        let msg = `🎲 <b>WinGo ${game.replace('wingo','')} ရလဒ်</b>\n\n`;
-        msg += `ပွဲစဉ်: <code>${periodStr}</code>\n`;
-        msg += `ထွက်ဂဏန်း: <b>${winNum}</b>\n`;
-        msg += `အကြီး/အသေး: ${winNum >= 5 ? 'အကြီး' : 'အသေး'}\n`;
-        msg += `💰 ဤပွဲစဉ် အမြတ်: ${profit.toLocaleString()} Ks`;
+        let msg = `🎲 WinGo ${game.replace('wingo','')} ရလဒ်\nပွဲစဉ်: ${periodStr}\nထွက်ဂဏန်း: ${winNum} (${winNum >= 5 ? 'အကြီး' : 'အသေး'})\nအမြတ်: ${profit.toLocaleString()} Ks`;
         try {
-            botSet.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'});
+            botSet.sendMessage(DB.settings.adminChatId, msg);
         } catch(e) {}
     }
 }
 
 // ====================================================
-// Express Server API များ
+// Express API
 // ====================================================
-app.get('/', (req, res) => res.send('WinGo Backend Server is Running!'));
-
+app.get('/', (req, res) => res.send('Server is running'));
 app.get('/api/db', (req, res) => res.json(DB));
 
 app.post('/api/update', (req, res) => {
-    const newDB = req.body;
-    
-    // Admin Chat ID မပျောက်စေရန်
-    if(DB.settings.adminChatId && !newDB.settings.adminChatId) {
-        newDB.settings.adminChatId = DB.settings.adminChatId;
-    }
-
-    // အကောင့်သစ် ဝင်လာပါက Telegram သို့ Alert ပို့ရန်
-    if (newDB.users && DB.users && Object.keys(newDB.users).length > Object.keys(DB.users).length) {
-        for(let phone in newDB.users) {
-            if(!DB.users[phone]) {
-                let u = newDB.users[phone];
-                try {
-                    if (newDB.settings.adminChatId) {
-                        botUser.sendMessage(newDB.settings.adminChatId, `🎉 အကောင့်သစ် ဝင်လာပါပြီ\n\n▫️ အမည်: ${u.name}\n▫️ ဖုန်း: ${u.phone}\n▫️ UID: ${u.id}`);
-                    }
-                } catch(e) {}
-            }
-        }
-    }
-    
-    DB = newDB;
+    DB = req.body;
     saveDB();
     res.send({ success: true });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
