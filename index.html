@@ -395,7 +395,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 
     <div class="profile-card">
       <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
-      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။ (IP တူလျှင် ဘိုနပ်စ်မရပါ)</p>
+      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
       <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
           <span style="color:var(--text-light);">ဖိတ်ခေါ်ကုဒ်</span>
           <div><span id="prof-invite-code" style="font-weight:bold; color:var(--blue); font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
@@ -509,9 +509,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     <div class="ck-popup-badge" id="ckPopupBadge"></div>
     <div class="ck-popup-title" id="ckPopupTitle">ဂုဏ်ယူပါတယ်</div>
     <div class="ck-popup-detail-row">
-      <span class="ck-tag-sm" id="resTagType">အကြီး</span>
       <span class="ck-tag-sm num-tag" id="resTagNum">5</span>
-      <span class="ck-tag-sm" id="resTagSize">အကြီး</span>
     </div>
     <div class="ck-ticket">
       <div class="ck-ticket-content">
@@ -527,19 +525,16 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 <div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
-const BACKEND_URL = "https://burmalottery.onrender.com"; // Render ဆာဗာလင့်ခ်အသစ် ချိတ်ဆက်မှု
+// --- Backend ဆာဗာလင့်ခ် (အဓိကချိတ်ဆက်မှု) ---
+const BACKEND_URL = "https://burmalottery.onrender.com"; 
+
 const ADMIN_PHONE = '992004';
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-const LOCAL_KEY = 'burma_lottery_v49';
+const LOCAL_KEY = 'burma_lottery_v50'; // LocalStorage Data ရှင်းပစ်ရန် Key အသစ်ပြောင်းထားသည်
 
+// Initial Data Structure
 let DB = {
-  users: {}, session: null,
-  settings: { 
-    autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, 
-    manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, 
-    serverActive: true, 
-    links: [{ type: 'telegram', label: 'Telegram သို့ ဆက်သွယ်ရန်', url: 'https://t.me/yourusername' }]
-  },
+  users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
   currentGame: 'wingo30s',
   games: {
     wingo30s: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
@@ -549,60 +544,13 @@ let DB = {
   }
 };
 
-if(localStorage.getItem(LOCAL_KEY)) {
-    try { DB = JSON.parse(localStorage.getItem(LOCAL_KEY)); } catch(e){}
-}
-
-async function getClientIP() {
-  try {
-    let res = await fetch('https://api.ipify.org?format=json');
-    let data = await res.json();
-    return data.ip || 'unknown_ip';
-  } catch(e) {
-    return 'unknown_ip';
-  }
-}
-
-async function loadCloudDB() {
-    try {
-        let res = await fetch(`${BACKEND_URL}/api/db`);
-        if (res.ok) {
-            let json = await res.json();
-            if (json && json.users) {
-                let currentSession = DB.session; 
-                DB = json;
-                if(currentSession && DB.users[currentSession]) DB.session = currentSession;
-
-                if(!DB.users[ADMIN_PHONE]) {
-                    DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true };
-                }
-                
-                localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
-                currentUser = DB.session ? DB.users[DB.session] : null;
-                updateUI(); renderHistory();
-            }
-        }
-    } catch(e) {}
-}
-
-async function saveDB() {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
-    try {
-        await fetch(`${BACKEND_URL}/api/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(DB)
-        });
-    } catch(e) {}
-}
-
-if (!DB.users[ADMIN_PHONE]) { DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: 'adminpassword', balance: 9999999, isAdmin: true }; }
-
-let currentUser = DB.session ? DB.users[DB.session] : null;
-let activeGame = DB.currentGame || 'wingo30s';
-let adminActiveGame = 'wingo30s'; 
+let sessionPhone = localStorage.getItem('wingo_session') || null;
+let currentUser = null;
+let activeGame = localStorage.getItem('wingo_active_game') || 'wingo30s';
+let adminActiveGame = 'wingo30s';
 let currentPage = 1, lastBeepedSec = -1, historyTab = 'game';
 let betType = null, betNum = null, baseAmt = 10, sheetQty = 1;
+let lastKnownPeriods = { wingo30s: '', wingo1m: '', wingo3m: '', wingo5m: '' };
 
 const $ = id => document.getElementById(id);
 const text = (id, val) => { if($(id)) $(id).innerText = val; };
@@ -613,15 +561,91 @@ window.fallbackCopyTextToClipboard = function(text) {
   textArea.focus(); textArea.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(textArea);
 }
 
+// --- API Calls ---
+async function loadCloudDB() {
+    try {
+        let res = await fetch(`${BACKEND_URL}/api/db`);
+        if (res.ok) {
+            let data = await res.json();
+            if(data && data.users) {
+                DB = data;
+                if(sessionPhone && DB.users[sessionPhone]) {
+                    currentUser = DB.users[sessionPhone];
+                }
+                checkNewDraws();
+                updateUI();
+                renderHistory();
+                if($('view-admin-control') && !$('view-admin-control').classList.contains('hidden')) renderAdminControl();
+                if($('view-admin-deposits') && !$('view-admin-deposits').classList.contains('hidden')) renderAdminDeposits();
+            }
+        }
+    } catch(e) {}
+}
+
+async function saveDB() {
+    try {
+        await fetch(`${BACKEND_URL}/api/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(DB)
+        });
+    } catch(e) { toast('Network error'); }
+}
+
+// --- Check For New Results from Backend ---
+function checkNewDraws() {
+    Object.keys(DURATIONS).forEach(gameKey => {
+        if(DB.games[gameKey].history.length > 0) {
+            let latestHistory = DB.games[gameKey].history[0];
+            let currentPeriod = latestHistory.period;
+
+            if(lastKnownPeriods[gameKey] && lastKnownPeriods[gameKey] !== currentPeriod) {
+                if(gameKey === activeGame) {
+                    text('latestNum', latestHistory.num);
+                    let ln = $('latestNum');
+                    if(ln) ln.style.color = (latestHistory.num===0||latestHistory.num===5)?'#9b5de5':[1,3,7,9].includes(latestHistory.num)?'#2dbd7e':'#ff4b4b';
+                }
+
+                // Check if user won or lost in this new draw
+                if(currentUser && currentUser.myBets && currentUser.myBets.length > 0) {
+                    let latestMyBet = currentUser.myBets[0];
+                    if(latestMyBet.period === currentPeriod && gameKey === activeGame) {
+                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), latestMyBet.num, currentPeriod);
+                    }
+                }
+            }
+            lastKnownPeriods[gameKey] = currentPeriod;
+        }
+    });
+}
+
+// --- Initialization ---
 window.onload = async function() {
     await loadCloudDB();
     const urlParams = new URLSearchParams(window.location.search);
     const invite = urlParams.get('invite');
     if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
-    init();
-    setInterval(loadCloudDB, 3000); 
+    
+    if(!currentUser) { 
+        $('authScreen').classList.remove('hidden'); 
+        $('app-container').classList.add('hidden'); 
+    } else {
+        $('authScreen').classList.add('hidden'); 
+        $('app-container').classList.remove('hidden');
+        if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
+        if(!DB.settings.serverActive) $('serverOffBanner').classList.remove('hidden');
+        
+        updateUI(); 
+        buildGrid(); 
+        switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
+        $('prof-invite-code').innerText = currentUser.id; 
+        
+        requestAnimationFrame(tickLoop);
+        setInterval(loadCloudDB, 1500); // ဆာဗာမှ 1.5 စက္ကန့်တစ်ကြိမ် ဒေတာဆွဲမည်
+    }
 }
 
+// --- Audio ---
 let audioCtx;
 document.addEventListener('click', function initAudio() {
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -638,58 +662,37 @@ function playBeep() {
   } catch(e) {}
 }
 
-function getPeriodBlock(gameKey, timeNow) { return Math.floor(timeNow / DURATIONS[gameKey]); }
-function formatPeriodString(blockNum, gameKey) { let d = new Date(blockNum * DURATIONS[gameKey]); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockNum % 10000}`; }
-
+// --- Auth Functions ---
 window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
 window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '◉' : '◉'; };
-function generateRandom5DigitId() { let newId; do { newId = Math.floor(10000 + Math.random() * 90000).toString(); } while (Object.values(DB.users).some(u => u.id === newId)); return newId; }
 
 window.doSignup = async function() {
   if (!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
-  
   const btn = document.getElementById('btnSignupSub');
   if(btn) { btn.disabled = true; btn.innerText = 'ခဏစောင့်ပါ...'; }
-
   await loadCloudDB(); 
   
   const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
   const inviteCode = $('signInviteCode').value.trim();
   
-  if(!phone || !name || !pwd) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ'); }
-  
-  let myanmarPhoneRegex = /^09\d{7,9}$/;
-  if(!myanmarPhoneRegex.test(phone)) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ကျေးဇူးပြု၍ တရားဝင် မြန်မာဖုန်းနံပါတ် (ဥပမာ- 09xxxxxxxxx) ထည့်ပါ။'); }
-
+  if(!phone || !name || !pwd) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('အချက်အလက် ဖြည့်ပါ'); }
+  if(!/^09\d{7,9}$/.test(phone)) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('မြန်မာဖုန်းနံပါတ် မှားယွင်းနေပါသည်'); }
   if(pwd.length < 6) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ'); }
   if(pwd !== pwd2) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် နှစ်ခု မတူပါ'); }
   if(DB.users[phone]) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ'); }
 
-  let currentIP = await getClientIP();
-  let deviceFP = localStorage.getItem('device_fp');
-  if(!deviceFP) { deviceFP = Date.now().toString(36) + Math.random().toString(36).substr(2); localStorage.setItem('device_fp', deviceFP); }
-
   let startingBalance = 0;
-
   if(inviteCode) {
       let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
-      if(inviterPhone) { 
-          let inviter = DB.users[inviterPhone];
-          if((inviter.lastIP && inviter.lastIP === currentIP) || (inviter.fp && inviter.fp === deviceFP)) {
-              toast('⚠️ IP/Device တူညီနေသဖြင့် ဖိတ်ခေါ်ဘိုနပ်စ် မရရှိပါ');
-          } else {
-              inviter.balance += 1999; 
-              startingBalance = 1999; 
-          }
-      } 
+      if(inviterPhone) { DB.users[inviterPhone].balance += 1999; startingBalance = 1999; } 
       else { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
   }
 
-  let newId = generateRandom5DigitId();
-  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false, lastIP: currentIP, fp: deviceFP };
-  DB.session = phone; 
+  let newId = Math.floor(10000 + Math.random() * 90000).toString();
+  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false };
   
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
+  sessionPhone = phone; 
+  localStorage.setItem('wingo_session', phone);
   await saveDB(); 
   location.reload();
 };
@@ -699,24 +702,14 @@ window.doLogin = async function() {
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
   if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
-  DB.session = userPhone; 
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(DB));
-  await saveDB(); 
+  sessionPhone = userPhone; 
+  localStorage.setItem('wingo_session', userPhone);
   location.reload();
 };
-window.logout = async function() { DB.session = null; localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); await saveDB(); location.reload(); };
 
-function init() {
-  if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
-  else {
-    $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
-    if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
-    if (!DB.settings.serverActive) $('serverOffBanner').classList.remove('hidden');
-    updateUI(); buildGrid(); switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
-    $('prof-invite-code').innerText = currentUser.id; requestAnimationFrame(tickLoop);
-  }
-}
+window.logout = function() { localStorage.removeItem('wingo_session'); location.reload(); };
 
+// --- Visual Timer ---
 function tickLoop() { tick(); requestAnimationFrame(tickLoop); }
 function updateUI() { if(currentUser) { text('userId', currentUser.id); text('balance', currentUser.balance.toLocaleString()); text('sheetBalance', currentUser.balance.toLocaleString()); } }
 function buildGrid() {
@@ -727,31 +720,38 @@ function buildGrid() {
     btn.onclick = () => openBetSheet('num', i); grid.appendChild(btn);
   }
 }
-window.switchGame = async function(k, btn) { activeGame = k; DB.currentGame = k; localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); await saveDB(); document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m')); currentPage = 1; renderHistory(); updateUI(); };
+window.switchGame = function(k, btn) { 
+    activeGame = k; 
+    localStorage.setItem('wingo_active_game', k); 
+    document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); 
+    if(btn) btn.classList.add('active'); 
+    text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m')); 
+    currentPage = 1; 
+    renderHistory(); 
+    updateUI(); 
+};
 
-let lastTickTime = 0;
 function tick() {
-  if(!currentUser) return; const timeNow = Date.now(); if (timeNow - lastTickTime < 200) return; lastTickTime = timeNow;
+  if(!currentUser) return; 
+  const timeNow = Date.now();
+  const activeDur = DURATIONS[activeGame]; 
+  const activeRem = activeDur - (timeNow % activeDur); 
+  const activeBlock = Math.floor(timeNow / activeDur);
   
-  const activeDur = DURATIONS[activeGame]; const activeRem = activeDur - (timeNow % activeDur); const activeBlock = getPeriodBlock(activeGame, timeNow);
-  text('periodVal', formatPeriodString(activeBlock, activeGame));
-  const sec = Math.ceil(activeRem/1000); const m = Math.floor(sec/60), s = sec%60;
+  let d = new Date(activeBlock * activeDur);
+  text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${activeBlock % 10000}`);
+  
+  const sec = Math.ceil(activeRem/1000); 
+  const m = Math.floor(sec/60), s = sec%60;
   if($('timerVal')) $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   
-  // နောက်ဆုံးထွက်လဒ်များနှင့် History များကို ဆာဗာမှ အလိုအလျောက် ယူပြပေးမည်
-  if(DB.games[activeGame] && DB.games[activeGame].history.length > 0) {
-      let latest = DB.games[activeGame].history[0];
-      text('latestNum', latest.num);
-      if($('latestNum')) $('latestNum').style.color = (latest.num===0||latest.num===5)?'#9b5de5':[1,3,7,9].includes(latest.num)?'#2dbd7e':'#ff4b4b';
-      renderHistory();
-  }
-
   if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
     if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
   } else { $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1; }
 }
 
+// --- History Rendering ---
 function renderHistory() {
   const g = DB.games[activeGame]; const tbody = $('historyTableBody'); if(!tbody) return; tbody.innerHTML = '';
   const hist = g.history.slice((currentPage-1)*10, currentPage*10);
@@ -761,22 +761,27 @@ function renderHistory() {
     tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
   });
   text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/10)||1}`);
+  
   if(historyTab === 'mine') {
     const myBetsContainer = $('myBetsList');
-    if(!g.myBets || g.myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>'; } else {
-        myBetsContainer.innerHTML = g.myBets.slice(0,30).map(b => {
-            let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
-            let tagClass = 'ck-tag-sm '; if(b.type === 'big') tagClass += 'orange'; else if(b.type === 'small') tagClass += 'blue'; else if(b.type === 'green') tagClass += 'green'; else if(b.type === 'red') tagClass += 'red'; else if(b.type === 'purple') tagClass += 'purple'; else if(b.type === 'num') { tagClass += (b.num === 0 ? 'bg-purple-red' : b.num === 5 ? 'bg-purple-green' : [1,3,7,9].includes(b.num) ? 'bg-green' : 'bg-red'); }
-            let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး'; let statusClass = b.win ? 'win' : 'lose';
-            let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
-            return `<div class="ck-bet-item"><div class="ck-bet-left"><span class="${tagClass}">${labelText}</span><span class="ck-bet-period">${b.period}</span><span class="ck-bet-time">${b.date}</span></div><div class="ck-bet-right"><div class="ck-bet-status ${statusClass}">${statusText}</div><div class="ck-bet-amt ${statusClass}">${amtStr}</div></div></div>`;
-        }).join('');
+    if(currentUser && currentUser.myBets) {
+        let myBets = currentUser.myBets;
+        if(myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>'; } else {
+            myBetsContainer.innerHTML = myBets.slice(0,30).map(b => {
+                let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
+                let tagClass = 'ck-tag-sm '; if(b.type === 'big') tagClass += 'orange'; else if(b.type === 'small') tagClass += 'blue'; else if(b.type === 'green') tagClass += 'green'; else if(b.type === 'red') tagClass += 'red'; else if(b.type === 'purple') tagClass += 'purple'; else if(b.type === 'num') { tagClass += (b.num === 0 ? 'bg-purple-red' : b.num === 5 ? 'bg-purple-green' : [1,3,7,9].includes(b.num) ? 'bg-green' : 'bg-red'); }
+                let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး'; let statusClass = b.win ? 'win' : 'lose';
+                let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
+                return `<div class="ck-bet-item"><div class="ck-bet-left"><span class="${tagClass}">${labelText}</span><span class="ck-bet-period">${b.period}</span><span class="ck-bet-time">${b.date}</span></div><div class="ck-bet-right"><div class="ck-bet-status ${statusClass}">${statusText}</div><div class="ck-bet-amt ${statusClass}">${amtStr}</div></div></div>`;
+            }).join('');
+        }
     }
   }
 }
 window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].history.length/10)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 window.setHistoryTab = function(tab, btn) { historyTab = tab; document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); $('gameHistoryTable').classList.toggle('hidden', tab !== 'game'); $('myBetsList').classList.toggle('hidden', tab !== 'mine'); renderHistory(); };
 
+// --- Betting System ---
 window.openBetSheet = function(type, num=null) {
   if(!currentUser) return toast('အကောင့်ဝင်ပါ'); 
   if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
@@ -792,11 +797,18 @@ window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQt
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
 window.confirmBet = async function() {
   if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
-  await loadCloudDB();
-  const total = baseAmt * sheetQty; if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
+  await loadCloudDB(); // get exact balance from server
+  const total = baseAmt * sheetQty; 
+  if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
+  
   currentUser.balance -= total; 
-  DB.games[activeGame].bets.push({ userKey: DB.session, type: betType, num: betNum, amount: total });
-  await saveDB(); updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ');
+  DB.users[sessionPhone].balance = currentUser.balance; 
+  DB.games[activeGame].bets.push({ userKey: sessionPhone, type: betType, num: betNum, amount: total });
+  
+  await saveDB(); 
+  updateUI(); 
+  closeBetSheet(); 
+  toast('ထိုးပြီးပါပြီ');
 };
 
 function renderUserLinks() {
@@ -832,7 +844,7 @@ function renderAdminControl() {
     else if([1,3,7,9].includes(i)) bgGradient = 'linear-gradient(140deg, #7ddba9, #2db67e)';
     let isSelected = DB.settings.manualNum[adminActiveGame] === i;
     btn.style.cssText = `padding:12px 5px; border-radius:8px; font-weight:900; font-size:18px; color:#fff; background:${bgGradient}; border: ${isSelected ? '3px solid #333' : '3px solid transparent'}; opacity: ${isSelected ? '1' : '0.4'}; transform: ${isSelected ? 'scale(1.1)' : 'scale(1)'}; transition: 0.2s;`;
-    btn.onclick = async () => { DB.settings.manualNum[adminActiveGame] = i; await saveDB(); renderAdminControl(); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); }; 
+    btn.onclick = async () => { DB.settings.manualNum[adminActiveGame] = i; DB.settings.autoDraw[adminActiveGame] = false; await saveDB(); renderAdminControl(); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); }; 
     aGrid.appendChild(btn);
   }
 
@@ -861,32 +873,42 @@ window.adminAddBalance = async function() {
   if(!id || !amt) return toast('ဖြည့်ပါ');
   const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မတွေ့ပါ');
   DB.users[uKey].balance += (op === 'subtract' ? -amt : amt); await saveDB(); renderAdminDeposits();
-  if(DB.session === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေစာရင်း အပ်ဒိတ်လုပ်ပြီးပါပြီ');
+  if(sessionPhone === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေစာရင်း အပ်ဒိတ်လုပ်ပြီးပါပြီ');
 };
 
-window.adminDeleteLink = async function(index) {
-  DB.settings.links.splice(index, 1);
-  await saveDB();
-  renderAdminLinks();
-  toast('ဖျက်လိုက်ပါပြီ');
-};
-
+window.adminDeleteLink = async function(index) { DB.settings.links.splice(index, 1); await saveDB(); renderAdminLinks(); toast('ဖျက်လိုက်ပါပြီ'); };
 window.adminAddLink = async function() { 
   const type = $('admin-link-type').value, label = $('admin-link-label').value.trim(), url = $('admin-link-url').value.trim(); 
   if (!label || !url) return toast('အချက်အလက် ဖြည့်ပါ'); 
-  DB.settings.links.push({ type, label, url }); 
-  await saveDB(); 
-  renderAdminLinks(); 
-  toast('ထည့်ပြီးပါပြီ'); 
+  DB.settings.links.push({ type, label, url }); await saveDB(); renderAdminLinks(); toast('ထည့်ပြီးပါပြီ'); 
 };
-
 function renderAdminLinks() { 
-  const list = DB.settings.links, container = $('admin-link-list'); 
-  if (!container) return;
+  const list = DB.settings.links, container = $('admin-link-list'); if (!container) return;
   if (list.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:#999;">Link မရှိသေးပါ</p>'; return; }
   container.innerHTML = list.map((l, idx) => `<div class="admin-link-item"><div><strong style="color:var(--blue);">${l.type.toUpperCase()}</strong><br><span>${l.label}</span><br><a href="${l.url}" target="_blank" style="color:#777; font-size:10px;">${l.url}</a></div><button onclick="adminDeleteLink(${idx})">ဖျက်မည်</button></div>`).join(''); 
 }
 
+function showResult(win, amt, num, period) {
+  const card = document.getElementById('ckPopupCard');
+  if(win) {
+      card.className = 'ck-popup-card win';
+      document.getElementById('ckPopupTitle').innerHTML = 'ဂုဏ်ယူပါတယ်';
+      document.getElementById('ckTicketLabel').innerText = 'ဘောနပ်စ်';
+      document.getElementById('ckTicketAmt').innerText = '+K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount';
+  } else {
+      card.className = 'ck-popup-card lose';
+      document.getElementById('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ';
+      document.getElementById('ckTicketLabel').innerText = 'ရှုံးနိမ့်သည်';
+      document.getElementById('ckTicketAmt').innerText = '-K ' + amt.toLocaleString() + '.00';
+      document.getElementById('ckTicketAmt').className = 'ck-ticket-amount lose-text';
+  }
+  document.getElementById('resTagNum').innerText = num !== null ? num : '-';
+  document.getElementById('ckTicketPeriod').innerText = 'ပွဲအမှတ်စဉ် ' + period;
+  $('resultPopupOverlay').classList.add('show');
+}
+
+window.closeResultPopup = function() { $('resultPopupOverlay').classList.remove('show'); };
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
 window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
 
@@ -894,7 +916,6 @@ window.showRules = function() { openInfo('ကစားနည်း', 'ကစာ�
 window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်'); };
 window.toggleSound = function() { toast('အသံ'); };
 
-init();
 </script>
 </body>
 </html>
