@@ -529,15 +529,11 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 <div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
-// --- Admin အကောင့် သတ်မှတ်ချက် (သင့်အတွက်) ---
-const ADMIN_PHONE = '09999999999'; // လော့ဂ်အင်ဝင်ရန် Admin ဖုန်း
-const ADMIN_PWD = 'admin123';      // လော့ဂ်အင်ဝင်ရန် Admin စကားဝှက်
-
 // --- Backend ဆာဗာလင့်ခ် (အဓိကချိတ်ဆက်မှု) ---
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
 
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-const LOCAL_KEY = 'burma_lottery_v51'; 
+const LOCAL_KEY = 'burma_lottery_v52'; // Cache အသစ်ရှင်းလင်းရန် Key အသစ်
 
 let DB = {
   users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
@@ -567,7 +563,7 @@ window.fallbackCopyTextToClipboard = function(text) {
   textArea.focus(); textArea.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(textArea);
 }
 
-// Invite Link Copy လုပ်မည့် Function
+// Invite Link Copy
 window.copyInviteLink = function() {
     if(!currentUser) return;
     let link = window.location.origin + window.location.pathname + '?invite=' + currentUser.id;
@@ -583,11 +579,6 @@ async function loadCloudDB() {
             if(data && data.users) {
                 DB = data;
                 
-                // Admin အကောင့် မရှိသေးရင် ဆာဗာမှာ အလိုအလျောက် တည်ဆောက်မည်
-                if(!DB.users[ADMIN_PHONE]) {
-                    DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: ADMIN_PWD, balance: 9999999, isAdmin: true };
-                }
-
                 if(sessionPhone && DB.users[sessionPhone]) {
                     currentUser = DB.users[sessionPhone];
                 }
@@ -611,7 +602,7 @@ async function saveDB() {
     } catch(e) {}
 }
 
-// --- Check For New Results from Backend ---
+// --- Check For New Results ---
 function checkNewDraws() {
     Object.keys(DURATIONS).forEach(gameKey => {
         if(DB.games[gameKey].history.length > 0) {
@@ -718,7 +709,18 @@ window.doLogin = async function() {
   await loadCloudDB();
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   
-  // Admin ကို ဝင်စစ်မည် (ဖုန်းနံပါတ် သို့မဟုတ် ID ဖြင့်)
+  // 🔥 MASTER ADMIN BYPASS (အသေဖြတ်ဝင်မည့်စနစ်) 🔥
+  if(input === 'admin' && pwd === 'admin123') {
+      if(!DB.users['admin']) {
+          DB.users['admin'] = { id: 'Admin', phone: 'admin', name: 'Super Admin', pwd: 'admin123', balance: 99999999, isAdmin: true };
+          await saveDB();
+      }
+      sessionPhone = 'admin'; 
+      localStorage.setItem('wingo_session', 'admin');
+      location.reload();
+      return;
+  }
+  
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
   
   if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
