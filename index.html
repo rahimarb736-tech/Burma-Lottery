@@ -413,7 +413,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ငွေ</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 Ks</span></div>
     </div>
 
-    <!-- 👥 ပြင်ဆင်ထားသော Invite Link နေရာ -->
     <div class="profile-card">
       <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
       <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">အောက်ပါ Link ဖြင့် သူငယ်ချင်းများကို ဖိတ်ခေါ်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
@@ -532,7 +531,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<!-- 🔥 အသစ်ပြင်ဆင်ထားသော Result Popup Design (Image အတိုင်း) 🔥 -->
 <div id="resultPopupOverlay" class="result-popup-overlay">
   <div id="ckPopupCard" class="ck-popup-card win">
     <div class="ck-popup-header-icon">🚀</div>
@@ -565,7 +563,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
 
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-const LOCAL_KEY = 'burma_lottery_v56'; 
 
 let DB = {
   users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
@@ -798,21 +795,35 @@ function tick() {
       renderHistory();
   }
 
+  // ၅ စက္ကန့် သို့မဟုတ် အောက်ရောက်လျှင် လော့ခ်ချမည့်အပိုင်း
   if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
-    $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
+    $('lockOverlay').classList.remove('hidden'); 
+    text('lockCountdownText', sec);
     if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
-  } else { $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1; }
+
+    // 🔥 အချိန် ၅ စက္ကန့်အောက် (၄.၉၉စက္ကန့်) ရောက်သွားသည်နှင့် Bet Sheet ကို အလိုအလျောက်ပိတ်ပေးမည့် စနစ်
+    if(activeRem < 5000 && $('betSheetOverlay').classList.contains('show')) {
+        closeBetSheet();
+        toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။');
+    }
+
+  } else { 
+    $('lockOverlay').classList.add('hidden'); 
+    lastBeepedSec = -1; 
+  }
 }
 
+// 🔥 History Table ၂၄ ခုတိတိ ပြပေးမည့် စနစ် ပြင်ဆင်ချက်
 function renderHistory() {
   const g = DB.games[activeGame]; const tbody = $('historyTableBody'); if(!tbody) return; tbody.innerHTML = '';
-  const hist = g.history.slice((currentPage-1)*10, currentPage*10);
+  // ၂၄ ခု စီ ဖြတ်ယူမည်
+  const hist = g.history.slice((currentPage-1)*24, currentPage*24);
   hist.forEach(h => {
     let isBig = h.num >= 5; let c = (h.num===0||h.num===5)?'#9b5de5':[1,3,7,9].includes(h.num)?'#2dbd7e':'#ff4b4b';
     let bg = h.num===0?'bg-purple-red':h.num===5?'bg-purple-green':[1,3,7,9].includes(h.num)?'bg-green':'bg-red';
     tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
   });
-  text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/10)||1}`);
+  text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/24)||1}`);
   
   if(historyTab === 'mine') {
     const myBetsContainer = $('myBetsList');
@@ -830,20 +841,23 @@ function renderHistory() {
     }
   }
 }
-window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].history.length/10)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
+window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].history.length/24)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 window.setHistoryTab = function(tab, btn) { historyTab = tab; document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); $('gameHistoryTable').classList.toggle('hidden', tab !== 'game'); $('myBetsList').classList.toggle('hidden', tab !== 'mine'); renderHistory(); };
 
 window.openBetSheet = function(type, num=null) {
   if(!currentUser) return toast('အကောင့်ဝင်ပါ'); 
   if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
-  const timeNow = Date.now(); const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
-  if(activeRem <= 5000) return toast('ပွဲပိတ်ထားပါပြီ');
+  
+  const timeNow = Date.now(); 
+  const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
+  
+  // 🔥 အချိန် ၅ စက္ကန့်အောက် ရောက်နေလျှင် Bet Sheet ပွင့်ခွင့်မပေးတော့ပါ
+  if(activeRem < 5000) return toast('ပွဲပိတ်ထားပါပြီ။ နောက်တစ်ပွဲကို စောင့်ပါ။'); 
   
   betType = type; betNum = num; baseAmt = 10; sheetQty = 1;
   text('betSheetTitle', `Win Go ${activeGame.replace('wingo','')} - ${type}`);
   $('sheetQtyInput').value = 1; 
 
-  // 🔥 Bet Sheet ကို ပြန်ဖွင့်တိုင်း 10 ကျပ် အကွက်ကိုပဲ အရောင်ပြန်တင်ပေးမည့် နေရာ 🔥
   let amountBtns = document.querySelectorAll('#sheetAmountOpts button');
   amountBtns.forEach(b => b.classList.remove('active'));
   if(amountBtns.length > 0) amountBtns[0].classList.add('active');
@@ -851,12 +865,25 @@ window.openBetSheet = function(type, num=null) {
   updateTotalBet(); 
   $('betSheetOverlay').classList.add('show');
 };
+
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
 window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
+
+// 🔥 ၅ စက္ကန့် တိတိတွင် ထိုးခွင့်ပေးမည့် စစ်ဆေးချက်
 window.confirmBet = async function() {
   if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
+  
+  const timeNow = Date.now(); 
+  const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
+  
+  // အချိန် ၅ စက္ကန့်အောက် ရောက်သွားလျှင် ထိုးခွင့်မပြုပါ
+  if(activeRem < 5000) { 
+      closeBetSheet();
+      return toast('အချိန်လွန်သွားပါပြီ။ နောက်တစ်ပွဲကို စောင့်ပါ။');
+  }
+
   await loadCloudDB(); 
   const total = baseAmt * sheetQty; 
   if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
@@ -1016,7 +1043,6 @@ window.closeResultPopup = function() {
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
 window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
 
-// 🔥 ကစားနည်း စည်းမျဉ်း အပြည့်အစုံ ပြသရန်စနစ် 🔥
 window.showRules = function() { 
   let rulesHTML = `
     <div style="text-align:left; font-size:13px; line-height:1.6; color:#444;">
