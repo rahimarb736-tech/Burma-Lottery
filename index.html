@@ -413,6 +413,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ငွေ</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 Ks</span></div>
     </div>
 
+    <!-- 👥 ပြင်ဆင်ထားသော Invite Link နေရာ -->
     <div class="profile-card">
       <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
       <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">အောက်ပါ Link ဖြင့် သူငယ်ချင်းများကို ဖိတ်ခေါ်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
@@ -505,7 +506,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div class="bet-row"><span class="bet-label">လက်ကျန်ငွေ</span><span class="bet-bal"><span id="sheetBalance">0</span> Ks</span></div>
       <div class="bet-label" style="margin-bottom:8px;">ပမာဏ (Amount)</div>
       
-      <!-- ပြင်ဆင်ထားသော လောင်းကြေး ခလုတ်များ -->
       <div class="bet-amount-opts" id="sheetAmountOpts">
         <button class="active" onclick="setSheetBaseAmt(10, this)">10</button>
         <button onclick="setSheetBaseAmt(100, this)">100</button>
@@ -558,14 +558,14 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody" style="margin-top:10px;"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 // --- Backend ဆာဗာလင့်ခ် ---
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
 
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-const LOCAL_KEY = 'burma_lottery_v55'; 
+const LOCAL_KEY = 'burma_lottery_v56'; 
 
 let DB = {
   users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
@@ -838,9 +838,18 @@ window.openBetSheet = function(type, num=null) {
   if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
   const timeNow = Date.now(); const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
   if(activeRem <= 5000) return toast('ပွဲပိတ်ထားပါပြီ');
+  
   betType = type; betNum = num; baseAmt = 10; sheetQty = 1;
   text('betSheetTitle', `Win Go ${activeGame.replace('wingo','')} - ${type}`);
-  $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show');
+  $('sheetQtyInput').value = 1; 
+
+  // 🔥 Bet Sheet ကို ပြန်ဖွင့်တိုင်း 10 ကျပ် အကွက်ကိုပဲ အရောင်ပြန်တင်ပေးမည့် နေရာ 🔥
+  let amountBtns = document.querySelectorAll('#sheetAmountOpts button');
+  amountBtns.forEach(b => b.classList.remove('active'));
+  if(amountBtns.length > 0) amountBtns[0].classList.add('active');
+  
+  updateTotalBet(); 
+  $('betSheetOverlay').classList.add('show');
 };
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
@@ -848,7 +857,7 @@ window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQt
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
 window.confirmBet = async function() {
   if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
-  await loadCloudDB(); // တွက်ချက်မှု မမှားစေရန် Latest Balance အရင်ဆွဲမည်
+  await loadCloudDB(); 
   const total = baseAmt * sheetQty; 
   if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
   
@@ -960,12 +969,11 @@ function showResult(win, amt, num, period, gameKey) {
       $('ckTicketAmt').innerText = '+K ' + amt.toLocaleString() + '.00';
   } else {
       card.className = 'ck-popup-card lose';
-      $('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ။';
+      $('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ';
       $('ckScrollTitle').innerText = 'မနိုင်ပါ';
       $('ckTicketAmt').innerText = '-K ' + amt.toLocaleString() + '.00';
   }
 
-  // Tags Color logic
   let colorText = ''; let colorClass = '';
   if (num === null) { colorText = '-'; colorClass = 'blue'; }
   else if (num === 0) { colorText = 'အနီ+ခရမ်း'; colorClass = 'multi'; }
@@ -987,7 +995,6 @@ function showResult(win, amt, num, period, gameKey) {
   
   $('resultPopupOverlay').classList.add('show');
 
-  // Auto Close 3 Seconds
   let countdown = 3;
   $('ckCountdown').innerText = countdown;
   if(popupTimer) clearInterval(popupTimer);
@@ -1009,9 +1016,32 @@ window.closeResultPopup = function() {
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
 window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
 
-window.showRules = function() { openInfo('ကစားနည်း', 'ကစားနည်းစည်းမျဉ်းများ'); };
-window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်'); };
-window.toggleSound = function() { toast('အသံ'); };
+// 🔥 ကစားနည်း စည်းမျဉ်း အပြည့်အစုံ ပြသရန်စနစ် 🔥
+window.showRules = function() { 
+  let rulesHTML = `
+    <div style="text-align:left; font-size:13px; line-height:1.6; color:#444;">
+      <p><b>၁။ အကြီး / အသေး (Big/Small)</b><br>
+      - <b>အသေး (Small):</b> 0 မှ 4 အထိ <br>
+      - <b>အကြီး (Big):</b> 5 မှ 9 အထိ <br>
+      (အနိုင်ရလျှင် ထိုးကြေး၏ <b>၂ ဆ</b> ရရှိပါမည်)</p>
+      
+      <p><b>၂။ အရောင် (Color)</b><br>
+      - <b>အစိမ်း (Green):</b> 1, 3, 7, 9 ထွက်လျှင် <b>၂ ဆ</b> (5 ထွက်လျှင် <b>၁.၅ ဆ</b> ရမည်)<br>
+      - <b>အနီ (Red):</b> 2, 4, 6, 8 ထွက်လျှင် <b>၂ ဆ</b> (0 ထွက်လျှင် <b>၁.၅ ဆ</b> ရမည်)<br>
+      - <b>ခရမ်း (Purple):</b> 0 သို့မဟုတ် 5 ထွက်လျှင် <b>၄.၅ ဆ</b> ရရှိပါမည်</p>
+      
+      <p><b>၃။ နံပါတ် (Number)</b><br>
+      - 0 မှ 9 အထိ မိမိကြိုက်နှစ်သက်ရာ ဂဏန်းကို ရွေးချယ်နိုင်ပါသည်။<br>
+      (အနိုင်ရလျှင် ထိုးကြေး၏ <b>၉ ဆ</b> ရရှိပါမည်)</p>
+      
+      <p style="color:#ef4444; font-size:11px;">* မှတ်ချက်: လောင်းကြေးတိုင်းအတွက် ဝန်ဆောင်ခ (Platform Fee) ၂% ဖြတ်တောက်ပါမည်။ ပြထားသော အဆများမှာ ၂% နှုတ်ပြီး ရရှိမည့် အသားတင်ပမာဏခန့်မှန်းချက် ဖြစ်ပါသည်။</p>
+    </div>
+  `;
+  openInfo('ကစားနည်း စည်းမျဉ်းများ', rulesHTML); 
+};
+
+window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်အချက်အလက်များကို ပိုက်ဆံအိတ် (Wallet) စာမျက်နှာတွင် ကြည့်ရှုနိုင်ပါသည်။'); };
+window.toggleSound = function() { toast('အသံပိတ်/ဖွင့်ခြင်း ပြုလုပ်ပါမည်'); };
 
 </script>
 </body>
