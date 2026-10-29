@@ -1,14 +1,14 @@
 {
-  "name": "burma-lottery-backend",
+  "name": "wingo-backend",
   "version": "1.0.0",
-  "description": "Backend Server for WinGo",
+  "description": "Burma Lottery WinGo Backend Server",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "axios": "^1.6.0"
+    "express": "^4.18.2",
+    "node-telegram-bot-api": "^0.66.0"
   }
 }
