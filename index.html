@@ -390,15 +390,19 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
           <div><span id="prof-id" style="font-weight:bold; font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
       </div>
       <div class="profile-row"><span style="color:var(--text-light);">ဖုန်းနံပါတ်</span><span id="prof-phone" style="font-weight:bold;">-</span></div>
-      <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ပွိုင့်</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 ကျပ်</span></div>
+      <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ငွေ</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 Ks</span></div>
     </div>
 
+    <!-- 👥 ပြင်ဆင်ထားသော Invite Link နေရာ -->
     <div class="profile-card">
       <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
-      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">ဖိတ်ခေါ်ကုဒ်သုံးပြီး သူငယ်ချင်းများ အကောင့်ဖွင့်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
-      <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
-          <span style="color:var(--text-light);">ဖိတ်ခေါ်ကုဒ်</span>
-          <div><span id="prof-invite-code" style="font-weight:bold; color:var(--blue); font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
+      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">အောက်ပါ Link ဖြင့် သူငယ်ချင်းများကို ဖိတ်ခေါ်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
+      <div class="profile-row copyable-row" onclick="copyInviteLink()" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
+          <span style="color:var(--text-light); white-space:nowrap; margin-right: 5px;">ဖိတ်ခေါ်ရန် Link:</span>
+          <div style="flex:1; display:flex; justify-content:flex-end; align-items:center; overflow:hidden;">
+              <span id="prof-invite-link" style="font-weight:bold; color:var(--blue); font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:inline-block; max-width:130px; margin-right:8px;">-</span>
+              <span class="copy-btn" style="flex-shrink:0;">Copy Link</span>
+          </div>
       </div>
     </div>
   </div>
@@ -525,14 +529,16 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 <div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
+// --- Admin အကောင့် သတ်မှတ်ချက် (သင့်အတွက်) ---
+const ADMIN_PHONE = '09999999999'; // လော့ဂ်အင်ဝင်ရန် Admin ဖုန်း
+const ADMIN_PWD = 'admin123';      // လော့ဂ်အင်ဝင်ရန် Admin စကားဝှက်
+
 // --- Backend ဆာဗာလင့်ခ် (အဓိကချိတ်ဆက်မှု) ---
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
 
-const ADMIN_PHONE = '992004';
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
-const LOCAL_KEY = 'burma_lottery_v50'; // LocalStorage Data ရှင်းပစ်ရန် Key အသစ်ပြောင်းထားသည်
+const LOCAL_KEY = 'burma_lottery_v51'; 
 
-// Initial Data Structure
 let DB = {
   users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
   currentGame: 'wingo30s',
@@ -561,6 +567,13 @@ window.fallbackCopyTextToClipboard = function(text) {
   textArea.focus(); textArea.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(textArea);
 }
 
+// Invite Link Copy လုပ်မည့် Function
+window.copyInviteLink = function() {
+    if(!currentUser) return;
+    let link = window.location.origin + window.location.pathname + '?invite=' + currentUser.id;
+    fallbackCopyTextToClipboard(link);
+};
+
 // --- API Calls ---
 async function loadCloudDB() {
     try {
@@ -569,6 +582,12 @@ async function loadCloudDB() {
             let data = await res.json();
             if(data && data.users) {
                 DB = data;
+                
+                // Admin အကောင့် မရှိသေးရင် ဆာဗာမှာ အလိုအလျောက် တည်ဆောက်မည်
+                if(!DB.users[ADMIN_PHONE]) {
+                    DB.users[ADMIN_PHONE] = { id: 'Admin', phone: ADMIN_PHONE, name: 'Admin', pwd: ADMIN_PWD, balance: 9999999, isAdmin: true };
+                }
+
                 if(sessionPhone && DB.users[sessionPhone]) {
                     currentUser = DB.users[sessionPhone];
                 }
@@ -589,7 +608,7 @@ async function saveDB() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(DB)
         });
-    } catch(e) { toast('Network error'); }
+    } catch(e) {}
 }
 
 // --- Check For New Results from Backend ---
@@ -606,7 +625,6 @@ function checkNewDraws() {
                     if(ln) ln.style.color = (latestHistory.num===0||latestHistory.num===5)?'#9b5de5':[1,3,7,9].includes(latestHistory.num)?'#2dbd7e':'#ff4b4b';
                 }
 
-                // Check if user won or lost in this new draw
                 if(currentUser && currentUser.myBets && currentUser.myBets.length > 0) {
                     let latestMyBet = currentUser.myBets[0];
                     if(latestMyBet.period === currentPeriod && gameKey === activeGame) {
@@ -638,10 +656,9 @@ window.onload = async function() {
         updateUI(); 
         buildGrid(); 
         switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
-        $('prof-invite-code').innerText = currentUser.id; 
         
         requestAnimationFrame(tickLoop);
-        setInterval(loadCloudDB, 1500); // ဆာဗာမှ 1.5 စက္ကန့်တစ်ကြိမ် ဒေတာဆွဲမည်
+        setInterval(loadCloudDB, 1500); 
     }
 }
 
@@ -700,8 +717,12 @@ window.doSignup = async function() {
 window.doLogin = async function() {
   await loadCloudDB();
   const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
+  
+  // Admin ကို ဝင်စစ်မည် (ဖုန်းနံပါတ် သို့မဟုတ် ID ဖြင့်)
   let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
+  
   if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
+  
   sessionPhone = userPhone; 
   localStorage.setItem('wingo_session', userPhone);
   location.reload();
@@ -745,6 +766,13 @@ function tick() {
   const m = Math.floor(sec/60), s = sec%60;
   if($('timerVal')) $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   
+  if(DB.games[activeGame] && DB.games[activeGame].history.length > 0) {
+      let latest = DB.games[activeGame].history[0];
+      text('latestNum', latest.num);
+      if($('latestNum')) $('latestNum').style.color = (latest.num===0||latest.num===5)?'#9b5de5':[1,3,7,9].includes(latest.num)?'#2dbd7e':'#ff4b4b';
+      renderHistory();
+  }
+
   if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
     if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
@@ -797,7 +825,7 @@ window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQt
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
 window.confirmBet = async function() {
   if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
-  await loadCloudDB(); // get exact balance from server
+  await loadCloudDB(); 
   const total = baseAmt * sheetQty; 
   if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
   
@@ -820,8 +848,18 @@ window.switchTab = function(tab, el) {
   ['game','deposit','profile','admin-control','admin-deposits','admin-links'].forEach(x => { let t = $('view-'+x); if(t) t.classList.add('hidden'); });
   let activeView = $('view-'+tab); if(activeView) activeView.classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active');
+  
   if(tab === 'deposit') { $('dep-id').innerText = currentUser.id; renderUserLinks(); }
-  if(tab === 'profile') { text('prof-name', currentUser.name); text('prof-id', currentUser.id); text('prof-phone', currentUser.phone); text('prof-bal', currentUser.balance.toLocaleString() + ' Ks'); }
+  if(tab === 'profile') { 
+      text('prof-name', currentUser.name); 
+      text('prof-id', currentUser.id); 
+      text('prof-phone', currentUser.phone); 
+      text('prof-bal', currentUser.balance.toLocaleString() + ' Ks'); 
+      if($('prof-invite-link')) {
+          let linkText = window.location.origin + window.location.pathname + '?invite=' + currentUser.id;
+          $('prof-invite-link').innerText = linkText;
+      }
+  }
   if(tab === 'admin-control') renderAdminControl(); 
   if(tab === 'admin-deposits') renderAdminDeposits();
   if(tab === 'admin-links') renderAdminLinks();
