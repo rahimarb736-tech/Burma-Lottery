@@ -69,9 +69,6 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .num-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 11px 10px; margin: 0 4px 16px; }
 .num-btn { width: 100%; aspect-ratio: 1; border-radius: 50%; font: 800 clamp(23px, 7.5vw, 33px)/1 system-ui, sans-serif; color: #fff; position: relative; isolation: isolate; border: 3px solid #f1f2f5; box-shadow: 0 2px 4px #1e244214; transition: transform .15s; }
 .num-btn:before { content: ''; position: absolute; inset: 4px; border: 2px solid #ffffffb8; border-radius: 50%; z-index: -1; background: linear-gradient(145deg, #ffffff65, transparent 55%, #0000000a); box-shadow: inset 0 1px 2px #fff; }
-.num-btn:after { content: ''; position: absolute; top: 5px; left: 12px; width: 12px; height: 4px; border-radius: 50%; background: #ffffffa0; transform: rotate(-30deg); }
-.bg-red { background: linear-gradient(140deg, #ff8587, #f14d56); } .bg-green { background: linear-gradient(140deg, #7ddba9, #2db67e); }
-.bg-purple-red { background: linear-gradient(135deg, #ad67e6 48%, #f45363 52%); } .bg-purple-green { background: linear-gradient(135deg, #ad67e6 48%, #3ec48b 52%); }
 .size-row { gap: 0; border-radius: 24px; overflow: hidden; margin: 0 5px; }
 .size-row .bet-opt-btn { border-radius: 0; min-height: 37px; box-shadow: none; font-size: 13px; }
 .size-row .big { background: var(--orange); } .size-row .small { background: var(--blue); }
@@ -99,7 +96,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .pagination button:disabled { background: #e3e4eb; color: #999ba7; opacity: 1; }
 .pagination span { font: 12px system-ui; color: var(--text-light); }
 
-/* --- 🔥 AUTH SCREEN (Original Native Look) 🔥 --- */
+/* --- 🔥 AUTH SCREEN 🔥 --- */
 #authScreen { max-width: 480px; min-height: 100dvh; margin: auto; background: var(--bg); padding-bottom: 30px; box-shadow: 0 0 50px #22243b13; }
 .auth-hero { background: var(--gradient); padding: 24px 24px 60px; color: white; border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
 .auth-hero:before, .auth-hero:after { content: ''; position: absolute; width: 190px; height: 190px; border: 1px solid #ffffff15; border-radius: 50%; right: -60px; top: 35px; }
@@ -164,18 +161,18 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .bet-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; transform: translateY(100%); transition: transform .3s; display: flex; flex-direction: column; }
 .bet-sheet-overlay.show .bet-sheet { transform: translateY(0); }
 .bet-header-blue { background: #4080ff; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-sheet-close { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; color: white; font-size: 26px; border: none; padding: 0; }
+.bet-sheet-close { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; color: white; font-size: 26px; border: none; padding: 0; line-height: 1; }
 .bet-sheet-body { padding: 20px; background: #f9f9f9; }
 .bet-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size:13px; }
 .bet-bal { font-size: 14px; font-weight: bold; color: var(--text); }
 .bet-amount-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-.bet-amount-opts button { background: #fff; border: 1px solid #ddd; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 600; color: #555; }
+.bet-amount-opts button { background: #fff; border: 1px solid #ddd; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 600; color: #555; transition: 0.1s; }
 .bet-amount-opts button.active { background: var(--blue); border-color: var(--blue); color: white; }
 .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; margin-bottom:15px; }
 .qty-control button { width: 36px; height: 36px; background: #f0f0f0; border: none; font-size: 18px; color: #555; font-weight: bold; }
 .qty-control input { width: 50px; height: 36px; border: none; text-align: center; font-size: 16px; font-weight: bold; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background: #fff; }
 .bet-actions { display: flex; gap: 12px; }
-.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; }
+.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; transition: 0.1s; }
 .btn-cancel { background: #e0e0e0; color: #555; } 
 .btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
 
@@ -229,7 +226,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 </defs></svg>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<!-- 🔥 Auth Screen (Original Native Look) 🔥 -->
+<!-- 🔥 Auth Screen 🔥 -->
 <section id="authScreen" aria-label="အကောင့်ဝင်ရန်">
   <div class="auth-hero">
     <div class="brand"><span class="brand-mark">B</span><div><div class="logo-area"><span>Burma</span>Lottery</div><small>BURMA LOTTERY</small></div></div>
@@ -301,7 +298,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       </div>
     </section>
     
-    <!-- 🔥 ဂဏန်းခလုတ်များ ပြန်လည်အလုပ်လုပ်စေရန် သေချာချိတ်ဆက်ထားပါသည် 🔥 -->
     <section class="play-card">
       <div class="bet-options-row color-row">
           <button class="bet-opt-btn color-green" onclick="openBetSheet('green')">အစိမ်း</button>
@@ -341,9 +337,11 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
              <button id="btn-wave" onclick="selDepMethod('WavePay')" class="dep-method-btn">WavePay</button>
           </div>
           <p style="font-size:12px; margin-bottom:10px;">ပမာဏ ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ</p>
-          <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အခြားပမာဏ ရိုက်ထည့်ရန်" oninput="clearDepAmtBtns()">
+          <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အနည်းဆုံး ၂,၀၀၀ Ks မှစ၍ သွင်းနိုင်ပါသည်" oninput="updateDepBonus()">
+          <div id="dep-bonus-text" style="color:var(--green); font-size:12px; margin-bottom:15px; font-weight:bold;">+ 5% ဘောနပ်စ်: 250 Ks (စုစုပေါင်း - 5,250 Ks)</div>
+          
           <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
-              <button class="dep-amt-btn active" onclick="selDepAmt(5000, this)">5,000<br><span style="font-size:10px; color:var(--green)">+250 Bonus</span></button>
+              <button class="dep-amt-btn active" onclick="selDepAmt(5000, this)">5,000</button>
               <button class="dep-amt-btn" onclick="selDepAmt(10000, this)">10,000</button>
               <button class="dep-amt-btn" onclick="selDepAmt(30000, this)">30,000</button>
           </div>
@@ -352,7 +350,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 
         <div class="deposit-card hidden" id="dep-step-2">
            <h3 style="color:var(--blue); margin-bottom:15px;">ငွေလွှဲရန် အချက်အလက်</h3>
-           <p style="font-size:12px;">အောက်ပါဖုန်းနံပါတ်သို့ <b>Ks <span id="dep-show-amt">0</span></b> အား လွှဲပေးပါ။</p>
+           <p style="font-size:12px;">အောက်ပါဖုန်းနံပါတ်သို့ <b>Ks <span id="dep-show-amt">0</span></b> အား လွှဲပေးပါ။ (ငွေလွှဲရာတွင် မှတ်ချက်ရေးရန်မလိုပါ)</p>
            <div class="copy-box">
                <b id="dep-admin-phone" style="font-size:18px;">09xxxxxxxxx</b>
                <button class="copy-btn" onclick="copyText('dep-admin-phone')">Copy</button>
@@ -508,7 +506,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<div id="infoOverlay" class="info-overlay"><div class="info-box"><div style="display:flex; justify-content:space-between;"><h2 id="infoTitle" style="color:var(--red);">ကစားနည်း</h2><button onclick="closeInfo()" style="background:none;font-size:24px;border:none;">×</button></div><div id="infoBody" style="margin-top:10px;font-size:13px;"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
+<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody" style="margin-top:10px;"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
 
 <script>
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
@@ -524,7 +522,7 @@ const text = (id, val) => { if($(id)) $(id).innerText = val; };
 function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
 window.copyText = function(id) { let val = $(id).innerText || $(id).value; var t = document.createElement("textarea"); t.value = val; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(t); };
 
-// 🔥 Transaction Status Check (For Timer) 🔥
+// 🔥 Auto Approve Check Status 🔥
 function checkTxStatus() {
     if(!currentUser) return;
     let myTxs = (DB.transactions || []).filter(t => t.uid === currentUser.id);
@@ -541,37 +539,46 @@ function checkTxStatus() {
     }
 }
 
-async function loadCloudDB() {
-    try {
-        let res = await fetch(`${BACKEND_URL}/api/db`);
-        if (res.ok) {
-            let data = await res.json();
-            if(data && data.users) {
-                DB = data;
-                if(!DB.settings.kpayPhone) DB.settings.kpayPhone = '09123456789';
-                if(!DB.settings.wavePhone) DB.settings.wavePhone = '09123456789';
-                
-                if(sessionPhone && DB.users[sessionPhone]) currentUser = DB.users[sessionPhone];
-                updateUI(); checkNewDraws(); renderHistory();
-                if(!$('view-wallet').classList.contains('hidden')) { checkTxStatus(); renderTransactions(); }
-            }
+// 🔥 Load DB (Non-blocking) 🔥
+function loadCloudDB() {
+    fetch(`${BACKEND_URL}/api/db`).then(res => res.json()).then(data => {
+        if(data && data.users) {
+            DB = data;
+            if(!DB.settings.kpayPhone) DB.settings.kpayPhone = '09123456789';
+            if(!DB.settings.wavePhone) DB.settings.wavePhone = '09123456789';
+            
+            if(sessionPhone && DB.users[sessionPhone]) currentUser = DB.users[sessionPhone];
+            updateUI(); checkNewDraws(); renderHistory();
+            if(!$('view-wallet').classList.contains('hidden')) { checkTxStatus(); renderTransactions(); }
         }
-    } catch(e) {}
+    }).catch(e => console.log("DB Load Error"));
 }
 
 async function saveDB() { try { await fetch(`${BACKEND_URL}/api/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DB) }); } catch(e) {} }
 
-window.onload = async function() {
-    await loadCloudDB();
-    const invite = new URLSearchParams(window.location.search).get('invite');
-    if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
-    
-    if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
-    else {
-        $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
-        if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
-        buildGrid(); requestAnimationFrame(tickLoop); setInterval(loadCloudDB, 1500); 
-    }
+window.onload = function() {
+    // ချက်ချင်း စက္ကန့်လည်စေရန် TickLoop အရင်စပါမည်
+    requestAnimationFrame(tickLoop);
+    buildGrid();
+
+    // အချက်အလက်များကို နောက်ကွယ်မှ ဆွဲယူပါမည် (စက္ကန့်မရပ်အောင်)
+    fetch(`${BACKEND_URL}/api/db`).then(res => res.json()).then(data => {
+        if(data && data.users) DB = data;
+        if(sessionPhone && DB.users[sessionPhone]) currentUser = DB.users[sessionPhone];
+        
+        const invite = new URLSearchParams(window.location.search).get('invite');
+        if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
+        
+        if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
+        else {
+            $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
+            if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
+            updateUI(); renderHistory();
+            setInterval(loadCloudDB, 2000); 
+        }
+    }).catch(e => {
+        if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); }
+    });
 };
 
 let audioCtx;
@@ -586,7 +593,7 @@ window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type ===
 
 // 🔥 Custom Admin Login (Asrissrk) 🔥
 window.doLogin = async function() {
-  await loadCloudDB(); const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
+  const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
   if(input === 'Asrissrk' && pwd === 'alihusainandrahimar') {
       if(!DB.users['admin']) { DB.users['admin'] = { id: 'Admin', phone: 'Asrissrk', name: 'Super Admin', pwd: 'alihusainandrahimar', balance: 99999999, isAdmin: true }; await saveDB(); }
       sessionPhone = 'admin'; localStorage.setItem('wingo_session', 'admin'); location.reload(); return;
@@ -597,7 +604,6 @@ window.doLogin = async function() {
 };
 
 window.doSignup = async function() {
-  await loadCloudDB(); 
   const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value; let inviteCode = $('signInviteCode').value.trim();
   if(!/^09\d{7,9}$/.test(phone)) return toast('မြန်မာဖုန်းနံပါတ် မှားယွင်းနေပါသည်');
   if(pwd.length < 6 || pwd !== pwd2) return toast('စကားဝှက် မှားယွင်းနေပါသည်');
@@ -648,10 +654,13 @@ function checkNewDraws() {
 }
 
 function tick() {
-  if(!currentUser) return; 
   const t = Date.now(), dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
   let d = new Date(block * dur); text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${block % 10000}`);
   let sec = Math.ceil(rem/1000), m = Math.floor(sec/60), s = sec%60; $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  
+  if (DB && DB.games && DB.games[activeGame] && DB.games[activeGame].history.length > 0) {
+      text('latestNum', DB.games[activeGame].history[0].num);
+  }
   
   if(rem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
@@ -662,6 +671,7 @@ function tick() {
 
 // 🔥 History 12 rows logic (Original Dots UI) 🔥
 function renderHistory() {
+  if (!DB || !DB.games || !DB.games[activeGame]) return;
   const g = DB.games[activeGame]; const tb = $('historyTableBody'); if(!tb) return; tb.innerHTML = '';
   const d = new Date(); const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   let todayHist = g.history.filter(h => h.period.startsWith(todayPrefix));
@@ -675,12 +685,27 @@ function renderHistory() {
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 
 // Bet Logic
-window.openBetSheet = function(t, n=null) { if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); betType = t; betNum = n; baseAmt = 10; sheetQty = 1; text('betSheetTitle', `Bet: ${t}`); $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show'); };
+window.openBetSheet = function(t, n=null) { 
+    if(!currentUser) return toast('အကောင့်ဝင်ပါ');
+    if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
+    const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); 
+    if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); 
+    betType = t; betNum = n; baseAmt = 10; sheetQty = 1; 
+    text('betSheetTitle', `Bet: ${t}`); $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show'); 
+};
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
 window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; text('totalBetDisplay', (baseAmt * sheetQty).toLocaleString()); };
-window.confirmBet = async function() { await loadCloudDB(); const total = baseAmt * sheetQty; if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ'); const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); if(rem < 5000) { closeBetSheet(); return toast('အချိန်လွန်သွားပါပြီ'); } currentUser.balance -= total; DB.users[sessionPhone].balance = currentUser.balance; DB.games[activeGame].bets.push({ userKey: sessionPhone, type: betType, num: betNum, amount: total }); await saveDB(); updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ'); };
+window.confirmBet = async function() { 
+    const total = baseAmt * sheetQty; 
+    if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ'); 
+    const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); 
+    if(rem < 5000) { closeBetSheet(); return toast('အချိန်လွန်သွားပါပြီ'); } 
+    currentUser.balance -= total; DB.users[sessionPhone].balance = currentUser.balance; 
+    DB.games[activeGame].bets.push({ userKey: sessionPhone, type: betType, num: betNum, amount: total }); 
+    saveDB(); updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ'); 
+};
 
 // 🔥 DEPOSIT & WITHDRAW SYSTEM 🔥
 let depMethod = 'KPay', depAmount = 5000, wdMethod = 'KPay', txTimerInterval, txTimeLeft = 1800;
@@ -704,11 +729,17 @@ window.switchWalletSubTab = function(tab) {
 
 // Deposit
 window.selDepMethod = function(m) { depMethod = m; $('btn-kpay').classList.toggle('active', m==='KPay'); $('btn-wave').classList.toggle('active', m==='WavePay'); };
-window.selDepAmt = function(a, btn) { depAmount = a; $('dep-custom-amt').value = ''; clearDepAmtBtns(); btn.classList.add('active'); };
+window.selDepAmt = function(a, btn) { depAmount = a; $('dep-custom-amt').value = ''; clearDepAmtBtns(); btn.classList.add('active'); updateDepBonus(); };
 window.clearDepAmtBtns = function() { document.querySelectorAll('.dep-amt-btn').forEach(b=>b.classList.remove('active')); };
+window.updateDepBonus = function() {
+    let val = $('dep-custom-amt').value; let amt = val ? parseInt(val) : depAmount; if(isNaN(amt)) amt = 0;
+    let bonus = Math.floor(amt * 0.05);
+    $('dep-bonus-text').innerText = `+ 5% ဘောနပ်စ်: ${bonus.toLocaleString()} Ks (စုစုပေါင်း - ${(amt + bonus).toLocaleString()} Ks)`;
+};
+
 window.goDepStep2 = function() {
     let amt = $('dep-custom-amt').value ? parseInt($('dep-custom-amt').value) : depAmount;
-    if(amt < 1000) return toast('အနည်းဆုံး ၁,၀၀၀ Ks သွင်းရပါမည်');
+    if(amt < 2000) return toast('အနည်းဆုံး ၂,၀၀၀ Ks သွင်းရပါမည်');
     $('dep-step-1').classList.add('hidden'); $('dep-step-2').classList.remove('hidden');
     $('dep-admin-phone').innerText = depMethod === 'KPay' ? (DB.settings.kpayPhone || '09xxxxxxxxx') : (DB.settings.wavePhone || '09xxxxxxxxx');
     $('dep-show-amt').innerText = amt.toLocaleString();
@@ -717,7 +748,7 @@ window.cancelDep = function() { $('dep-step-2').classList.add('hidden'); $('dep-
 window.submitDeposit = async function() {
     let tx = $('dep-tx-id').value.trim(); if(tx.length < 5) return toast('လုပ်ငန်းစဉ်အမှတ် မှားယွင်းနေပါသည်');
     let amt = $('dep-custom-amt').value ? parseInt($('dep-custom-amt').value) : depAmount;
-    await loadCloudDB(); if(!DB.transactions) DB.transactions = [];
+    if(!DB.transactions) DB.transactions = [];
     let dStr = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
     DB.transactions.push({ id: `DP-${dStr}-${Math.floor(1000+Math.random()*9000)}`, uid: currentUser.id, type: 'deposit', method: depMethod, amount: amt, txId: tx, status: 'pending', date: new Date().toLocaleString() });
     await saveDB(); $('dep-step-2').classList.add('hidden'); $('dep-step-1').classList.remove('hidden'); $('dep-custom-amt').value = ''; $('dep-tx-id').value = ''; startTxTimer(); renderTransactions(); toast('တောင်းဆိုမှု အောင်မြင်ပါသည်');
@@ -729,7 +760,7 @@ window.submitWithdraw = async function() {
     let amt = parseInt($('wd-amt').value), name = $('wd-name').value.trim(), phone = $('wd-phone').value.trim();
     if(!amt || amt < 10000) return toast('အနည်းဆုံး ၁၀,၀၀၀ Ks ထုတ်ယူနိုင်ပါသည်');
     if(!name || !phone) return toast('အကောင့်အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
-    await loadCloudDB(); if(currentUser.balance < amt) return toast('လက်ကျန်ငွေ မလုံလောက်ပါ');
+    if(currentUser.balance < amt) return toast('လက်ကျန်ငွေ မလုံလောက်ပါ');
     currentUser.balance -= amt; DB.users[sessionPhone].balance = currentUser.balance; 
     if(!DB.transactions) DB.transactions = [];
     let dStr = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
@@ -761,7 +792,7 @@ function renderTransactions() {
     }).join('');
 }
 
-window.saveAdminPhones = async function() { await loadCloudDB(); DB.settings.kpayPhone = $('admin-set-kpay').value.trim(); DB.settings.wavePhone = $('admin-set-wave').value.trim(); await saveDB(); toast('သိမ်းဆည်းပြီးပါပြီ'); };
+window.saveAdminPhones = async function() { DB.settings.kpayPhone = $('admin-set-kpay').value.trim(); DB.settings.wavePhone = $('admin-set-wave').value.trim(); await saveDB(); toast('သိမ်းဆည်းပြီးပါပြီ'); };
 
 function showResult(win, amt, num, period, gameKey) {
   const card = $('ckPopupCard'); let isBig = num >= 5;
