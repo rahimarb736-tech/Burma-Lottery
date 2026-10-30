@@ -12,11 +12,33 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 button, input, select { font: inherit; outline: none; border:none; } button { cursor: pointer; }
 .hidden { display: none !important; }
 .icon { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.svg-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 #app-container { width: 100%; max-width: 480px; min-height: 100dvh; background: var(--bg); margin: auto; position: relative; padding-bottom: calc(86px + env(safe-area-inset-bottom)); box-shadow: 0 0 50px #22243b13; }
 .header { height: 62px; padding: 0 16px; background: var(--gradient); display: flex; align-items: center; justify-content: space-between; color: #fff; position: sticky; top: 0; z-index: 100; }
 .brand { display: flex; gap: 8px; align-items: center; font: italic 900 24px/1 system-ui; }
+
+/* --- 🔥 Auth Screen (Login/Signup) Beautiful UI 🔥 --- */
+.auth-hero { background: var(--gradient); padding: 24px 24px 60px; color: white; border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
+.auth-hero:before, .auth-hero:after { content: ''; position: absolute; width: 190px; height: 190px; border: 1px solid #ffffff15; border-radius: 50%; right: -60px; top: 35px; }
+.auth-hero:after { width: 250px; height: 250px; right: -90px; top: 5px; }
+.auth-hero .brand { margin-bottom: 35px; font: italic 900 24px/1 system-ui; }
+.auth-hero h1 { font-size: 23px; font-weight: 700; margin-bottom: 6px; }
+.auth-hero p { font-size: 12px; color: #ffe3e4; max-width: 280px; }
+.auth-kicker { font: 10px system-ui, sans-serif; letter-spacing: 1.8px; color: #ffe6aa; margin-bottom: 12px; }
+.auth-panel { position: relative; margin: -30px 20px 20px; padding: 22px 20px; background: white; border-radius: 18px; box-shadow: 0 8px 30px #4d1e3010; }
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.auth-tabs button { flex: 1; padding: 10px 0 14px; background: none; color: #999aa6; font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; transition: 0.2s; }
+.auth-tabs button.active { color: var(--deep-red); border-bottom-color: var(--deep-red); }
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.auth-form label { font-size: 11px; display: block; margin-bottom: 5px; color: #666975; }
+.input-wrap { position: relative; }
+.auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; }
+.auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
+.eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; font-size: 16px; font-family: monospace; font-weight:bold; }
+.btn-main { width: 100%; padding: 12px; border-radius: 25px; background: var(--gradient); color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 9px #f3464920; margin-top: 3px; transition: 0.1s; }
+.btn-main:active { transform: scale(0.97); }
+
+/* --- Wallet & Game --- */
 .wallet-area { padding: 16px 15px 13px; background: var(--gradient); border-radius: 0 0 24px 24px; }
 .user-bar { background: #fff; border-radius: 15px; padding: 18px; box-shadow: 0 5px 16px #bd182b12; text-align: center; }
 .wallet-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light); }
@@ -30,21 +52,16 @@ button, input, select { font: inherit; outline: none; border:none; } button { cu
 .dep-header { background: var(--gradient); padding: 15px; color: white; border-radius: 0 0 20px 20px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
 .dep-section { background: white; margin: 15px; border-radius: 12px; padding: 15px; box-shadow: var(--shadow); }
 .dep-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; color: var(--deep-red); }
-
 .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
 .method-btn { border: 2px solid #eee; border-radius: 10px; padding: 15px; font-weight: bold; color: #555; background: #fff; transition: .2s; }
 .method-btn.active { border-color: var(--deep-red); background: #fff5f5; color: var(--deep-red); }
-.method-btn img { width: 30px; height: 30px; border-radius: 5px; margin-bottom: 5px; }
-
 .amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .amt-btn { border: 1px solid #ddd; border-radius: 8px; padding: 12px 0; font-size: 14px; font-weight: bold; color: #444; background: #fff; }
 .amt-btn.active { background: var(--deep-red); color: white; border-color: var(--deep-red); }
 .amt-btn small { display: block; font-size: 10px; color: var(--green); margin-top: 3px; }
 .amt-btn.active small { color: #ffd54f; }
-
 .dep-submit-btn { width: 100%; background: var(--gradient); color: white; font-size: 16px; font-weight: bold; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 10px #f3464940; transition: .1s; }
 .dep-submit-btn:active { transform: scale(0.96); }
-
 .payment-view-card { background: var(--deep-red); color: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(220, 32, 40, 0.4); }
 .payment-timer { font-size: 32px; font-weight: 900; font-family: monospace; margin: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 .copy-box { background: white; color: #333; padding: 5px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; margin: 15px 0; }
@@ -52,7 +69,7 @@ button, input, select { font: inherit; outline: none; border:none; } button { cu
 .copy-box button { background: var(--deep-red); color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
 .tx-input { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 15px; text-align: center; margin-bottom: 15px; outline: none; background: #f8f8fb; color: #333; font-weight:bold; }
 
-/* History & Tables */
+/* --- History & Tables --- */
 .game-tabs { margin: 15px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
 .game-tabs button { padding: 12px 0; font-size: 12px; color: #888; font-weight: bold; }
 .game-tabs button.active { background: var(--deep-red); color: #fff; }
@@ -63,7 +80,6 @@ button, input, select { font: inherit; outline: none; border:none; } button { cu
 .color-row button, .size-row button { flex: 1; padding: 12px; color: white; font-weight: bold; border-radius: 8px; }
 .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
 .num-btn { aspect-ratio: 1; border-radius: 50%; color: white; font-weight: bold; font-size: 20px; }
-
 .history-section { padding: 15px; }
 table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
 th { padding: 12px 5px; background: var(--gradient); color: #fff; }
@@ -88,13 +104,57 @@ td { padding: 10px 5px; border-bottom: 1px solid #eee; }
 
 <div id="toast"></div>
 
-<!-- Auth Screen (Kept minimal for logic) -->
-<section id="authScreen" style="padding: 20px;">
-  <h1 style="color:var(--deep-red);text-align:center;margin-top:50px;">Burma Lottery</h1>
-  <input type="text" id="loginPhone" placeholder="ဖုန်းနံပါတ် (သို့) Admin" style="width:100%;padding:15px;margin:20px 0 10px;border-radius:10px;border:1px solid #ccc;">
-  <input type="password" id="loginPwd" placeholder="စကားဝှက် (admin123)" style="width:100%;padding:15px;margin-bottom:20px;border-radius:10px;border:1px solid #ccc;">
-  <button onclick="doLogin()" style="width:100%;padding:15px;background:var(--deep-red);color:white;border-radius:10px;font-weight:bold;">ဝင်မည်</button>
-  <button onclick="$('loginPhone').value='admin'; $('loginPwd').value='admin123'; doLogin();" style="width:100%;padding:15px;background:#333;color:white;border-radius:10px;font-weight:bold;margin-top:10px;">Admin အဖြစ်ဝင်ရန် Test</button>
+<!-- 🔥 ပြန်လည်ရောက်ရှိလာသော အလန်းစား Auth Screen 🔥 -->
+<section id="authScreen" style="max-width: 480px; margin: auto; min-height: 100dvh; background: var(--bg);">
+  <div class="auth-hero">
+    <div class="brand">Burma Lottery</div>
+    <div class="auth-kicker">WELCOME TO BURMA LOTTERY</div>
+    <h1>မင်္ဂလာပါ</h1><p>WinGo ဂိမ်းကမ္ဘာသို့ စတင်လှမ်းဝင်လိုက်ပါ။<br>လုံခြုံစိတ်ချစွာ ကစားနိုင်ပါပြီ။</p>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-tabs">
+      <button id="tabLogin" class="active" onclick="switchAuth('login')">အကောင့်ဝင်ရန်</button>
+      <button id="tabSignup" onclick="switchAuth('signup')">အကောင့်ဖွင့်ရန်</button>
+    </div>
+    <form id="formLogin" class="auth-form" onsubmit="event.preventDefault();doLogin()">
+      <div class="input-wrap">
+          <label>ဖုန်းနံပါတ် (သို့) ID</label>
+          <input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required>
+      </div>
+      <div class="input-wrap">
+          <label>စကားဝှက်</label>
+          <input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required>
+          <button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">O</button>
+      </div>
+      <button class="btn-main" type="submit">အကောင့်ဝင်မည်</button>
+    </form>
+    
+    <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
+      <div class="input-wrap">
+          <label>ဖုန်းနံပါတ် (မြန်မာနံပါတ်မှန်ရန်)</label>
+          <input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required>
+      </div>
+      <div class="input-wrap">
+          <label>အမည်</label>
+          <input type="text" id="signName" placeholder="သင့်အမည်" required>
+      </div>
+      <div class="input-wrap">
+          <label>စကားဝှက်</label>
+          <input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required>
+          <button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">O</button>
+      </div>
+      <div class="input-wrap">
+          <label>စကားဝှက် အတည်ပြုရန်</label>
+          <input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required>
+          <button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">O</button>
+      </div>
+      <div class="input-wrap" style="background:#f4f5f8; padding:10px; border-radius:8px; border:1px dashed #4080ff;">
+        <label style="color:var(--blue); font-weight:bold;">👥 ဖိတ်ခေါ်ကုဒ် (Invite Code) - မထည့်လည်းရသည်</label>
+        <input type="text" id="signInviteCode" placeholder="သူငယ်ချင်း၏ ၅ လုံးပြည့် ID ထည့်ပါ" style="background:#fff; border-color:#dbe4ff;">
+      </div>
+      <button class="btn-main" type="submit" id="btnSignupSub">အကောင့်ဖွင့်မည်</button>
+    </form>
+  </div>
 </section>
 
 <main id="app-container" class="hidden">
@@ -103,7 +163,7 @@ td { padding: 10px 5px; border-bottom: 1px solid #eee; }
   <div id="view-game">
     <section class="wallet-area">
       <div class="user-bar">
-        <div class="wallet-top"><span>UID: <span id="userId"></span></span><span style="color:var(--red); font-weight:bold;" onclick="logout()">ထွက်မည်</span></div>
+        <div class="wallet-top"><span>UID: <span id="userId"></span></span><span style="color:var(--red); font-weight:bold; cursor:pointer;" onclick="logout()">ထွက်မည်</span></div>
         <div class="balance">Ks <span id="balance">0</span></div>
         <div class="wallet-actions">
             <button onclick="switchTab('deposit', this)">ငွေထုတ်မည်</button>
@@ -274,21 +334,60 @@ window.onload = async () => {
     }
 };
 
-window.doLogin = async () => {
-  await loadDB();
-  const p = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
-  if(p === 'admin' && pwd === 'admin123') {
-      if(!DB.users['admin']) { DB.users['admin'] = { id: 'Admin', phone: 'admin', name: 'Super Admin', pwd: '123', balance: 999999, isAdmin: true }; await saveDB(); }
-      sessionPhone = 'admin'; localStorage.setItem('w_session', 'admin'); location.reload(); return;
-  }
-  let u = Object.keys(DB.users).find(k => k === p || DB.users[k].id === p);
-  if(!u) { // Auto register for simplicity in this demo
-      let newId = Math.floor(10000+Math.random()*90000).toString();
-      DB.users[p] = { id: newId, phone: p, name: 'User', pwd: pwd, balance: 0, isAdmin: false };
-      await saveDB(); u = p; toast('အကောင့်အသစ်ဖွင့်ပြီးပါပြီ');
-  }
-  sessionPhone = u; localStorage.setItem('w_session', u); location.reload();
+/* --- 🔥 လှပသော Auth Functions များ ပြန်လည်ဖြည့်သွင်းထားသည် 🔥 --- */
+window.switchAuth = function(type) { 
+    $('tabLogin').classList.toggle('active', type === 'login'); 
+    $('tabSignup').classList.toggle('active', type === 'signup'); 
+    $('formLogin').classList.toggle('hidden', type !== 'login'); 
+    $('formSignup').classList.toggle('hidden', type !== 'signup'); 
 };
+
+window.togglePassword = function(id, btn) { 
+    const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; 
+};
+
+window.doSignup = async function() {
+    const btn = document.getElementById('btnSignupSub');
+    if(btn) { btn.disabled = true; btn.innerText = 'ခဏစောင့်ပါ...'; }
+    await loadDB(); 
+    
+    const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
+    const inviteCode = $('signInviteCode').value.trim();
+    
+    if(!phone || !name || !pwd) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('အချက်အလက် ဖြည့်ပါ'); }
+    if(!/^09\d{7,9}$/.test(phone)) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('မြန်မာဖုန်းနံပါတ် မှားယွင်းနေပါသည်'); }
+    if(pwd.length < 6) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ'); }
+    if(pwd !== pwd2) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် နှစ်ခု မတူပါ'); }
+    if(DB.users[phone]) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ'); }
+
+    let startingBalance = 0;
+    if(inviteCode) {
+        let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
+        if(inviterPhone) { DB.users[inviterPhone].balance += 1999; startingBalance = 1999; } 
+        else { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
+    }
+
+    let newId = Math.floor(10000 + Math.random() * 90000).toString();
+    DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false };
+    
+    sessionPhone = phone; 
+    localStorage.setItem('w_session', phone);
+    await saveDB(); 
+    location.reload();
+};
+
+window.doLogin = async () => {
+    await loadDB();
+    const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
+    if(input === 'admin' && pwd === 'admin123') {
+        if(!DB.users['admin']) { DB.users['admin'] = { id: 'Admin', phone: 'admin', name: 'Super Admin', pwd: 'admin123', balance: 999999, isAdmin: true }; await saveDB(); }
+        sessionPhone = 'admin'; localStorage.setItem('w_session', 'admin'); location.reload(); return;
+    }
+    let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
+    if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
+    sessionPhone = userPhone; localStorage.setItem('w_session', userPhone); location.reload();
+};
+
 window.logout = () => { localStorage.removeItem('w_session'); location.reload(); };
 
 function buildGrid() {
@@ -308,7 +407,7 @@ window.switchTab = (tab, btn) => {
     $('view-'+tab).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
     if(tab === 'admin') { $('admin-set-kpay').value = DB.settings.kpayPhone || ''; $('admin-set-wave').value = DB.settings.wavePhone || ''; }
-    if(tab === 'deposit') { cancelDeposit(); } // Reset deposit UI
+    if(tab === 'deposit') { cancelDeposit(); }
 };
 
 function tickLoop() {
@@ -328,17 +427,9 @@ function tickLoop() {
 // 🔥 History Reset & 12 Rows Logic 🔥
 function renderHistory() {
   const g = DB.games[activeGame]; const tb = $('historyTableBody'); if(!tb) return; tb.innerHTML = '';
-  
-  // ည ၁၂ နာရီကျော်လျှင် Date Prefix အသစ်ပြောင်းသွားသဖြင့် အဟောင်းများမပေါ်တော့ပါ (Reset စနစ်)
-  const d = new Date();
-  const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  
-  // ဒီနေ့မှတ်တမ်းကိုသာ ယူမည်
+  const d = new Date(); const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   let todayHist = g.history.filter(h => h.period.startsWith(todayPrefix));
-  
-  // စာမျက်နှာတစ်ခုလျှင် ၁၂ ခု တိတိပြမည်
   const hist = todayHist.slice((currentPage-1)*12, currentPage*12);
-  
   hist.forEach(h => {
     let c = (h.num===0||h.num===5)?'#a55ce6':[1,3,7,9].includes(h.num)?'#36b67b':'#f34649';
     tb.innerHTML += `<tr><td>${h.period}</td><td style="color:${c}; font-weight:bold; font-size:16px;">${h.num}</td><td style="color:#555;">${h.num>=5?'အကြီး':'အသေး'}</td></tr>`;
@@ -361,14 +452,10 @@ window.doBet = async (type, num=null) => {
     await saveDB(); toast('ထိုးပြီးပါပြီ (10 Ks)'); updateUI();
 };
 
-
 /* ====================================================
    🔥 In-App Deposit System (KPay / WavePay) 🔥
 ==================================================== */
-let depMethod = 'KPay';
-let depAmount = 5000;
-let depTimerInterval;
-let depTimeLeft = 1800; // 30 minutes
+let depMethod = 'KPay'; let depAmount = 5000; let depTimerInterval; let depTimeLeft = 1800;
 
 window.selectMethod = (m) => { 
     depMethod = m; 
@@ -382,16 +469,11 @@ window.selectAmt = (a, btn) => {
 };
 
 window.goDepStep2 = () => {
-    $('dep-step-1').classList.add('hidden');
-    $('dep-step-2').classList.remove('hidden');
-    
-    // ဖုန်းနံပါတ်ကို Admin Set ထားသည့်အတိုင်း ပြမည်
+    $('dep-step-1').classList.add('hidden'); $('dep-step-2').classList.remove('hidden');
     let phoneNum = depMethod === 'KPay' ? DB.settings.kpayPhone : DB.settings.wavePhone;
     $('dep-admin-phone').innerText = phoneNum || 'မသတ်မှတ်ရသေးပါ';
     $('pay-amt-display').innerText = depAmount.toLocaleString();
     $('dep-tx-id').value = '';
-
-    // Start 30 Min Timer
     depTimeLeft = 1800;
     if(depTimerInterval) clearInterval(depTimerInterval);
     depTimerInterval = setInterval(() => {
@@ -404,8 +486,7 @@ window.goDepStep2 = () => {
 
 window.cancelDeposit = () => {
     if(depTimerInterval) clearInterval(depTimerInterval);
-    $('dep-step-1').classList.remove('hidden');
-    $('dep-step-2').classList.add('hidden');
+    $('dep-step-1').classList.remove('hidden'); $('dep-step-2').classList.add('hidden');
 };
 
 window.copyAdminPhone = () => {
@@ -417,18 +498,12 @@ window.copyAdminPhone = () => {
 window.submitDepositFinal = async () => {
     let tx = $('dep-tx-id').value.trim();
     if(tx.length < 5) return toast('လုပ်ငန်းစဉ်အမှတ် အနည်းဆုံး ၅ လုံး ထည့်ပါ');
-    
-    // Server သို့ Data ပို့မည်
     await loadDB();
     if(!DB.deposits) DB.deposits = [];
-    DB.deposits.push({
-        uid: currentUser.id, name: currentUser.name, method: depMethod, amount: depAmount, txId: tx, date: new Date().toLocaleString()
-    });
+    DB.deposits.push({ uid: currentUser.id, name: currentUser.name, method: depMethod, amount: depAmount, txId: tx, date: new Date().toLocaleString() });
     await saveDB();
-    
     toast('ငွေသွင်းရန် တောင်းဆိုမှု အောင်မြင်ပါသည်။ ခဏစောင့်ပေးပါ။');
-    cancelDeposit();
-    switchTab('game', document.querySelector('.nav-item'));
+    cancelDeposit(); switchTab('game', document.querySelector('.nav-item'));
 };
 
 /* ====================================================
@@ -436,10 +511,8 @@ window.submitDepositFinal = async () => {
 ==================================================== */
 window.saveAdminPhones = async () => {
     await loadDB();
-    DB.settings.kpayPhone = $('admin-set-kpay').value.trim();
-    DB.settings.wavePhone = $('admin-set-wave').value.trim();
-    await saveDB();
-    toast('ဖုန်းနံပါတ်များ သိမ်းဆည်းပြီးပါပြီ');
+    DB.settings.kpayPhone = $('admin-set-kpay').value.trim(); DB.settings.wavePhone = $('admin-set-wave').value.trim();
+    await saveDB(); toast('ဖုန်းနံပါတ်များ သိမ်းဆည်းပြီးပါပြီ');
 };
 window.adminDirectAdd = async () => {
     await loadDB();
