@@ -172,7 +172,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .qty-control button { width: 36px; height: 36px; background: #f0f0f0; border: none; font-size: 18px; color: #555; font-weight: bold; }
 .qty-control input { width: 50px; height: 36px; border: none; text-align: center; font-size: 16px; font-weight: bold; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background: #fff; }
 .bet-actions { display: flex; gap: 12px; }
-.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; transition: 0.1s; }
+.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; }
 .btn-cancel { background: #e0e0e0; color: #555; } 
 .btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
 
@@ -257,6 +257,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </section>
 
+<!-- 🔥 Main App Container 🔥 -->
 <main id="app-container" class="hidden">
   <header class="header">
     <button class="icon-btn" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg></button>
@@ -276,7 +277,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
   </section>
 
-  <!-- 🔥 GAME VIEW 🔥 -->
+  <!-- GAME VIEW -->
   <section id="view-game">
     <div class="game-tabs" id="gameTabs">
       <button class="active" onclick="switchGame('wingo30s',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>30 second</button>
@@ -320,14 +321,14 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </section>
   </section>
 
-  <!-- 🔥 WALLET (DEPOSIT/WITHDRAW) 🔥 -->
+  <!-- WALLET (DEPOSIT/WITHDRAW) -->
   <div id="view-wallet" class="page-view hidden">
     <div class="admin-nav">
         <button id="tab-btn-deposit" class="active" onclick="switchWalletSubTab('deposit')">ငွေသွင်းမည်</button>
         <button id="tab-btn-withdraw" onclick="switchWalletSubTab('withdraw')">ငွေထုတ်မည်</button>
     </div>
 
-    <!-- Deposit -->
+    <!-- Deposit Content -->
     <div id="wallet-deposit">
         <div class="deposit-card" id="dep-step-1">
           <h3 style="color:var(--green); margin-bottom:15px;">ငွေသွင်းရန်</h3>
@@ -362,7 +363,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
         </div>
     </div>
 
-    <!-- Withdraw -->
+    <!-- Withdraw Content -->
     <div id="wallet-withdraw" class="hidden">
         <div class="deposit-card">
             <h3 style="color:var(--deep-red); margin-bottom:15px;">ငွေထုတ်ရန်</h3>
@@ -381,7 +382,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
         </div>
     </div>
 
-    <!-- Pending Timer -->
+    <!-- Pending Timer View -->
     <div class="deposit-card hidden" id="tx-pending-view" style="text-align:center;">
        <h3 style="color:var(--orange);">စောင့်ဆိုင်းနေပါသည်...</h3>
        <div id="tx-timer" style="font-size:40px; font-weight:900; color:var(--red); font-family:monospace; margin:15px 0;">30:00</div>
@@ -396,7 +397,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
   </div>
 
-  <!-- 🔥 PROFILE VIEW 🔥 -->
+  <!-- PROFILE VIEW -->
   <div id="view-profile" class="page-view hidden">
     <div class="profile-card">
       <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ကျွန်ုပ်၏ Profile</h3>
@@ -427,7 +428,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
   </div>
 
-  <!-- 🔥 ADMIN VIEW 🔥 -->
+  <!-- ADMIN VIEW -->
   <div id="view-admin" class="page-view hidden">
       <div class="admin-nav"><button class="active">ဆက်တင်များ (Settings)</button></div>
       <div class="admin-card">
@@ -522,7 +523,7 @@ const text = (id, val) => { if($(id)) $(id).innerText = val; };
 function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
 window.copyText = function(id) { let val = $(id).innerText || $(id).value; var t = document.createElement("textarea"); t.value = val; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(t); };
 
-// 🔥 Auto Approve Check Status 🔥
+// 🔥 Check Tx Status for Auto Approve 🔥
 function checkTxStatus() {
     if(!currentUser) return;
     let myTxs = (DB.transactions || []).filter(t => t.uid === currentUser.id);
@@ -541,7 +542,7 @@ function checkTxStatus() {
 
 // 🔥 Load DB (Non-blocking) 🔥
 function loadCloudDB() {
-    fetch(`${BACKEND_URL}/api/db`).then(res => res.json()).then(data => {
+    fetch(`${BACKEND_URL}/api/db`, { cache: 'no-store' }).then(res => res.json()).then(data => {
         if(data && data.users) {
             DB = data;
             if(!DB.settings.kpayPhone) DB.settings.kpayPhone = '09123456789';
@@ -556,22 +557,29 @@ function loadCloudDB() {
 
 async function saveDB() { try { await fetch(`${BACKEND_URL}/api/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DB) }); } catch(e) {} }
 
+// 🔥 Fix Visibility Bug (remove instead of add) 🔥
 window.onload = function() {
-    // ချက်ချင်း စက္ကန့်လည်စေရန် TickLoop အရင်စပါမည်
-    requestAnimationFrame(tickLoop);
-    buildGrid();
+    buildGrid(); 
+    
+    // First immediate tick to start timer instantly
+    tick(); 
+    setInterval(tick, 1000); // 1-second interval ensures timer never stops
 
-    // အချက်အလက်များကို နောက်ကွယ်မှ ဆွဲယူပါမည် (စက္ကန့်မရပ်အောင်)
-    fetch(`${BACKEND_URL}/api/db`).then(res => res.json()).then(data => {
+    // Initial background load
+    fetch(`${BACKEND_URL}/api/db`, { cache: 'no-store' }).then(res => res.json()).then(data => {
         if(data && data.users) DB = data;
         if(sessionPhone && DB.users[sessionPhone]) currentUser = DB.users[sessionPhone];
         
         const invite = new URLSearchParams(window.location.search).get('invite');
         if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
         
-        if(!currentUser) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
+        if(!currentUser) { 
+            $('authScreen').classList.remove('hidden'); 
+            $('app-container').classList.add('hidden'); 
+        } 
         else {
-            $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
+            $('authScreen').classList.add('hidden'); 
+            $('app-container').classList.remove('hidden'); // Fix here
             if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
             updateUI(); renderHistory();
             setInterval(loadCloudDB, 2000); 
@@ -636,12 +644,13 @@ window.switchGame = function(k, btn) { activeGame = k; document.querySelectorAll
 let lastKnownPeriods = {};
 function checkNewDraws() {
     Object.keys(DURATIONS).forEach(gameKey => {
-        if(DB.games[gameKey].history.length > 0) {
+        if(DB.games[gameKey] && DB.games[gameKey].history && DB.games[gameKey].history.length > 0) {
             let latestHistory = DB.games[gameKey].history[0]; let currentPeriod = latestHistory.period;
             if(lastKnownPeriods[gameKey] && lastKnownPeriods[gameKey] !== currentPeriod) {
                 if(gameKey === activeGame) { 
                     text('latestNum', latestHistory.num); 
-                    $('latestNum').style.color = (latestHistory.num===0||latestHistory.num===5)?'#9b5de5':[1,3,7,9].includes(latestHistory.num)?'#2dbd7e':'#ff4b4b';
+                    let el = $('latestNum');
+                    if (el) el.style.color = (latestHistory.num===0||latestHistory.num===5)?'#9b5de5':[1,3,7,9].includes(latestHistory.num)?'#2dbd7e':'#ff4b4b';
                 }
                 if(currentUser && currentUser.myBets && currentUser.myBets.length > 0) {
                     let latestMyBet = currentUser.myBets[0];
@@ -653,13 +662,18 @@ function checkNewDraws() {
     });
 }
 
+// 🔥 Timer Logic Using setInterval 🔥
 function tick() {
+  if(!currentUser) return; 
   const t = Date.now(), dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
   let d = new Date(block * dur); text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${block % 10000}`);
   let sec = Math.ceil(rem/1000), m = Math.floor(sec/60), s = sec%60; $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   
-  if (DB && DB.games && DB.games[activeGame] && DB.games[activeGame].history.length > 0) {
-      text('latestNum', DB.games[activeGame].history[0].num);
+  if (DB && DB.games && DB.games[activeGame] && DB.games[activeGame].history && DB.games[activeGame].history.length > 0) {
+      let lnum = DB.games[activeGame].history[0].num;
+      text('latestNum', lnum);
+      let el = $('latestNum');
+      if(el) el.style.color = (lnum===0||lnum===5)?'#9b5de5':[1,3,7,9].includes(lnum)?'#2dbd7e':'#ff4b4b';
   }
   
   if(rem <= 5000 && !$('view-game').classList.contains('hidden')) {
@@ -669,9 +683,9 @@ function tick() {
   } else { $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1; }
 }
 
-// 🔥 History 12 rows logic (Original Dots UI) 🔥
+// History 12 rows logic (Original Dots UI)
 function renderHistory() {
-  if (!DB || !DB.games || !DB.games[activeGame]) return;
+  if (!DB || !DB.games || !DB.games[activeGame] || !DB.games[activeGame].history) return;
   const g = DB.games[activeGame]; const tb = $('historyTableBody'); if(!tb) return; tb.innerHTML = '';
   const d = new Date(); const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   let todayHist = g.history.filter(h => h.period.startsWith(todayPrefix));
