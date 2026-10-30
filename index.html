@@ -3,1072 +3,450 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#e71d28">
+<meta name="theme-color" content="#dc2028">
 <title>Burma Lottery · WinGo</title>
 <style>
 :root { --red: #f34649; --deep-red: #dc2028; --green: #36b67b; --orange: #ffad36; --blue: #4080ff; --purple: #a55ce6; --bg: #f6f6fa; --card: #fff; --text: #31323c; --text-light: #8b8d99; --border: #ebebf0; --shadow: 0 4px 16px #22243b08; --gradient: linear-gradient(110deg, #e71d28, #ff5558); }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #e9ebf1; color: var(--text); line-height: 1.5; min-height: 100vh; }
-button, input, select { font: inherit; outline: none; } button { cursor: pointer; border: 0; }
-button:focus-visible, a:focus-visible { outline: 3px solid #2976db; outline-offset: 3px; }
-button:disabled { cursor: not-allowed; opacity: .45; }
+button, input, select { font: inherit; outline: none; border:none; } button { cursor: pointer; }
 .hidden { display: none !important; }
-.icon { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.icon { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .svg-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
-.mono { font-variant-numeric: tabular-nums; font-family: system-ui, sans-serif; }
 
 #app-container { width: 100%; max-width: 480px; min-height: 100dvh; background: var(--bg); margin: auto; position: relative; padding-bottom: calc(86px + env(safe-area-inset-bottom)); box-shadow: 0 0 50px #22243b13; }
 .header { height: 62px; padding: 0 16px; background: var(--gradient); display: flex; align-items: center; justify-content: space-between; color: #fff; position: sticky; top: 0; z-index: 100; }
-.brand { display: flex; gap: 8px; align-items: center; }
-.brand-mark { font: italic 900 27px/1 system-ui, sans-serif; color: #fff4af; background: linear-gradient(145deg, #ffe1a1, #ffc446); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 1px 10px #ffc73b22; }
-.logo-area { font: 800 19px/1.1 system-ui, sans-serif; letter-spacing: -.7px; } .logo-area span { color: #ffecb0; }
-.brand small { display: block; font: 9px system-ui, sans-serif; letter-spacing: 2.3px; opacity: .8; margin-top: 4px; }
-.header-icons { display: flex; gap: 5px; }
-.icon-btn { background: transparent; color: inherit; display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; transition: 0.2s; }
-.icon-btn:hover { background: #ffffff20; } .icon-btn:active { transform: scale(0.9); }
+.brand { display: flex; gap: 8px; align-items: center; font: italic 900 24px/1 system-ui; }
 .wallet-area { padding: 16px 15px 13px; background: var(--gradient); border-radius: 0 0 24px 24px; }
-.user-bar { background: #fff; border-radius: 15px; padding: 18px 18px 14px; box-shadow: 0 5px 16px #bd182b12; text-align: center; }
-.wallet-top { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-light); line-height: 1.4; }
-.id-chip { background: #f5f5f8; border-radius: 5px; padding: 3px 8px; font-family: system-ui, sans-serif; }
-.wallet-top button { background: none; color: var(--text-light); font-size: 11px; }
-.balance { display: flex; align-items: center; justify-content: center; gap: 9px; color: #30313c; margin-top: 9px; font: 750 28px/1.4 system-ui, sans-serif; letter-spacing: -.6px; }
-.balance .currency { font-size: 17px; font-weight: 500; color: #8e8d98; }
-.wallet-label { display: flex; gap: 5px; align-items: center; justify-content: center; color: #8a8994; font-size: 11px; margin-top: 3px; }
-.wallet-label .icon { color: var(--red); width: 16px; height: 16px; }
-.wallet-actions { display: flex; gap: 30px; margin-top: 16px; }
-.wallet-actions button { flex: 1; border-radius: 30px; padding: 8px; color: #fff; font-size: 13px; font-weight: 700; background: linear-gradient(90deg, #ff6e70, #f24a50); transition: 0.1s; }
-.wallet-actions button:active { transform: scale(0.95); } .wallet-actions button:last-child { background: linear-gradient(90deg, #31c28b, #1fa86e); }
+.user-bar { background: #fff; border-radius: 15px; padding: 18px; box-shadow: 0 5px 16px #bd182b12; text-align: center; }
+.wallet-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light); }
+.balance { display: flex; align-items: center; justify-content: center; gap: 9px; color: #30313c; margin-top: 9px; font: 750 28px/1.4 system-ui; }
+.wallet-actions { display: flex; gap: 15px; margin-top: 16px; }
+.wallet-actions button { flex: 1; border-radius: 30px; padding: 10px; color: #fff; font-size: 13px; font-weight: bold; background: var(--gradient); transition: .1s; }
+.wallet-actions button:last-child { background: linear-gradient(90deg, #31c28b, #1fa86e); }
+.wallet-actions button:active { transform: scale(0.95); }
 
-#serverOffBanner { background: var(--deep-red); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; position: sticky; top: 62px; z-index: 95; letter-spacing: 0.5px; }
-.toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d2d8; transition: .3s; border-radius: 26px; }
-.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-input:checked + .slider { background-color: var(--green); }
-input:checked + .slider:before { transform: translateX(20px); }
+/* --- In-App Deposit UI --- */
+.dep-header { background: var(--gradient); padding: 15px; color: white; border-radius: 0 0 20px 20px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+.dep-section { background: white; margin: 15px; border-radius: 12px; padding: 15px; box-shadow: var(--shadow); }
+.dep-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; color: var(--deep-red); }
 
-.game-tabs { margin: 0 15px 15px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; gap: 0; }
-.game-tabs button { background: #fff; color: #989aa5; padding: 13px 2px 11px; font: 12px/1.35 system-ui, sans-serif; border-radius: 11px; position: relative; transition: 0.2s; }
-.game-tabs .clock-wrap { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 8px; background: linear-gradient(150deg, #f3f3f5, #d7d8de); box-shadow: inset 0 2px 3px #fff, 0 2px 3px #0000000c; color: #a1a2ab; transition: 0.2s; }
-.clock-wrap .icon { width: 23px; height: 23px; stroke-width: 1.5; }
-.game-tabs b { display: block; font-weight: 500; margin-bottom: 2px; }
-.game-tabs button.active { background: linear-gradient(155deg, #ff7779, #f34349); color: #fff; box-shadow: 0 4px 8px #ff414330; }
-.game-tabs button.active .clock-wrap { background: linear-gradient(155deg, #ffb6b7, #f77276); color: white; box-shadow: inset 0 2px 3px #ffc6c6, 0 2px 3px #ae292824; }
-.timer-area { background: linear-gradient(110deg, #ff7274, #f84950); color: #fff; margin: 15px 15px 14px; padding: 15px; border-radius: 13px; display: flex; justify-content: space-between; gap: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 8px #f8495012; }
-.timer-area:after { content: ''; position: absolute; right: 39%; top: 0; width: 1px; height: 100%; background: #fff3; }
-.timer-left { max-width: 55%; min-width: 0; }
-.rules-link { border: 1px solid #ffc4c5; background: transparent; border-radius: 20px; padding: 3px 11px; display: flex; align-items: center; justify-content: center; gap: 4px; color: #fff; font-size: 10px; min-width: 125px; transition: 0.2s; }
-.rules-link:active { transform: scale(0.95); background: #ffffff20; } .rules-link .icon { width: 12px; height: 12px; }
-.timer-title { font: 11px/1.4 system-ui, sans-serif; margin-top: 9px; }
-.recent-balls { display: flex; gap: 5px; margin-top: 9px; align-items: center; }
-.timer-right { text-align: right; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
-.countdown-caption { font-size: 10px; white-space: nowrap; }
-.timer-val { font: 800 clamp(24px, 7vw, 34px)/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #fff !important; letter-spacing: 3px; white-space: nowrap; text-shadow: 1px 1px 0 #cb3b40; margin: 2px 0; }
-.period-val { font: 600 11px system-ui, sans-serif; letter-spacing: .2px; }
-.latest-meta { font-size: 9px; opacity: .9; margin-top: 6px; } .latest-num { font-weight: bold; } .latest-title { display: inline; }
-.play-card { margin: 0 15px 15px; padding: 15px 12px; background: #fff; border-radius: 13px; box-shadow: var(--shadow); position: relative; }
-.bet-options-row { display: flex; gap: 12px; } .color-row { margin-bottom: 17px; }
-.bet-opt-btn { flex: 1; color: #fff; min-height: 35px; font-size: 12px; border-radius: 7px; box-shadow: 0 3px 5px #0000000a; font-weight: 600; transition: transform .15s; border: none; }
-.bet-opt-btn:active:not(:disabled), .num-btn:active:not(:disabled) { transform: scale(.94); }
-.color-green { background: var(--green); border-radius: 0 10px 0 10px; } .color-purple { background: var(--purple); } .color-red { background: var(--red); border-radius: 10px 0 10px 0; }
-.num-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 11px 10px; margin: 0 4px 16px; }
-.num-btn { width: 100%; aspect-ratio: 1; border-radius: 50%; font: 800 clamp(23px, 7.5vw, 33px)/1 system-ui, sans-serif; color: #fff; position: relative; isolation: isolate; border: 3px solid #f1f2f5; box-shadow: 0 2px 4px #1e244214; transition: transform .15s; }
-.num-btn:before { content: ''; position: absolute; inset: 4px; border: 2px solid #ffffffb8; border-radius: 50%; z-index: -1; background: linear-gradient(145deg, #ffffff65, transparent 55%, #0000000a); box-shadow: inset 0 1px 2px #fff; }
-.num-btn:after { content: ''; position: absolute; top: 5px; left: 12px; width: 12px; height: 4px; border-radius: 50%; background: #ffffffa0; transform: rotate(-30deg); }
-.bg-red { background: linear-gradient(140deg, #ff8587, #f14d56); } .bg-green { background: linear-gradient(140deg, #7ddba9, #2db67e); }
-.bg-purple-red { background: linear-gradient(135deg, #ad67e6 48%, #f45363 52%); } .bg-purple-green { background: linear-gradient(135deg, #ad67e6 48%, #3ec48b 52%); }
-.quick-row { display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
-.quick-row button { min-width: 0; flex: 1; border-radius: 5px; background: #f2f3f6; padding: 6px 1px; font: 11px system-ui, sans-serif; color: #777985; transition: 0.1s; }
-.quick-row button:first-child { flex: 1.7; background: #fff; border: 1px solid #f2969a; color: #e9747c; padding: 5px 1px; font-size: 10px; }
-.quick-row button.active { background: var(--green); color: white; } .quick-row button:active { transform: scale(0.95); }
-.size-row { gap: 0; border-radius: 24px; overflow: hidden; margin: 0 5px; }
-.size-row .bet-opt-btn { border-radius: 0; min-height: 37px; box-shadow: none; font-size: 13px; }
-.size-row .big { background: var(--orange); } .size-row .small { background: var(--blue); }
-.size-row span { font: 10px system-ui, sans-serif; opacity: .85; margin-left: 6px; }
-.lock-overlay { position: absolute; inset: 0; z-index: 15; background: #ffffffd9; border-radius: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-.lock-overlay h2 { font: 800 90px/1 system-ui; color: var(--red); font-variant-numeric: tabular-nums; animation: pop .5s ease; }
-.lock-overlay p { font-size: 12px; color: #a1646a; margin-top: 12px; }
-@keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-.history-section { padding: 0 15px 18px; }
-.history-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-.history-tabs button { flex: 1; padding: 10px 2px; background: #e9e9ef; border-radius: 8px; font-size: 11px; color: #8b8c99; transition: 0.2s; }
-.history-tabs button.active { background: var(--gradient); color: white; box-shadow: 0 3px 7px #f3464920; }
-.table-container { background: #fff; border-radius: 11px; overflow: hidden; box-shadow: var(--shadow); }
-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
-th { padding: 13px 3px; background: linear-gradient(90deg, #f84b50, #f84e54); color: #fff; font-weight: 500; font-size: 10px; }
-td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { border-bottom: 0; }
-.td-period { font: 11px system-ui; color: #747582; } .td-num { font: 800 21px system-ui; }
-.td-bs { font-size: 10px; } .td-bs.big { color: #e99b25; } .td-bs.small { color: #6495d7; }
-.color-dots { display: flex; gap: 4px; justify-content: center; } .dot { width: 10px; height: 10px; border-radius: 50%; }
-.pagination { display: flex; gap: 25px; align-items: center; justify-content: center; padding: 17px 0 5px; }
-.pagination button { height: 32px; width: 36px; border-radius: 6px; background: var(--red); color: #fff; font: 20px system-ui; transition: 0.1s; }
-.pagination button:active { transform: scale(0.9); } .pagination button:disabled { background: #e3e4eb; color: #999ba7; opacity: 1; }
-.pagination span { font: 12px system-ui; color: var(--text-light); }
+.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.method-btn { border: 2px solid #eee; border-radius: 10px; padding: 15px; font-weight: bold; color: #555; background: #fff; transition: .2s; }
+.method-btn.active { border-color: var(--deep-red); background: #fff5f5; color: var(--deep-red); }
+.method-btn img { width: 30px; height: 30px; border-radius: 5px; margin-bottom: 5px; }
 
-.ck-bet-item { background: #fff; padding: 12px 15px; border-bottom: 1px solid #f0f0f5; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-.ck-bet-left { display: flex; flex-direction: column; gap: 4px; }
-.ck-bet-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; width: max-content; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-.ck-bet-tag.small { background: #4080ff; } .ck-bet-tag.big { background: #ffad36; } .ck-bet-tag.green { background: #36b67b; } .ck-bet-tag.red { background: #f34649; } .ck-bet-tag.purple { background: #a55ce6; }
-.ck-bet-tag.bg-purple-red { background: linear-gradient(135deg, #a55ce6 50%, #f34649 50%); border:none; text-shadow:none;}
-.ck-bet-tag.bg-purple-green { background: linear-gradient(135deg, #a55ce6 50%, #36b67b 50%); border:none; text-shadow:none;}
-.ck-bet-tag.bg-green { background: linear-gradient(140deg, #7ddba9, #2db67e); border:none; text-shadow:none;}
-.ck-bet-tag.bg-red { background: linear-gradient(140deg, #ff8587, #f14d56); border:none; text-shadow:none;}
+.amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.amt-btn { border: 1px solid #ddd; border-radius: 8px; padding: 12px 0; font-size: 14px; font-weight: bold; color: #444; background: #fff; }
+.amt-btn.active { background: var(--deep-red); color: white; border-color: var(--deep-red); }
+.amt-btn small { display: block; font-size: 10px; color: var(--green); margin-top: 3px; }
+.amt-btn.active small { color: #ffd54f; }
 
-.ck-bet-period { font-size: 12px; color: #444; font-weight: bold; font-family: monospace; }
-.ck-bet-time { font-size: 10px; color: #999; }
-.ck-bet-right { text-align: right; }
-.ck-bet-status { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
-.ck-bet-status.win { color: #36b67b; } .ck-bet-status.lose { color: #f34649; }
-.ck-bet-amt { font-size: 12px; font-weight: bold; }
-.ck-bet-amt.win { color: #36b67b; } .ck-bet-amt.lose { color: #888; }
+.dep-submit-btn { width: 100%; background: var(--gradient); color: white; font-size: 16px; font-weight: bold; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 10px #f3464940; transition: .1s; }
+.dep-submit-btn:active { transform: scale(0.96); }
 
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -3px 18px #24283b07; padding: 8px 8px calc(7px + env(safe-area-inset-bottom)); z-index: 100; }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: transparent; color: #a2a3ae; padding: 4px 0; font-size: 10px; transition: 0.2s; }
-.nav-item .icon { width: 22px; height: 22px; stroke-width: 1.8; }
-.nav-item.active { color: var(--red); font-weight: 600; } .nav-item.active .icon { fill: #fff0f0; }
-.nav-game-icon { background: var(--gradient); border-radius: 50%; padding: 8px; width: 42px; height: 42px; display: grid; place-items: center; color: white; margin-top: -21px; border: 4px solid #fff; box-shadow: 0 3px 8px #f4454c25; transition: 0.2s; }
-.nav-item:active .nav-game-icon { transform: scale(0.9); } .nav-game-icon .icon { width: 22px !important; height: 22px !important; fill: none !important; }
-.nav-item#nav-game { gap: 5px; }
+.payment-view-card { background: var(--deep-red); color: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(220, 32, 40, 0.4); }
+.payment-timer { font-size: 32px; font-weight: 900; font-family: monospace; margin: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.copy-box { background: white; color: #333; padding: 5px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; margin: 15px 0; }
+.copy-box span { font-size: 20px; font-weight: bold; letter-spacing: 1px; padding-left: 10px; }
+.copy-box button { background: var(--deep-red); color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
+.tx-input { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 15px; text-align: center; margin-bottom: 15px; outline: none; background: #f8f8fb; color: #333; font-weight:bold; }
 
-#authScreen { max-width: 480px; min-height: 100dvh; margin: auto; background: var(--bg); padding-bottom: 30px; box-shadow: 0 0 50px #22243b13; }
-.auth-hero { background: var(--gradient); padding: 24px 24px 60px; color: white; border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
-.auth-hero:before, .auth-hero:after { content: ''; position: absolute; width: 190px; height: 190px; border: 1px solid #ffffff15; border-radius: 50%; right: -60px; top: 35px; }
-.auth-hero:after { width: 250px; height: 250px; right: -90px; top: 5px; }
-.auth-hero .brand { margin-bottom: 35px; } .auth-hero h1 { font-size: 23px; font-weight: 700; margin-bottom: 6px; }
-.auth-hero p { font-size: 12px; color: #ffe3e4; max-width: 280px; }
-.auth-kicker { font: 10px system-ui, sans-serif; letter-spacing: 1.8px; color: #ffe6aa; margin-bottom: 12px; }
-.auth-panel { position: relative; margin: -30px 20px 20px; padding: 22px 20px; background: white; border-radius: 18px; box-shadow: 0 8px 30px #4d1e3010; }
-.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-.auth-tabs button { flex: 1; padding: 10px 0 14px; background: none; color: #999aa6; font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; transition: 0.2s; }
-.auth-tabs button.active { color: var(--red); border-bottom-color: var(--red); }
-.auth-form { display: flex; flex-direction: column; gap: 16px; }
-.auth-form label { font-size: 11px; display: block; margin-bottom: 5px; color: #666975; }
-.input-wrap { position: relative; }
-.auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; }
-.auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
-.eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; font-size: 16px; }
-.btn-main { width: 100%; padding: 12px; border-radius: 25px; background: var(--gradient); color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 9px #f3464920; margin-top: 3px; transition: 0.1s; }
-.btn-main:active { transform: scale(0.97); }
-.page-view { padding: 16px 15px; }
-.profile-card, .deposit-card, .admin-card { background: #fff; padding: 20px; border-radius: 13px; box-shadow: var(--shadow); margin-bottom: 15px; }
-.page-view h3 { font-size: 16px; }
-.profile-row { display: flex; justify-content: space-between; gap: 10px; padding: 13px 0; border-bottom: 1px dashed var(--border); font-size: 12px; overflow-wrap: anywhere; }
-.profile-row:last-child { border: 0; }
-.deposit-card input, .admin-content input, .admin-card input { width: 100%; border: 1px solid var(--border); background: #f8f8fb; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; transition: 0.2s; }
-.deposit-card input:focus, .admin-card input:focus { border-color: #f58e92; background: #fff; }
-.deposit-card > button, .admin-content > button { background: var(--green); color: white; padding: 12px; border-radius: 8px; width: 100%; font-size: 13px; font-weight: bold; transition: 0.1s; }
-.deposit-card > button:active, .admin-content > button:active { transform: scale(0.97); }
-.info-overlay { position: fixed; inset: 0; background: rgba(22,24,36,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity .2s; backdrop-filter: blur(2px); }
-.info-overlay.show { opacity: 1; pointer-events: auto; }
-.info-box { width: 100%; max-width: 400px; background: #fff; padding: 22px; border-radius: 16px; max-height: 85dvh; overflow-y: auto; }
+/* History & Tables */
+.game-tabs { margin: 15px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.game-tabs button { padding: 12px 0; font-size: 12px; color: #888; font-weight: bold; }
+.game-tabs button.active { background: var(--deep-red); color: #fff; }
+.timer-area { background: var(--gradient); color: #fff; margin: 15px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; }
+.timer-val { font-size: 30px; font-weight: bold; font-family: monospace; }
+.play-card { margin: 15px; padding: 15px; background: #fff; border-radius: 12px; box-shadow: var(--shadow); position: relative; }
+.color-row, .size-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.color-row button, .size-row button { flex: 1; padding: 12px; color: white; font-weight: bold; border-radius: 8px; }
+.num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+.num-btn { aspect-ratio: 1; border-radius: 50%; color: white; font-weight: bold; font-size: 20px; }
 
-.bet-sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; display: flex; justify-content: center; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s; }
-.bet-sheet-overlay.show { opacity: 1; pointer-events: auto; }
-.bet-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; transform: translateY(100%); transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1); overflow: hidden; display: flex; flex-direction: column; }
-.bet-sheet-overlay.show .bet-sheet { transform: translateY(0); }
-.bet-header-blue { background: #4080ff; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-header-green { background: #36b67b; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-header-red { background: #f34649; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-header-purple { background: #a55ce6; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-header-orange { background: #ffad36; color: white; padding: 16px 20px; text-align: center; position: relative; font-weight: bold; font-size: 18px; }
-.bet-sheet-close { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; color: white; font-size: 26px; border: none; padding: 0; line-height: 1; }
-.bet-sheet-body { padding: 20px; background: #f9f9f9; }
-.bet-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.bet-label { font-size: 13px; color: #666; }
-.bet-bal { font-size: 14px; font-weight: bold; color: var(--text); }
-.bet-amount-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-.bet-amount-opts button { background: #fff; border: 1px solid #ddd; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 600; color: #555; transition: 0.1s; }
-.bet-amount-opts button.active { background: var(--blue); border-color: var(--blue); color: white; }
-.bet-qty-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-.qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-.qty-control button { width: 36px; height: 36px; background: #f0f0f0; border: none; font-size: 18px; color: #555; font-weight: bold; }
-.qty-control input { width: 50px; height: 36px; border: none; text-align: center; font-size: 16px; font-weight: bold; border-left: 1px solid #ddd; border-right: 1px solid #ddd; background: #fff; }
-.bet-total { margin-bottom: 20px; font-size: 13px; color: #666; }
-.bet-total-amt { font-size: 18px; font-weight: bold; color: var(--blue); margin-left: 5px; }
-.bet-actions { display: flex; gap: 12px; }
-.bet-actions button { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; transition: 0.1s; }
-.btn-cancel { background: #e0e0e0; color: #555; } 
-.btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
+.history-section { padding: 15px; }
+table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+th { padding: 12px 5px; background: var(--gradient); color: #fff; }
+td { padding: 10px 5px; border-bottom: 1px solid #eee; }
+.pagination { display: flex; justify-content: center; gap: 20px; padding: 15px 0; align-items: center; }
+.pagination button { background: var(--deep-red); color: white; width: 30px; height: 30px; border-radius: 5px; font-weight: bold; }
 
-/* --- 🔥 New Win/Lose Popup Design (Exactly like image) 🔥 --- */
-.result-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(5px); }
-.result-popup-overlay.show { opacity: 1; pointer-events: auto; }
-.ck-popup-card { width: 310px; border-radius: 20px; padding: 45px 15px 25px; text-align: center; position: relative; transform: scale(0.7) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.result-popup-overlay.show .ck-popup-card { transform: scale(1) translateY(0); }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+.nav-item { flex: 1; padding: 12px 0; text-align: center; color: #888; font-size: 11px; font-weight: bold; }
+.nav-item.active { color: var(--deep-red); }
 
-/* Win Theme */
-.ck-popup-card.win { background: linear-gradient(180deg, #ff4c29 0%, #d82b12 100%); border: 3px solid #ff9a44; box-shadow: 0 20px 50px rgba(255, 76, 41, 0.4); }
-/* Lose Theme */
-.ck-popup-card.lose { background: linear-gradient(180deg, #d3e0ea 0%, #a8c0d6 100%); border: 3px solid #f1f6f9; box-shadow: 0 20px 50px rgba(168, 192, 214, 0.4); }
+#toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 8px; font-size: 12px; opacity: 0; pointer-events: none; transition: .2s; z-index: 9999; }
+#toast.show { opacity: 1; }
 
-.ck-popup-header-icon { position: absolute; top: -55px; left: 50%; transform: translateX(-50%); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; z-index: 2; }
-.ck-popup-card.win .ck-popup-header-icon { background: radial-gradient(circle, #ffd54f 0%, #ff9800 100%); border: 4px solid #fff; box-shadow: 0 5px 15px rgba(255, 152, 0, 0.6); }
-.ck-popup-card.lose .ck-popup-header-icon { background: radial-gradient(circle, #eceff1 0%, #b0bec5 100%); border: 4px solid #fff; box-shadow: 0 5px 15px rgba(176, 190, 197, 0.6); }
-
-.ck-popup-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-.ck-popup-card.win .ck-popup-title { color: #ffffff; }
-.ck-popup-card.lose .ck-popup-title { color: #2c3e50; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-
-.ck-popup-subtitle { font-size: 13px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.ck-popup-card.win .ck-popup-subtitle { color: #ffebee; }
-.ck-popup-card.lose .ck-popup-subtitle { color: #455a64; }
-
-.ck-popup-tags { display: flex; align-items: center; justify-content: center; gap: 6px; }
-.ck-tag { padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; color: white; display: inline-block; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.ck-tag.green { background: #10b981; }
-.ck-tag.red { background: #ef4444; }
-.ck-tag.purple { background: #8b5cf6; }
-.ck-tag.blue { background: #3b82f6; }
-.ck-tag.orange { background: #f59e0b; }
-.ck-tag.multi { background: linear-gradient(135deg, #8b5cf6 50%, #ef4444 50%); } 
-.ck-tag.multi2 { background: linear-gradient(135deg, #8b5cf6 50%, #10b981 50%); }
-.ck-tag.num-tag { font-size: 16px; padding: 2px 10px; border-radius: 50%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.8); }
-
-.ck-paper-scroll { background: #fff; border-radius: 4px; margin: 20px 10px 15px; padding: 20px 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-.ck-paper-scroll::before, .ck-paper-scroll::after { content: ''; position: absolute; left: -10px; right: -10px; height: 16px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 3; }
-.ck-popup-card.win .ck-paper-scroll::before, .ck-popup-card.win .ck-paper-scroll::after { background: linear-gradient(180deg, #ffca28, #f57c00); }
-.ck-popup-card.lose .ck-paper-scroll::before, .ck-popup-card.lose .ck-paper-scroll::after { background: linear-gradient(180deg, #cfd8dc, #90a4ae); }
-.ck-paper-scroll::before { top: -8px; }
-.ck-paper-scroll::after { bottom: -8px; }
-
-.ck-scroll-title { font-weight: bold; font-size: 15px; margin-bottom: 5px; }
-.ck-scroll-amt { font-weight: 900; font-size: 32px; letter-spacing: -1px; margin-bottom: 12px; }
-.ck-popup-card.win .ck-scroll-title { color: #d82b12; }
-.ck-popup-card.win .ck-scroll-amt { color: #d82b12; }
-.ck-popup-card.lose .ck-scroll-title { color: #455a64; }
-.ck-popup-card.lose .ck-scroll-amt { color: #455a64; font-size: 26px; }
-
-.ck-scroll-period { font-size: 10px; color: #777; border-top: 1px dashed #ddd; padding-top: 10px; font-family: monospace; }
-
-.ck-auto-close { margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; gap: 5px; }
-.ck-popup-card.lose .ck-auto-close { color: #455a64; }
-.countdown-circle { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-weight: bold; font-size: 11px; }
-
-.info-box h2 { font-size: 18px; color: var(--red); margin-bottom: 14px; }
-.info-box p { font-size: 12px; margin-bottom: 10px; }
-.info-header { display: flex; align-items: center; justify-content: space-between; }
-.info-header button { width: auto; background: none; color: #999; padding: 0; margin: 0; font: 24px system-ui; }
-.admin-nav { display: flex; background: #fff; padding: 10px; gap: 10px; overflow-x: auto; box-shadow: var(--shadow); margin-bottom: 15px; border-radius: 10px; }
-.admin-nav button { flex: 1; padding: 8px; border-radius: 6px; background: #f2f3f6; font-size: 12px; font-weight: bold; white-space: nowrap; transition: 0.2s; }
-.admin-nav button.active { background: var(--gradient); color: #fff; }
-.admin-sub-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-.admin-sub-tabs button { flex: 1; padding: 8px; font-size: 12px; background: #e9e9ef; border-radius: 6px; font-weight: bold; color: #666; transition: 0.2s;}
-.admin-sub-tabs button.active { background: var(--blue); color: #fff; box-shadow: 0 4px 8px rgba(64,128,255,0.3); }
-
-.admin-profit-card { background: linear-gradient(135deg, #1e222d, #2d3242); color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-.admin-profit-title { font-size: 13px; font-weight: bold; color: #ffeb3b; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-.admin-profit-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
-.admin-profit-row b { color: #4cd137; }
-
-.admin-rank-card { background: #fff5f5; border: 1px solid #ffd8d8; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
-.admin-rank-title { font-weight: bold; color: var(--red); margin-bottom: 6px; }
-.admin-rank-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #ffebeb; }
-
-.user-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 12px; }
-.user-item:last-child { border-bottom: none; }
-#toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px); max-width: 90%; width: max-content; background: #252631ed; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 12px; text-align: center; z-index: 9999; opacity: 0; pointer-events: none; transition: .2s; }
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.cs-btn { display: flex; align-items: center; justify-content: center; gap: 8px; color: white; padding: 14px 20px; border-radius: 12px; font-weight: bold; font-size: 15px; text-decoration: none; width: 100%; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transition: 0.2s; }
-.cs-btn:active { transform: scale(0.96); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
-.cs-btn svg { width: 22px; height: 22px; fill: white; }
-.tg-btn { background: #229ED9; } .viber-btn { background: #7360F2; } .custom-btn { background: var(--orange); }
-.admin-link-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9fc; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
-.admin-link-item button { background: var(--red); color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; }
-.copy-btn { background: #fff; color: #4080ff; padding: 3px 8px; border-radius: 4px; font-size: 10px; border: 1px solid #4080ff; margin-left: 8px; font-weight: bold; transition:0.2s; }
-.copy-btn:active { background: #4080ff; color:#fff; }
-.copyable-row { cursor: pointer; transition: 0.2s; }
-.copyable-row:active { transform: scale(0.98); opacity: 0.8; }
+.admin-input-group { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+.admin-input-group label { font-size: 12px; font-weight: bold; color: var(--deep-red); display: block; margin-bottom: 5px; }
+.admin-input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px; }
+.admin-input-group button { background: var(--blue); color: white; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
-<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6M12 2v3M18 5l2 2"/></symbol>
-<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7M20 11h-6v6h6"/><circle cx="16" cy="14" r=".5"/></symbol>
-<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z"/></symbol>
-<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
-<symbol id="i-help" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 12H2v6h4v-6H4m16 0h2v6h-4v-6h2M20 18v1a2 2 0 0 1-2 2h-4"/></symbol>
-<symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8M18 4a11 11 0 0 1 0 16"/></symbol>
-<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 3h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v17h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4zM12 4v17M7 7h2M15 7h2M7 11h2M15 11h2"/></symbol>
-<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/></symbol>
-</defs></svg>
-<div id="toast" role="status" aria-live="polite"></div>
+<div id="toast"></div>
 
-<div id="serverOffBanner" class="hidden">⚠ Server ကို ခေတ္တပိတ်ထားပါသည်။ အကောင့်အသစ်ဖွင့်ခြင်း နှင့် လောင်းကြေးထိုးခြင်းများ ရပ်နားထားပါသည်။</div>
-
-<section id="authScreen" aria-label="အကောင့်ဝင်ရန်">
-  <div class="auth-hero">
-    <div class="brand"><span class="brand-mark">B</span><div><div class="logo-area"><span>Burma</span>Lottery</div><small>BURMA LOTTERY</small></div></div>
-    <div class="auth-kicker">WELCOME TO BURMA LOTTERY</div>
-    <h1>မင်္ဂလာပါ</h1><p>WinGo ဂိမ်းကမ္ဘာသို့ စတင်လှမ်းဝင်လိုက်ပါ။<br>လုံခြုံစိတ်ချစွာ ကစားနိုင်ပါပြီ။</p>
-  </div>
-  <div class="auth-panel">
-    <div class="auth-tabs" role="tablist" aria-label="အကောင့်">
-      <button id="tabLogin" class="active" role="tab" aria-selected="true" onclick="switchAuth('login')">အကောင့်ဝင်ရန်</button>
-      <button id="tabSignup" role="tab" aria-selected="false" onclick="switchAuth('signup')">အကောင့်ဖွင့်ရန်</button>
-    </div>
-    <form id="formLogin" class="auth-form" onsubmit="event.preventDefault();doLogin()">
-      <div class="input-wrap"><label for="loginPhone">ဖုန်းနံပါတ် (သို့) ID</label><input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required></div>
-      <div class="input-wrap"><label for="loginPwd">စကားဝှက်</label><input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">◉</button></div>
-      <button class="btn-main" type="submit">အကောင့်ဝင်မည်</button>
-    </form>
-    <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
-      <div class="input-wrap"><label for="signPhone">ဖုန်းနံပါတ် (မြန်မာနံပါတ်မှန်ရန်)</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
-      <div class="input-wrap"><label for="signName">အမည်</label><input type="text" id="signName" placeholder="သင့်အမည်" required></div>
-      <div class="input-wrap"><label for="signPwd">စကားဝှက်</label><input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">◉</button></div>
-      <div class="input-wrap"><label for="signPwd2">စကားဝှက် အတည်ပြုရန်</label><input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">◉</button></div>
-      <div class="input-wrap" style="background:#f4f5f8; padding:10px; border-radius:8px; border:1px dashed #4080ff;">
-        <label for="signInviteCode" style="color:var(--blue); font-weight:bold;">👥 ဖိတ်ခေါ်ကုဒ် (Invite Code) - မထည့်လည်းရသည်</label>
-        <input type="text" id="signInviteCode" placeholder="သူငယ်ချင်း၏ ၅ လုံးပြည့် ID ထည့်ပါ" style="background:#fff; border-color:#dbe4ff;">
-      </div>
-      <button class="btn-main" type="submit" id="btnSignupSub">အကောင့်ဖွင့်မည်</button>
-    </form>
-  </div>
+<!-- Auth Screen (Kept minimal for logic) -->
+<section id="authScreen" style="padding: 20px;">
+  <h1 style="color:var(--deep-red);text-align:center;margin-top:50px;">Burma Lottery</h1>
+  <input type="text" id="loginPhone" placeholder="ဖုန်းနံပါတ် (သို့) Admin" style="width:100%;padding:15px;margin:20px 0 10px;border-radius:10px;border:1px solid #ccc;">
+  <input type="password" id="loginPwd" placeholder="စကားဝှက် (admin123)" style="width:100%;padding:15px;margin-bottom:20px;border-radius:10px;border:1px solid #ccc;">
+  <button onclick="doLogin()" style="width:100%;padding:15px;background:var(--deep-red);color:white;border-radius:10px;font-weight:bold;">ဝင်မည်</button>
+  <button onclick="$('loginPhone').value='admin'; $('loginPwd').value='admin123'; doLogin();" style="width:100%;padding:15px;background:#333;color:white;border-radius:10px;font-weight:bold;margin-top:10px;">Admin အဖြစ်ဝင်ရန် Test</button>
 </section>
 
 <main id="app-container" class="hidden">
-  <header class="header">
-    <button class="icon-btn" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg></button>
-    <div class="brand"><span class="brand-mark">B</span><div class="logo-area"><span>Burma</span>Lottery</div></div>
-    <div class="header-icons"><button class="icon-btn" onclick="showHelp()"><svg class="icon"><use href="#i-help"/></svg></button><button class="icon-btn" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button></div>
-  </header>
+  <div class="header"><div class="brand">Burma Lottery</div></div>
   
-  <section class="wallet-area">
-    <div class="user-bar">
-      <div class="wallet-top"><span class="id-chip">UID <span id="userId">—</span></span><span>လက်ကျန်ငွေ</span><button onclick="logout()">ထွက်ရန် ↗</button></div>
-      <div class="balance"><span class="currency">Ks</span><span id="balance">0</span></div>
-      <div class="wallet-label"><svg class="icon"><use href="#i-wallet"/></svg>လက်ကျန်ငွေ</div>
-      <div class="wallet-actions">
-        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေထုတ်မည်</button>
-        <button onclick="switchTab('deposit',document.getElementById('nav-deposit'))">ငွေဖြည့်မည်</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="view-game">
-    <div class="game-tabs" id="gameTabs">
-      <button class="active" onclick="switchGame('wingo30s',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>30 second</button>
-      <button onclick="switchGame('wingo1m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>1 Min</button>
-      <button onclick="switchGame('wingo3m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>3 Min</button>
-      <button onclick="switchGame('wingo5m',this)"><span class="clock-wrap"><svg class="icon"><use href="#i-clock"/></svg></span><b>Win Go</b>5 Min</button>
-    </div>
-    <section class="timer-area">
-      <div class="timer-left">
-        <button class="rules-link" onclick="showRules()"><svg class="icon"><use href="#i-book"/></svg>ကစားနည်း</button>
-        <div class="timer-title" id="gameLabel">Win Go 30 second</div>
-        <div class="recent-balls" id="recentBalls"></div>
-        <div class="latest-meta"><span class="latest-title">နောက်ဆုံးရလဒ်</span> · <span class="latest-num" id="latestNum">—</span></div>
-      </div>
-      <div class="timer-right">
-        <div class="countdown-caption">ပွဲပိတ်ရန် ကျန်ချိန်</div>
-        <div class="timer-val mono" id="timerVal">00:30</div>
-        <div class="period-val" id="periodVal">—</div>
-      </div>
-    </section>
-    <section class="play-card">
-      <div class="bet-options-row color-row"><button class="bet-opt-btn color-green" onclick="openBetSheet('green')">အစိမ်း</button><button class="bet-opt-btn color-purple" onclick="openBetSheet('purple')">ခရမ်း</button><button class="bet-opt-btn color-red" onclick="openBetSheet('red')">အနီ</button></div>
-      <div class="num-grid" id="numGrid"></div>
-      <div class="quick-row"><button onclick="openBetSheet('num',Math.floor(Math.random()*10))">ကျပန်းရွေး</button></div>
-      <div class="bet-options-row size-row"><button class="bet-opt-btn big" onclick="openBetSheet('big')">အကြီး <span>5–9</span></button><button class="bet-opt-btn small" onclick="openBetSheet('small')">အသေး <span>0–4</span></button></div>
-      <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပွဲပိတ်ထားပါပြီ · နောက်ပွဲကို စောင့်ပါ</p></div>
-    </section>
-    <section class="history-section">
-      <div class="history-tabs" id="historyTabs">
-        <button class="active" onclick="setHistoryTab('game', this)">ဂိမ်းမှတ်တမ်း</button>
-        <button onclick="setHistoryTab('mine', this)">ကျွန်ုပ်၏မှတ်တမ်း</button>
-      </div>
-      <div class="table-container" id="gameHistoryTable">
-        <table><thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး / သေး</th><th>အရောင်</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
-      </div>
-      <div id="myBetsList" class="hidden"></div>
-    </section>
-  </section>
-  
-  <div id="view-deposit" class="page-view hidden">
-    <div class="deposit-card" style="text-align: center; padding: 30px 20px;">
-      <h3 style="color:var(--green); margin-bottom:15px;">ငွေသွင်း / ငွေထုတ်ရန်</h3>
-      <p style="font-size: 13px; color: var(--text-light); margin-bottom: 25px;">ငွေသွင်းခြင်း နှင့် ငွေထုတ်ခြင်းများကို ဆက်သွယ်ဆောင်ရွက်နိုင်ပါသည်။</p>
-      <div id="cs-links-container"></div>
-      <div class="copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="margin-top: 30px; text-align:left; background:#f9f9fc; padding:15px; border-radius:12px; border: 1px dashed var(--border);">
-        <span style="font-size:12px; color:var(--text-light);">သင့်အကောင့် User ID:</span>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-           <b id="dep-id" style="font-size:18px; color:var(--red);">-</b>
-           <span class="copy-btn">Copy ID</span>
+  <div id="view-game">
+    <section class="wallet-area">
+      <div class="user-bar">
+        <div class="wallet-top"><span>UID: <span id="userId"></span></span><span style="color:var(--red); font-weight:bold;" onclick="logout()">ထွက်မည်</span></div>
+        <div class="balance">Ks <span id="balance">0</span></div>
+        <div class="wallet-actions">
+            <button onclick="switchTab('deposit', this)">ငွေထုတ်မည်</button>
+            <button onclick="switchTab('deposit', this)">ငွေသွင်းမည်</button>
         </div>
       </div>
+    </section>
+
+    <div class="game-tabs" id="gameTabs">
+      <button class="active" onclick="switchGame('wingo30s',this)">30s</button>
+      <button onclick="switchGame('wingo1m',this)">1 Min</button>
+      <button onclick="switchGame('wingo3m',this)">3 Min</button>
+      <button onclick="switchGame('wingo5m',this)">5 Min</button>
     </div>
+    
+    <section class="timer-area">
+      <div>
+          <div style="font-size:12px; margin-bottom:5px;">ရလဒ် - <span id="latestNum" style="font-weight:bold; font-size:16px;">-</span></div>
+          <div style="font-size:11px;">ပွဲစဉ်: <span id="periodVal">-</span></div>
+      </div>
+      <div class="timer-val" id="timerVal">00:30</div>
+    </section>
+    
+    <section class="play-card">
+      <div class="color-row">
+          <button style="background:var(--green)" onclick="doBet('green')">အစိမ်း</button>
+          <button style="background:var(--purple)" onclick="doBet('purple')">ခရမ်း</button>
+          <button style="background:var(--red)" onclick="doBet('red')">အနီ</button>
+      </div>
+      <div class="num-grid" id="numGrid"></div>
+      <div class="size-row">
+          <button style="background:var(--orange)" onclick="doBet('big')">အကြီး 5-9</button>
+          <button style="background:var(--blue)" onclick="doBet('small')">အသေး 0-4</button>
+      </div>
+    </section>
+    
+    <section class="history-section">
+      <table>
+          <thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး/သေး</th></tr></thead>
+          <tbody id="historyTableBody"></tbody>
+      </table>
+      <div class="pagination">
+          <button onclick="changePage(-1)">‹</button>
+          <span id="pageInfo" style="font-size:12px; font-weight:bold;">1 / 1</span>
+          <button onclick="changePage(1)">›</button>
+      </div>
+    </section>
   </div>
 
-  <div id="view-profile" class="page-view hidden">
-    <div class="profile-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ကျွန်ုပ်၏ Profile</h3>
-      <div class="profile-row"><span style="color:var(--text-light);">အမည်</span><span id="prof-name" style="font-weight:bold;">-</span></div>
-      <div class="profile-row copyable-row" onclick="fallbackCopyTextToClipboard(currentUser ? currentUser.id : '')" style="background:#f4f5f8; padding:10px; border-radius:8px; align-items:center;">
-          <span style="color:var(--text-light);">User ID</span>
-          <div><span id="prof-id" style="font-weight:bold; font-size:16px;">-</span><span class="copy-btn">Copy</span></div>
-      </div>
-      <div class="profile-row"><span style="color:var(--text-light);">ဖုန်းနံပါတ်</span><span id="prof-phone" style="font-weight:bold;">-</span></div>
-      <div class="profile-row"><span style="color:var(--text-light);">လက်ကျန်ငွေ</span><span id="prof-bal" style="font-weight:bold; color:var(--red); font-size:18px;">0 Ks</span></div>
-    </div>
-
-    <div class="profile-card">
-      <h3 style="color:var(--blue); margin-bottom:10px; text-align:center;">👥 သူငယ်ချင်းများကို ဖိတ်ခေါ်ရန်</h3>
-      <p style="font-size:11px; color:#666; text-align:center; margin-bottom:15px;">အောက်ပါ Link ဖြင့် သူငယ်ချင်းများကို ဖိတ်ခေါ်ပါက သင်ရော သူပါ <b style="color:var(--red)">1,999 Ks</b> စီ ရရှိပါမည်။</p>
-      <div class="profile-row copyable-row" onclick="copyInviteLink()" style="background:#f0f5ff; padding:10px; border-radius:8px; align-items:center; border: 1px dashed #4080ff;">
-          <span style="color:var(--text-light); white-space:nowrap; margin-right: 5px;">ဖိတ်ခေါ်ရန် Link:</span>
-          <div style="flex:1; display:flex; justify-content:flex-end; align-items:center; overflow:hidden;">
-              <span id="prof-invite-link" style="font-weight:bold; color:var(--blue); font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:inline-block; max-width:130px; margin-right:8px;">-</span>
-              <span class="copy-btn" style="flex-shrink:0;">Copy Link</span>
+  <!-- 🔥 IN-APP DEPOSIT VIEW 🔥 -->
+  <div id="view-deposit" class="hidden">
+      <div class="dep-header">ငွေသွင်းမည် (Deposit)</div>
+      
+      <!-- Step 1: Select Method & Amount -->
+      <div id="dep-step-1">
+          <div class="dep-section">
+              <div class="dep-title">ငွေပေးချေမည့်စနစ် ရွေးချယ်ပါ</div>
+              <div class="method-grid">
+                  <button class="method-btn active" id="btn-kpay" onclick="selectMethod('KPay')">KPay</button>
+                  <button class="method-btn" id="btn-wave" onclick="selectMethod('WavePay')">WavePay</button>
+              </div>
+          </div>
+          <div class="dep-section">
+              <div class="dep-title">ပမာဏ ရွေးချယ်ပါ (Ks)</div>
+              <div class="amt-grid">
+                  <button class="amt-btn active" onclick="selectAmt(5000, this)">5K<small>+ 250 Ks Bonus</small></button>
+                  <button class="amt-btn" onclick="selectAmt(10000, this)">10K<small>+ 0</small></button>
+                  <button class="amt-btn" onclick="selectAmt(30000, this)">30K<small>+ 0</small></button>
+                  <button class="amt-btn" onclick="selectAmt(50000, this)">50K<small>+ 0</small></button>
+                  <button class="amt-btn" onclick="selectAmt(100000, this)">100K<small>+ 0</small></button>
+                  <button class="amt-btn" onclick="selectAmt(300000, this)">300K<small>+ 0</small></button>
+              </div>
+              <button class="dep-submit-btn" onclick="goDepStep2()">ဆက်လုပ်မည်</button>
           </div>
       </div>
-    </div>
+
+      <!-- Step 2: Payment Details & Timer -->
+      <div id="dep-step-2" class="hidden">
+          <div class="dep-section" style="background: transparent; box-shadow:none; margin-top:0;">
+              <div class="payment-view-card">
+                  <div style="font-size:14px; opacity:0.9;">ပေးချေရမည့် ပမာဏ</div>
+                  <div style="font-size:28px; font-weight:bold; margin:5px 0;">Ks <span id="pay-amt-display">5,000</span></div>
+                  <div style="font-size:12px; margin-top:10px;">ကျေးဇူးပြု၍ အောက်ပါအကောင့်သို့ ငွေလွှဲပေးပါ</div>
+                  
+                  <div class="copy-box">
+                      <span id="dep-admin-phone">09xxxxxxxxx</span>
+                      <button onclick="copyAdminPhone()">Copy</button>
+                  </div>
+                  
+                  <div style="font-size:12px;">အချိန်ကုန်ဆုံးရန်</div>
+                  <div class="payment-timer" id="dep-timer">30:00</div>
+              </div>
+
+              <div style="background:white; padding:20px; border-radius:15px; margin-top:15px; box-shadow:var(--shadow);">
+                  <div class="dep-title" style="color:#333;">လုပ်ငန်းစဉ်အမှတ် (Transaction ID)</div>
+                  <input type="number" id="dep-tx-id" class="tx-input" placeholder="နောက်ဆုံး ၆ လုံး ထည့်ပါ (ဥပမာ- 123456)">
+                  <button class="dep-submit-btn" onclick="submitDepositFinal()">ငွေသွင်းကြောင်း အတည်ပြုမည်</button>
+                  <button onclick="cancelDeposit()" style="width:100%; padding:15px; margin-top:10px; background:#f0f0f0; color:#555; border-radius:10px; font-weight:bold;">မလုပ်တော့ပါ (Cancel)</button>
+              </div>
+          </div>
+      </div>
   </div>
 
-  <div id="view-admin-control" class="page-view hidden">
-    <div class="admin-nav"><button class="active" onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
-    <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဂိမ်းအလိုက် ထိန်းချုပ်ရန်</h3>
-      <div class="admin-sub-tabs" id="adminGameTabs">
-        <button class="active" onclick="setAdminGame('wingo30s', this)">30s</button>
-        <button onclick="setAdminGame('wingo1m', this)">1 Min</button>
-        <button onclick="setAdminGame('wingo3m', this)">3 Min</button>
-        <button onclick="setAdminGame('wingo5m', this)">5 Min</button>
+  <div id="view-admin" class="hidden">
+      <div class="dep-header">Admin ထိန်းချုပ်ခန်း</div>
+      <div class="dep-section">
+          <!-- Admin KPay/Wave Setup -->
+          <div class="admin-input-group">
+              <label>KPay ဖုန်းနံပါတ် သတ်မှတ်ရန်</label>
+              <input type="text" id="admin-set-kpay" placeholder="Kpay ဖုန်း">
+              <label>WavePay ဖုန်းနံပါတ် သတ်မှတ်ရန်</label>
+              <input type="text" id="admin-set-wave" placeholder="Wave ဖုန်း">
+              <button onclick="saveAdminPhones()">သိမ်းမည် (Save)</button>
+          </div>
+          <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+          <!-- User Management -->
+          <div class="admin-input-group">
+              <label>User ID ရှာ၍ ငွေဖြည့်ပေးရန်</label>
+              <input type="text" id="admin-add-uid" placeholder="UID ရိုက်ထည့်ပါ">
+              <input type="number" id="admin-add-amt" placeholder="ပမာဏ">
+              <button onclick="adminDirectAdd()">ငွေဖြည့်မည်</button>
+          </div>
       </div>
-
-      <div class="admin-profit-card" id="adminProfitSummary">
-        <div class="admin-profit-title">💰 အမြတ်အစွန်း စာရင်းဇယား (<span id="profitGameName">30s</span>)</div>
-        <div class="admin-profit-row"><span>တစ်ပွဲစာ စုစုပေါင်းအမြတ်:</span><b id="periodProfitVal">0 Ks</b></div>
-        <div class="admin-profit-row"><span>တစ်ပွဲစာ ကော်မရှင် (2%):</span><b id="periodCommVal">0 Ks</b></div>
-        <div class="admin-profit-row" style="margin-top:6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px;"><span>တစ်နေကုန်စာ စုစုပေါင်းအမြတ်:</span><b id="todayProfitVal">0 Ks</b></div>
-        <div class="admin-profit-row"><span>တစ်နေကုန်စာ ကော်မရှင် (2%):</span><b id="todayCommVal">0 Ks</b></div>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9fc; padding:15px; border-radius:12px; border:1px solid var(--border); margin-bottom: 15px;">
-         <div><strong style="font-size:14px; color:var(--text);">Server အခြေအနေ</strong></div>
-         <label class="toggle-switch"><input type="checkbox" id="server-active-chk" onchange="toggleServerStatus()"><span class="slider"></span></label>
-      </div>
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:#fff5f5; padding:10px; border-radius:8px;">
-        <input type="checkbox" id="chk-auto-draw" style="width:20px; height:20px;" onchange="toggleAutoDraw()"><label for="chk-auto-draw" style="font-size:13px; font-weight:bold; color:var(--red)">Auto Draw (ဂဏန်းအလိုအလျောက်ရွေးမည်)</label>
-      </div>
-      <div id="manual-draw-section">
-        <p style="font-size:12px; margin-bottom:10px; color:var(--text-light)">Admin မှ ထွက်စေချင်သော ဂဏန်းကို ရွေးချယ်ပါ</p>
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px;" id="admin-num-grid"></div>
-      </div>
-    </div>
-    <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">📊 <span id="adminRankTitle">30s</span> အတွက် ထိုးထားမှုစာရင်း</h3>
-      <div id="admin-ranking-summary"></div>
-    </div>
-  </div>
-
-  <div id="view-admin-deposits" class="page-view hidden">
-    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button class="active" onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
-    <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အကောင့်သို့ ငွေဖြည့်/လျှော့ရန်</h3>
-      <input type="text" id="admin-search-id" placeholder="User ID">
-      <select id="admin-operation" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="add">ငွေတိုးမည် (+)</option><option value="subtract">ငွေလျှော့မည် (−)</option></select>
-      <input type="number" id="admin-amount" placeholder="ပမာဏ (Ks)">
-      <button onclick="adminAddBalance()" style="background:var(--green)">အတည်ပြုမည်</button>
-    </div>
-    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">User အားလုံး</h3><div id="adminUserList"></div></div>
-  </div>
-
-  <div id="view-admin-links" class="page-view hidden">
-    <div class="admin-nav"><button onclick="switchAdminTab('control', this)">ဂိမ်းထိန်းချုပ်</button><button onclick="switchAdminTab('deposits', this)">ငွေစာရင်း</button><button class="active" onclick="switchAdminTab('links', this)">ဆက်သွယ်ရန်</button></div>
-    <div class="admin-card">
-      <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">ဆက်သွယ်ရန် Link</h3>
-      <select id="admin-link-type" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px"><option value="telegram">Telegram</option><option value="viber">Viber</option><option value="custom">Custom</option></select>
-      <input type="text" id="admin-link-label" placeholder="စာသား">
-      <input type="url" id="admin-link-url" placeholder="https://t.me/yourusername">
-      <button onclick="adminAddLink()" style="background:var(--blue)">ပေါင်းထည့်မည်</button>
-    </div>
-    <div class="admin-card"><h3 style="color:var(--red); margin-bottom:15px; text-align:center;">လက်ရှိ Link များ</h3><div id="admin-link-list"></div></div>
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-game" onclick="switchTab('game',this)"><span class="nav-game-icon"><svg class="icon"><use href="#i-home"/></svg></span>ကစားရန်</button>
-    <button class="nav-item" id="nav-deposit" onclick="switchTab('deposit',this)"><svg class="icon"><use href="#i-wallet"/></svg>ပိုက်ဆံအိတ်</button>
-    <button class="nav-item" id="nav-profile" onclick="switchTab('profile',this)"><svg class="icon"><use href="#i-user"/></svg>ကျွန်ုပ်</button>
-    <button class="nav-item hidden" id="nav-admin" onclick="switchTab('admin-control',this)"><svg class="icon"><use href="#i-settings"/></svg>Admin</button>
+    <button class="nav-item active" onclick="switchTab('game',this)">ကစားရန်</button>
+    <button class="nav-item" onclick="switchTab('deposit',this)">ပိုက်ဆံအိတ်</button>
+    <button class="nav-item hidden" id="nav-admin" onclick="switchTab('admin',this)">Admin</button>
   </nav>
 </main>
 
-<div class="bet-sheet-overlay" id="betSheetOverlay">
-  <div class="bet-sheet">
-    <div class="bet-header-blue" id="betSheetHeaderColor">
-      <span id="betSheetTitle">Win Go 30s</span>
-      <button class="bet-sheet-close" onclick="closeBetSheet()">×</button>
-    </div>
-    <div class="bet-sheet-body">
-      <div class="bet-row"><span class="bet-label">လက်ကျန်ငွေ</span><span class="bet-bal"><span id="sheetBalance">0</span> Ks</span></div>
-      <div class="bet-label" style="margin-bottom:8px;">ပမာဏ (Amount)</div>
-      
-      <div class="bet-amount-opts" id="sheetAmountOpts">
-        <button class="active" onclick="setSheetBaseAmt(10, this)">10</button>
-        <button onclick="setSheetBaseAmt(100, this)">100</button>
-        <button onclick="setSheetBaseAmt(500, this)">500</button>
-        <button onclick="setSheetBaseAmt(1000, this)">1k</button>
-        <button onclick="setSheetBaseAmt(5000, this)">5k</button>
-        <button onclick="setSheetBaseAmt(10000, this)">10k</button>
-      </div>
-      
-      <div class="bet-label" style="margin-bottom:8px;">အကြိမ် (Quantity)</div>
-      <div class="bet-qty-row">
-        <div class="qty-control">
-          <button onclick="changeSheetQty(-1)">−</button>
-          <input type="number" id="sheetQtyInput" value="1" min="1" step="1" inputmode="numeric" oninput="updateTotalBet()">
-          <button onclick="changeSheetQty(1)">+</button>
-        </div>
-      </div>
-      <div class="bet-total">စုစုပေါင်း: <span class="bet-total-amt"><span id="totalBetDisplay">10</span> Ks</span></div>
-      <div class="bet-actions">
-        <button class="btn-cancel" onclick="closeBetSheet()">မလုပ်တော့ပါ</button>
-        <button class="btn-confirm" onclick="confirmBet()">အတည်ပြုမည်</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="resultPopupOverlay" class="result-popup-overlay">
-  <div id="ckPopupCard" class="ck-popup-card win">
-    <div class="ck-popup-header-icon">🚀</div>
-    <div class="ck-popup-title" id="ckPopupTitle">သင်အနိုင်ရရှိအတွက်<br>ဂုဏ်ယူပါသည်</div>
-    
-    <div class="ck-popup-subtitle" id="ckPopupSubtitleText">ထီပေါက်ရလဒ်များ: 
-      <div class="ck-popup-tags">
-        <span class="ck-tag" id="resTagColor">အစိမ်း</span>
-        <span class="ck-tag num-tag" id="resTagNum">5</span>
-        <span class="ck-tag" id="resTagSize">အကြီး</span>
-      </div>
-    </div>
-    
-    <div class="ck-paper-scroll">
-      <div class="ck-scroll-title" id="ckScrollTitle">ဘောနပ်စ်</div>
-      <div class="ck-scroll-amt" id="ckTicketAmt">+K 1,960.00</div>
-      <div class="ck-scroll-period" id="ckTicketPeriod">ပွဲအမှတ်စဉ်: 30 second 202505...</div>
-    </div>
-    
-    <div class="ck-auto-close">
-       <span class="countdown-circle" id="ckCountdown">3</span> <span>စက္ကန့် အလိုအလျောက်ပိတ်မည်။</span>
-    </div>
-  </div>
-</div>
-
-<div id="infoOverlay" class="info-overlay"><div class="info-box"><div class="info-header"><h2 id="infoTitle">ကစားနည်း</h2><button onclick="closeInfo()">×</button></div><div id="infoBody" style="margin-top:10px;"></div><button class="btn-main" onclick="closeInfo()" style="margin-top:15px;">နားလည်ပါပြီ</button></div></div>
-
 <script>
-// --- Backend ဆာဗာလင့်ခ် ---
 const BACKEND_URL = "https://burmalottery.onrender.com"; 
-
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 
-let DB = {
-  users: {}, settings: { autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
-  currentGame: 'wingo30s',
-  games: {
-    wingo30s: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
-    wingo1m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
-    wingo3m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
-    wingo5m: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 }
-  }
-};
-
-let sessionPhone = localStorage.getItem('wingo_session') || null;
+let DB = { users: {}, settings: {}, deposits: [], games: { wingo30s:{history:[]}, wingo1m:{history:[]}, wingo3m:{history:[]}, wingo5m:{history:[]} } };
+let sessionPhone = localStorage.getItem('w_session');
 let currentUser = null;
-let activeGame = localStorage.getItem('wingo_active_game') || 'wingo30s';
-let adminActiveGame = 'wingo30s';
-let currentPage = 1, lastBeepedSec = -1, historyTab = 'game';
-let betType = null, betNum = null, baseAmt = 10, sheetQty = 1;
-let lastKnownPeriods = { wingo30s: '', wingo1m: '', wingo3m: '', wingo5m: '' };
-let popupTimer = null;
-
+let activeGame = 'wingo30s';
+let currentPage = 1;
 const $ = id => document.getElementById(id);
-const text = (id, val) => { if($(id)) $(id).innerText = val; };
-function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
+function toast(m) { let t=$('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
 
-window.fallbackCopyTextToClipboard = function(text) {
-  var textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea);
-  textArea.focus(); textArea.select(); try { document.execCommand('copy'); toast('Copied!'); } catch (err) {} document.body.removeChild(textArea);
-};
-
-window.copyInviteLink = function() {
-    if(!currentUser) return;
-    let link = window.location.origin + window.location.pathname + '?invite=' + currentUser.id;
-    fallbackCopyTextToClipboard(link);
-};
-
-async function loadCloudDB() {
+async function loadDB() {
     try {
         let res = await fetch(`${BACKEND_URL}/api/db`);
         if (res.ok) {
-            let data = await res.json();
-            if(data && data.users) {
-                DB = data;
-                if(sessionPhone && DB.users[sessionPhone]) {
-                    currentUser = DB.users[sessionPhone];
-                }
-                checkNewDraws();
-                updateUI();
-                renderHistory();
-                if($('view-admin-control') && !$('view-admin-control').classList.contains('hidden')) renderAdminControl();
-                if($('view-admin-deposits') && !$('view-admin-deposits').classList.contains('hidden')) renderAdminDeposits();
-            }
+            DB = await res.json();
+            if(!DB.deposits) DB.deposits = [];
+            if(sessionPhone && DB.users[sessionPhone]) currentUser = DB.users[sessionPhone];
+            updateUI();
+            renderHistory();
         }
     } catch(e) {}
 }
 
 async function saveDB() {
-    try {
-        await fetch(`${BACKEND_URL}/api/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(DB)
-        });
-    } catch(e) {}
+    try { await fetch(`${BACKEND_URL}/api/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DB) }); } catch(e) {}
 }
 
-function checkNewDraws() {
-    Object.keys(DURATIONS).forEach(gameKey => {
-        if(DB.games[gameKey].history.length > 0) {
-            let latestHistory = DB.games[gameKey].history[0];
-            let currentPeriod = latestHistory.period;
-
-            if(lastKnownPeriods[gameKey] && lastKnownPeriods[gameKey] !== currentPeriod) {
-                if(gameKey === activeGame) {
-                    text('latestNum', latestHistory.num);
-                    let ln = $('latestNum');
-                    if(ln) ln.style.color = (latestHistory.num===0||latestHistory.num===5)?'#9b5de5':[1,3,7,9].includes(latestHistory.num)?'#2dbd7e':'#ff4b4b';
-                }
-
-                if(currentUser && currentUser.myBets && currentUser.myBets.length > 0) {
-                    let latestMyBet = currentUser.myBets[0];
-                    if(latestMyBet.period === currentPeriod && gameKey === activeGame) {
-                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), latestMyBet.num, currentPeriod, gameKey);
-                    }
-                }
-            }
-            lastKnownPeriods[gameKey] = currentPeriod;
-        }
-    });
-}
-
-window.onload = async function() {
-    await loadCloudDB();
-    const urlParams = new URLSearchParams(window.location.search);
-    const invite = urlParams.get('invite');
-    if (invite && !currentUser) { switchAuth('signup'); $('signInviteCode').value = invite; }
-    
-    if(!currentUser) { 
-        $('authScreen').classList.remove('hidden'); 
-        $('app-container').classList.add('hidden'); 
-    } else {
-        $('authScreen').classList.add('hidden'); 
-        $('app-container').classList.remove('hidden');
+window.onload = async () => {
+    await loadDB();
+    if(currentUser) { 
+        $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
         if(currentUser.isAdmin) $('nav-admin').classList.remove('hidden');
-        if(!DB.settings.serverActive) $('serverOffBanner').classList.remove('hidden');
-        
-        updateUI(); 
-        buildGrid(); 
-        switchGame(activeGame, document.querySelector(`.game-tabs button[onclick*="'${activeGame}'"]`));
-        
-        requestAnimationFrame(tickLoop);
-        setInterval(loadCloudDB, 1500); 
+        buildGrid(); requestAnimationFrame(tickLoop); setInterval(loadDB, 1500);
     }
 };
 
-let audioCtx;
-document.addEventListener('click', function initAudio() {
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if(audioCtx.state === 'suspended') audioCtx.resume();
-}, {once:true});
-function playBeep() {
-  try {
-    if(audioCtx && audioCtx.state === 'running') {
-      let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = 880;
-      gain.gain.setValueAtTime(1.0, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    }
-  } catch(e) {}
-}
-
-window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
-window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '◉' : '◉'; };
-
-window.doSignup = async function() {
-  if (!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
-  const btn = document.getElementById('btnSignupSub');
-  if(btn) { btn.disabled = true; btn.innerText = 'ခဏစောင့်ပါ...'; }
-  await loadCloudDB(); 
-  
-  const phone = $('signPhone').value.trim(), name = $('signName').value.trim(), pwd = $('signPwd').value, pwd2 = $('signPwd2').value;
-  const inviteCode = $('signInviteCode').value.trim();
-  
-  if(!phone || !name || !pwd) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('အချက်အလက် ဖြည့်ပါ'); }
-  if(!/^09\d{7,9}$/.test(phone)) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('မြန်မာဖုန်းနံပါတ် မှားယွင်းနေပါသည်'); }
-  if(pwd.length < 6) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် အနည်းဆုံး ၆ လုံး ထည့်ပါ'); }
-  if(pwd !== pwd2) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('စကားဝှက် နှစ်ခု မတူပါ'); }
-  if(DB.users[phone]) { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဒီဖုန်းနံပါတ်ဖြင့် အကောင့်ရှိပြီးသားပါ'); }
-
-  let startingBalance = 0;
-  if(inviteCode) {
-      let inviterPhone = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
-      if(inviterPhone) { DB.users[inviterPhone].balance += 1999; startingBalance = 1999; } 
-      else { if(btn) { btn.disabled = false; btn.innerText = 'အကောင့်ဖွင့်မည်'; } return toast('ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်'); }
+window.doLogin = async () => {
+  await loadDB();
+  const p = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
+  if(p === 'admin' && pwd === 'admin123') {
+      if(!DB.users['admin']) { DB.users['admin'] = { id: 'Admin', phone: 'admin', name: 'Super Admin', pwd: '123', balance: 999999, isAdmin: true }; await saveDB(); }
+      sessionPhone = 'admin'; localStorage.setItem('w_session', 'admin'); location.reload(); return;
   }
-
-  let newId = Math.floor(10000 + Math.random() * 90000).toString();
-  DB.users[phone] = { id: newId, phone: phone, name: name, pwd: pwd, balance: startingBalance, isAdmin: false };
-  
-  sessionPhone = phone; 
-  localStorage.setItem('wingo_session', phone);
-  await saveDB(); 
-  location.reload();
-};
-
-window.doLogin = async function() {
-  await loadCloudDB();
-  const input = $('loginPhone').value.trim(), pwd = $('loginPwd').value;
-  
-  if(input === 'admin' && pwd === 'admin123') {
-      if(!DB.users['admin']) {
-          DB.users['admin'] = { id: 'Admin', phone: 'admin', name: 'Super Admin', pwd: 'admin123', balance: 99999999, isAdmin: true };
-          await saveDB();
-      }
-      sessionPhone = 'admin'; 
-      localStorage.setItem('wingo_session', 'admin');
-      location.reload();
-      return;
+  let u = Object.keys(DB.users).find(k => k === p || DB.users[k].id === p);
+  if(!u) { // Auto register for simplicity in this demo
+      let newId = Math.floor(10000+Math.random()*90000).toString();
+      DB.users[p] = { id: newId, phone: p, name: 'User', pwd: pwd, balance: 0, isAdmin: false };
+      await saveDB(); u = p; toast('အကောင့်အသစ်ဖွင့်ပြီးပါပြီ');
   }
-  
-  let userPhone = Object.keys(DB.users).find(k => k === input || DB.users[k].id === input);
-  if(!userPhone || DB.users[userPhone].pwd !== pwd) return toast('အချက်အလက် မှားယွင်းနေပါသည်');
-  
-  sessionPhone = userPhone; 
-  localStorage.setItem('wingo_session', userPhone);
-  location.reload();
+  sessionPhone = u; localStorage.setItem('w_session', u); location.reload();
 };
+window.logout = () => { localStorage.removeItem('w_session'); location.reload(); };
 
-window.logout = function() { localStorage.removeItem('wingo_session'); location.reload(); };
-
-function tickLoop() { tick(); requestAnimationFrame(tickLoop); }
-function updateUI() { if(currentUser) { text('userId', currentUser.id); text('balance', currentUser.balance.toLocaleString()); text('sheetBalance', currentUser.balance.toLocaleString()); } }
 function buildGrid() {
-  const grid = $('numGrid'); grid.innerHTML = '';
+  const g = $('numGrid'); g.innerHTML = '';
   for(let i=0; i<=9; i++) {
-    let bg = i===0?'bg-purple-red':i===5?'bg-purple-green':[1,3,7,9].includes(i)?'bg-green':'bg-red';
-    let btn = document.createElement('button'); btn.className = `num-btn ${bg}`; btn.innerText = i;
-    btn.onclick = () => openBetSheet('num', i); grid.appendChild(btn);
+    let b = document.createElement('button'); b.className = 'num-btn'; b.innerText = i;
+    b.style.background = i===0||i===5?'#a55ce6':[1,3,7,9].includes(i)?'#36b67b':'#f34649';
+    b.onclick = () => doBet('num', i); g.appendChild(b);
   }
 }
-window.switchGame = function(k, btn) { 
-    activeGame = k; 
-    localStorage.setItem('wingo_active_game', k); 
-    document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); 
-    if(btn) btn.classList.add('active'); 
-    text('gameLabel', 'Win Go ' + (k==='wingo30s'?'30s':k==='wingo1m'?'1m':k==='wingo3m'?'3m':'5m')); 
-    currentPage = 1; 
-    renderHistory(); 
-    updateUI(); 
+
+function updateUI() { if(currentUser) { $('userId').innerText = currentUser.id; $('balance').innerText = currentUser.balance.toLocaleString(); } }
+
+window.switchGame = (k, btn) => { activeGame = k; document.querySelectorAll('.game-tabs button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentPage = 1; renderHistory(); };
+window.switchTab = (tab, btn) => {
+    ['game','deposit','admin'].forEach(x => $('view-'+x).classList.add('hidden'));
+    $('view-'+tab).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    if(tab === 'admin') { $('admin-set-kpay').value = DB.settings.kpayPhone || ''; $('admin-set-wave').value = DB.settings.wavePhone || ''; }
+    if(tab === 'deposit') { cancelDeposit(); } // Reset deposit UI
 };
 
-function tick() {
+function tickLoop() {
   if(!currentUser) return; 
-  const timeNow = Date.now();
-  const activeDur = DURATIONS[activeGame]; 
-  const activeRem = activeDur - (timeNow % activeDur); 
-  const activeBlock = Math.floor(timeNow / activeDur);
-  
-  let d = new Date(activeBlock * activeDur);
-  text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${activeBlock % 10000}`);
-  
-  const sec = Math.ceil(activeRem/1000); 
-  const m = Math.floor(sec/60), s = sec%60;
-  if($('timerVal')) $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  const timeNow = Date.now(); const dur = DURATIONS[activeGame]; const rem = dur - (timeNow % dur); 
+  const block = Math.floor(timeNow / dur);
+  let d = new Date(block * dur);
+  $('periodVal').innerText = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${block % 10000}`;
+  let s = Math.ceil(rem/1000); $('timerVal').innerText = `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   
   if(DB.games[activeGame] && DB.games[activeGame].history.length > 0) {
-      let latest = DB.games[activeGame].history[0];
-      text('latestNum', latest.num);
-      if($('latestNum')) $('latestNum').style.color = (latest.num===0||latest.num===5)?'#9b5de5':[1,3,7,9].includes(latest.num)?'#2dbd7e':'#ff4b4b';
-      renderHistory();
+      let h = DB.games[activeGame].history[0]; $('latestNum').innerText = h.num;
   }
-
-  // ၅ စက္ကန့် သို့မဟုတ် အောက်ရောက်လျှင် လော့ခ်ချမည့်အပိုင်း
-  if(activeRem <= 5000 && !$('view-game').classList.contains('hidden')) {
-    $('lockOverlay').classList.remove('hidden'); 
-    text('lockCountdownText', sec);
-    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
-
-    // 🔥 အချိန် ၅ စက္ကန့်အောက် (၄.၉၉စက္ကန့်) ရောက်သွားသည်နှင့် Bet Sheet ကို အလိုအလျောက်ပိတ်ပေးမည့် စနစ်
-    if(activeRem < 5000 && $('betSheetOverlay').classList.contains('show')) {
-        closeBetSheet();
-        toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။');
-    }
-
-  } else { 
-    $('lockOverlay').classList.add('hidden'); 
-    lastBeepedSec = -1; 
-  }
+  requestAnimationFrame(tickLoop);
 }
 
-// 🔥 History Table ၂၄ ခုတိတိ ပြပေးမည့် စနစ် ပြင်ဆင်ချက်
+// 🔥 History Reset & 12 Rows Logic 🔥
 function renderHistory() {
-  const g = DB.games[activeGame]; const tbody = $('historyTableBody'); if(!tbody) return; tbody.innerHTML = '';
-  // ၂၄ ခု စီ ဖြတ်ယူမည်
-  const hist = g.history.slice((currentPage-1)*24, currentPage*24);
+  const g = DB.games[activeGame]; const tb = $('historyTableBody'); if(!tb) return; tb.innerHTML = '';
+  
+  // ည ၁၂ နာရီကျော်လျှင် Date Prefix အသစ်ပြောင်းသွားသဖြင့် အဟောင်းများမပေါ်တော့ပါ (Reset စနစ်)
+  const d = new Date();
+  const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  
+  // ဒီနေ့မှတ်တမ်းကိုသာ ယူမည်
+  let todayHist = g.history.filter(h => h.period.startsWith(todayPrefix));
+  
+  // စာမျက်နှာတစ်ခုလျှင် ၁၂ ခု တိတိပြမည်
+  const hist = todayHist.slice((currentPage-1)*12, currentPage*12);
+  
   hist.forEach(h => {
-    let isBig = h.num >= 5; let c = (h.num===0||h.num===5)?'#9b5de5':[1,3,7,9].includes(h.num)?'#2dbd7e':'#ff4b4b';
-    let bg = h.num===0?'bg-purple-red':h.num===5?'bg-purple-green':[1,3,7,9].includes(h.num)?'bg-green':'bg-red';
-    tbody.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${isBig?'big':'small'}">${isBig?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot ${bg}"></div></div></td></tr>`;
+    let c = (h.num===0||h.num===5)?'#a55ce6':[1,3,7,9].includes(h.num)?'#36b67b':'#f34649';
+    tb.innerHTML += `<tr><td>${h.period}</td><td style="color:${c}; font-weight:bold; font-size:16px;">${h.num}</td><td style="color:#555;">${h.num>=5?'အကြီး':'အသေး'}</td></tr>`;
   });
-  text('pageInfo', `${currentPage} / ${Math.ceil(g.history.length/24)||1}`);
-  
-  if(historyTab === 'mine') {
-    const myBetsContainer = $('myBetsList');
-    if(currentUser && currentUser.myBets) {
-        let myBets = currentUser.myBets;
-        if(myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>'; } else {
-            myBetsContainer.innerHTML = myBets.slice(0,30).map(b => {
-                let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
-                let tagClass = 'ck-tag-sm '; if(b.type === 'big') tagClass += 'orange'; else if(b.type === 'small') tagClass += 'blue'; else if(b.type === 'green') tagClass += 'green'; else if(b.type === 'red') tagClass += 'red'; else if(b.type === 'purple') tagClass += 'purple'; else if(b.type === 'num') { tagClass += (b.num === 0 ? 'bg-purple-red' : b.num === 5 ? 'bg-purple-green' : [1,3,7,9].includes(b.num) ? 'bg-green' : 'bg-red'); }
-                let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး'; let statusClass = b.win ? 'win' : 'lose';
-                let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
-                return `<div class="ck-bet-item"><div class="ck-bet-left"><span class="${tagClass}">${labelText}</span><span class="ck-bet-period">${b.period}</span><span class="ck-bet-time">${b.date}</span></div><div class="ck-bet-right"><div class="ck-bet-status ${statusClass}">${statusText}</div><div class="ck-bet-amt ${statusClass}">${amtStr}</div></div></div>`;
-            }).join('');
-        }
-    }
-  }
+  $('pageInfo').innerText = `${currentPage} / ${Math.ceil(todayHist.length/12)||1}`;
 }
-window.changePage = function(d) { const t = Math.ceil(DB.games[activeGame].history.length/24)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
-window.setHistoryTab = function(tab, btn) { historyTab = tab; document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); $('gameHistoryTable').classList.toggle('hidden', tab !== 'game'); $('myBetsList').classList.toggle('hidden', tab !== 'mine'); renderHistory(); };
-
-window.openBetSheet = function(type, num=null) {
-  if(!currentUser) return toast('အကောင့်ဝင်ပါ'); 
-  if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
-  
-  const timeNow = Date.now(); 
-  const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
-  
-  // 🔥 အချိန် ၅ စက္ကန့်အောက် ရောက်နေလျှင် Bet Sheet ပွင့်ခွင့်မပေးတော့ပါ
-  if(activeRem < 5000) return toast('ပွဲပိတ်ထားပါပြီ။ နောက်တစ်ပွဲကို စောင့်ပါ။'); 
-  
-  betType = type; betNum = num; baseAmt = 10; sheetQty = 1;
-  text('betSheetTitle', `Win Go ${activeGame.replace('wingo','')} - ${type}`);
-  $('sheetQtyInput').value = 1; 
-
-  let amountBtns = document.querySelectorAll('#sheetAmountOpts button');
-  amountBtns.forEach(b => b.classList.remove('active'));
-  if(amountBtns.length > 0) amountBtns[0].classList.add('active');
-  
-  updateTotalBet(); 
-  $('betSheetOverlay').classList.add('show');
+window.changePage = (dir) => { 
+    const todayPrefix = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
+    let todayHist = DB.games[activeGame].history.filter(h => h.period.startsWith(todayPrefix));
+    let t = Math.ceil(todayHist.length/12)||1; 
+    currentPage += dir; if(currentPage<1) currentPage=1; if(currentPage>t) currentPage=t; 
+    renderHistory(); 
 };
 
-window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
-window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
-window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
-window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; let total = baseAmt * sheetQty; text('totalBetDisplay', total.toLocaleString()); };
-
-// 🔥 ၅ စက္ကန့် တိတိတွင် ထိုးခွင့်ပေးမည့် စစ်ဆေးချက်
-window.confirmBet = async function() {
-  if(!DB.settings.serverActive) { closeBetSheet(); return toast('Server ပိတ်ထားပါသည်'); }
-  
-  const timeNow = Date.now(); 
-  const activeRem = DURATIONS[activeGame] - (timeNow % DURATIONS[activeGame]);
-  
-  // အချိန် ၅ စက္ကန့်အောက် ရောက်သွားလျှင် ထိုးခွင့်မပြုပါ
-  if(activeRem < 5000) { 
-      closeBetSheet();
-      return toast('အချိန်လွန်သွားပါပြီ။ နောက်တစ်ပွဲကို စောင့်ပါ။');
-  }
-
-  await loadCloudDB(); 
-  const total = baseAmt * sheetQty; 
-  if(currentUser.balance < total) return toast('လက်ကျန်မလုံလောက်ပါ');
-  
-  currentUser.balance -= total; 
-  DB.users[sessionPhone].balance = currentUser.balance; 
-  DB.games[activeGame].bets.push({ userKey: sessionPhone, type: betType, num: betNum, amount: total });
-  
-  await saveDB(); 
-  updateUI(); 
-  closeBetSheet(); 
-  toast('ထိုးပြီးပါပြီ');
+window.doBet = async (type, num=null) => {
+    if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ');
+    await loadDB();
+    currentUser.balance -= 10; DB.users[sessionPhone].balance = currentUser.balance;
+    DB.games[activeGame].bets.push({ userKey: sessionPhone, type, num, amount: 10 });
+    await saveDB(); toast('ထိုးပြီးပါပြီ (10 Ks)'); updateUI();
 };
 
-function renderUserLinks() {
-  const container = $('cs-links-container'); if(!container) return;
-  const links = DB.settings.links || []; container.innerHTML = links.map(l => `<a href="${l.url}" target="_blank" class="cs-btn tg-btn">${l.label}</a>`).join('');
-}
 
-window.switchTab = function(tab, el) {
-  ['game','deposit','profile','admin-control','admin-deposits','admin-links'].forEach(x => { let t = $('view-'+x); if(t) t.classList.add('hidden'); });
-  let activeView = $('view-'+tab); if(activeView) activeView.classList.remove('hidden');
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active');
-  
-  if(tab === 'deposit') { $('dep-id').innerText = currentUser.id; renderUserLinks(); }
-  if(tab === 'profile') { 
-      text('prof-name', currentUser.name); 
-      text('prof-id', currentUser.id); 
-      text('prof-phone', currentUser.phone); 
-      text('prof-bal', currentUser.balance.toLocaleString() + ' Ks'); 
-      if($('prof-invite-link')) {
-          let linkText = window.location.origin + window.location.pathname + '?invite=' + currentUser.id;
-          $('prof-invite-link').innerText = linkText;
-      }
-  }
-  if(tab === 'admin-control') renderAdminControl(); 
-  if(tab === 'admin-deposits') renderAdminDeposits();
-  if(tab === 'admin-links') renderAdminLinks();
+/* ====================================================
+   🔥 In-App Deposit System (KPay / WavePay) 🔥
+==================================================== */
+let depMethod = 'KPay';
+let depAmount = 5000;
+let depTimerInterval;
+let depTimeLeft = 1800; // 30 minutes
+
+window.selectMethod = (m) => { 
+    depMethod = m; 
+    $('btn-kpay').classList.toggle('active', m==='KPay'); 
+    $('btn-wave').classList.toggle('active', m==='WavePay'); 
+};
+window.selectAmt = (a, btn) => { 
+    depAmount = a; 
+    document.querySelectorAll('.amt-btn').forEach(b=>b.classList.remove('active')); 
+    btn.classList.add('active'); 
 };
 
-window.toggleServerStatus = async function() { DB.settings.serverActive = $('server-active-chk').checked; await saveDB(); toast(DB.settings.serverActive ? 'Server ဖွင့်လိုက်ပါပြီ' : 'Server ပိတ်ထားပါသည်'); };
-window.setAdminGame = function(game, btn) { adminActiveGame = game; document.querySelectorAll('#adminGameTabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); text('adminRankTitle', game.replace('wingo', '')); text('profitGameName', game.replace('wingo', '')); renderAdminControl(); };
+window.goDepStep2 = () => {
+    $('dep-step-1').classList.add('hidden');
+    $('dep-step-2').classList.remove('hidden');
+    
+    // ဖုန်းနံပါတ်ကို Admin Set ထားသည့်အတိုင်း ပြမည်
+    let phoneNum = depMethod === 'KPay' ? DB.settings.kpayPhone : DB.settings.wavePhone;
+    $('dep-admin-phone').innerText = phoneNum || 'မသတ်မှတ်ရသေးပါ';
+    $('pay-amt-display').innerText = depAmount.toLocaleString();
+    $('dep-tx-id').value = '';
 
-function renderAdminControl() {
-  $('server-active-chk').checked = DB.settings.serverActive; 
-  $('chk-auto-draw').checked = DB.settings.autoDraw[adminActiveGame]; 
-  $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
-  
-  const aGrid = $('admin-num-grid'); aGrid.innerHTML = '';
-  for(let i=0; i<=9; i++) {
-    let btn = document.createElement('button'); btn.innerText = i; 
-    let bgGradient = 'linear-gradient(140deg, #ff8587, #f14d56)';
-    if(i === 0) bgGradient = 'linear-gradient(135deg, #ad67e6 48%, #f45363 52%)';
-    else if(i === 5) bgGradient = 'linear-gradient(135deg, #ad67e6 48%, #3ec48b 52%)';
-    else if([1,3,7,9].includes(i)) bgGradient = 'linear-gradient(140deg, #7ddba9, #2db67e)';
-    let isSelected = DB.settings.manualNum[adminActiveGame] === i;
-    btn.style.cssText = `padding:12px 5px; border-radius:8px; font-weight:900; font-size:18px; color:#fff; background:${bgGradient}; border: ${isSelected ? '3px solid #333' : '3px solid transparent'}; opacity: ${isSelected ? '1' : '0.4'}; transform: ${isSelected ? 'scale(1.1)' : 'scale(1)'}; transition: 0.2s;`;
-    btn.onclick = async () => { DB.settings.manualNum[adminActiveGame] = i; DB.settings.autoDraw[adminActiveGame] = false; await saveDB(); renderAdminControl(); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); }; 
-    aGrid.appendChild(btn);
-  }
-
-  const g = DB.games[adminActiveGame]; 
-  if(g) {
-      text('periodProfitVal', (g.currentPeriodProfit || 0).toLocaleString() + ' Ks'); text('periodCommVal', Math.floor(g.currentPeriodComm || 0).toLocaleString() + ' Ks');
-      text('todayProfitVal', (g.todayProfit || 0).toLocaleString() + ' Ks'); text('todayCommVal', Math.floor(g.todayComm || 0).toLocaleString() + ' Ks');
-
-      let nBets = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0}; g.bets.forEach(b => { if(b.type === 'num') nBets[b.num] += b.amount; });
-      let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title">🔢 ဂဏန်းအလိုက် ထိုးငွေ</div>`; Object.keys(nBets).forEach(num => { rankHTML += `<div class="admin-rank-row"><span>နံပါတ် (${num})</span><b>${nBets[num].toLocaleString()} Ks</b></div>`; }); rankHTML += `</div>`; $('admin-ranking-summary').innerHTML = rankHTML;
-  }
-}
-
-window.toggleAutoDraw = async function() { 
-    DB.settings.autoDraw[adminActiveGame] = $('chk-auto-draw').checked; 
-    $('manual-draw-section').style.display = DB.settings.autoDraw[adminActiveGame] ? 'none' : 'block'; 
-    await saveDB(); 
+    // Start 30 Min Timer
+    depTimeLeft = 1800;
+    if(depTimerInterval) clearInterval(depTimerInterval);
+    depTimerInterval = setInterval(() => {
+        depTimeLeft--;
+        let m = Math.floor(depTimeLeft / 60); let s = depTimeLeft % 60;
+        $('dep-timer').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if(depTimeLeft <= 0) { cancelDeposit(); toast('အချိန်ကုန်သွားပါပြီ'); }
+    }, 1000);
 };
 
-window.switchAdminTab = function(tab, btn) { document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); ['control','deposits', 'links'].forEach(t => $('view-admin-'+t).classList.add('hidden')); $('view-admin-'+tab).classList.remove('hidden'); if(tab==='control') renderAdminControl(); if(tab==='deposits') renderAdminDeposits(); if(tab==='links') renderAdminLinks(); };
-function renderAdminDeposits() { $('adminUserList').innerHTML = Object.values(DB.users).map(u => `<div class="user-item"><b>${u.name} (${u.id})</b> <span>${Math.floor(u.balance)} Ks</span></div>`).join(''); }
-
-window.adminAddBalance = async function() {
-  await loadCloudDB();
-  const id = $('admin-search-id').value, amt = +$('admin-amount').value, op = $('admin-operation').value;
-  if(!id || !amt) return toast('ဖြည့်ပါ');
-  const uKey = Object.keys(DB.users).find(k => DB.users[k].id === id); if(!uKey) return toast('ID မတွေ့ပါ');
-  DB.users[uKey].balance += (op === 'subtract' ? -amt : amt); await saveDB(); renderAdminDeposits();
-  if(sessionPhone === uKey) { currentUser = DB.users[uKey]; updateUI(); } toast('ငွေစာရင်း အပ်ဒိတ်လုပ်ပြီးပါပြီ');
+window.cancelDeposit = () => {
+    if(depTimerInterval) clearInterval(depTimerInterval);
+    $('dep-step-1').classList.remove('hidden');
+    $('dep-step-2').classList.add('hidden');
 };
 
-window.adminDeleteLink = async function(index) { DB.settings.links.splice(index, 1); await saveDB(); renderAdminLinks(); toast('ဖျက်လိုက်ပါပြီ'); };
-window.adminAddLink = async function() { 
-  const type = $('admin-link-type').value, label = $('admin-link-label').value.trim(), url = $('admin-link-url').value.trim(); 
-  if (!label || !url) return toast('အချက်အလက် ဖြည့်ပါ'); 
-  DB.settings.links.push({ type, label, url }); await saveDB(); renderAdminLinks(); toast('ထည့်ပြီးပါပြီ'); 
-};
-function renderAdminLinks() { 
-  const list = DB.settings.links, container = $('admin-link-list'); if (!container) return;
-  if (list.length === 0) { container.innerHTML = '<p style="text-align:center;font-size:12px;color:#999;">Link မရှိသေးပါ</p>'; return; }
-  container.innerHTML = list.map((l, idx) => `<div class="admin-link-item"><div><strong style="color:var(--blue);">${l.type.toUpperCase()}</strong><br><span>${l.label}</span><br><a href="${l.url}" target="_blank" style="color:#777; font-size:10px;">${l.url}</a></div><button onclick="adminDeleteLink(${idx})">ဖျက်မည်</button></div>`).join(''); 
-}
-
-function showResult(win, amt, num, period, gameKey) {
-  const card = $('ckPopupCard');
-  let isBig = num >= 5;
-  
-  if(win) {
-      card.className = 'ck-popup-card win';
-      $('ckPopupTitle').innerHTML = 'သင်အနိုင်ရရှိအတွက်<br>ဂုဏ်ယူပါသည်';
-      $('ckScrollTitle').innerText = 'ဘောနပ်စ်';
-      $('ckTicketAmt').innerText = '+K ' + amt.toLocaleString() + '.00';
-  } else {
-      card.className = 'ck-popup-card lose';
-      $('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ';
-      $('ckScrollTitle').innerText = 'မနိုင်ပါ';
-      $('ckTicketAmt').innerText = '-K ' + amt.toLocaleString() + '.00';
-  }
-
-  let colorText = ''; let colorClass = '';
-  if (num === null) { colorText = '-'; colorClass = 'blue'; }
-  else if (num === 0) { colorText = 'အနီ+ခရမ်း'; colorClass = 'multi'; }
-  else if (num === 5) { colorText = 'စိမ်း+ခရမ်း'; colorClass = 'multi2'; }
-  else if ([1,3,7,9].includes(num)) { colorText = 'အစိမ်း'; colorClass = 'green'; }
-  else { colorText = 'အနီ'; colorClass = 'red'; }
-
-  $('resTagColor').innerText = colorText;
-  $('resTagColor').className = 'ck-tag ' + colorClass;
-  
-  $('resTagNum').innerText = num !== null ? num : '-';
-  $('resTagNum').className = 'ck-tag num-tag ' + colorClass;
-  
-  $('resTagSize').innerText = isBig ? 'အကြီး' : 'အသေး';
-  $('resTagSize').className = 'ck-tag ' + (isBig ? 'orange' : 'blue');
-
-  let gameName = gameKey === 'wingo30s' ? '30 second' : gameKey === 'wingo1m' ? '1 Min' : gameKey === 'wingo3m' ? '3 Min' : '5 Min';
-  $('ckTicketPeriod').innerText = `ပွဲအမှတ်စဉ်: ${gameName} ${period}`;
-  
-  $('resultPopupOverlay').classList.add('show');
-
-  let countdown = 3;
-  $('ckCountdown').innerText = countdown;
-  if(popupTimer) clearInterval(popupTimer);
-  popupTimer = setInterval(() => {
-      countdown--;
-      if(countdown <= 0) {
-          clearInterval(popupTimer);
-          closeResultPopup();
-      } else {
-          $('ckCountdown').innerText = countdown;
-      }
-  }, 1000);
-}
-
-window.closeResultPopup = function() { 
-    if(popupTimer) clearInterval(popupTimer);
-    $('resultPopupOverlay').classList.remove('show'); 
-};
-window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
-window.closeInfo = function() { document.getElementById('infoOverlay').classList.remove('show'); };
-
-window.showRules = function() { 
-  let rulesHTML = `
-    <div style="text-align:left; font-size:13px; line-height:1.6; color:#444;">
-      <p><b>၁။ အကြီး / အသေး (Big/Small)</b><br>
-      - <b>အသေး (Small):</b> 0 မှ 4 အထိ <br>
-      - <b>အကြီး (Big):</b> 5 မှ 9 အထိ <br>
-      (အနိုင်ရလျှင် ထိုးကြေး၏ <b>၂ ဆ</b> ရရှိပါမည်)</p>
-      
-      <p><b>၂။ အရောင် (Color)</b><br>
-      - <b>အစိမ်း (Green):</b> 1, 3, 7, 9 ထွက်လျှင် <b>၂ ဆ</b> (5 ထွက်လျှင် <b>၁.၅ ဆ</b> ရမည်)<br>
-      - <b>အနီ (Red):</b> 2, 4, 6, 8 ထွက်လျှင် <b>၂ ဆ</b> (0 ထွက်လျှင် <b>၁.၅ ဆ</b> ရမည်)<br>
-      - <b>ခရမ်း (Purple):</b> 0 သို့မဟုတ် 5 ထွက်လျှင် <b>၄.၅ ဆ</b> ရရှိပါမည်</p>
-      
-      <p><b>၃။ နံပါတ် (Number)</b><br>
-      - 0 မှ 9 အထိ မိမိကြိုက်နှစ်သက်ရာ ဂဏန်းကို ရွေးချယ်နိုင်ပါသည်။<br>
-      (အနိုင်ရလျှင် ထိုးကြေး၏ <b>၉ ဆ</b> ရရှိပါမည်)</p>
-      
-      <p style="color:#ef4444; font-size:11px;">* မှတ်ချက်: လောင်းကြေးတိုင်းအတွက် ဝန်ဆောင်ခ (Platform Fee) ၂% ဖြတ်တောက်ပါမည်။ ပြထားသော အဆများမှာ ၂% နှုတ်ပြီး ရရှိမည့် အသားတင်ပမာဏခန့်မှန်းချက် ဖြစ်ပါသည်။</p>
-    </div>
-  `;
-  openInfo('ကစားနည်း စည်းမျဉ်းများ', rulesHTML); 
+window.copyAdminPhone = () => {
+    let num = $('dep-admin-phone').innerText;
+    let t = document.createElement("textarea"); t.value = num; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+    toast('ဖုန်းနံပါတ် Copy ကူးပြီးပါပြီ');
 };
 
-window.showHelp = function() { openInfo('အကူအညီ', 'ဆက်သွယ်ရန်အချက်အလက်များကို ပိုက်ဆံအိတ် (Wallet) စာမျက်နှာတွင် ကြည့်ရှုနိုင်ပါသည်။'); };
-window.toggleSound = function() { toast('အသံပိတ်/ဖွင့်ခြင်း ပြုလုပ်ပါမည်'); };
+window.submitDepositFinal = async () => {
+    let tx = $('dep-tx-id').value.trim();
+    if(tx.length < 5) return toast('လုပ်ငန်းစဉ်အမှတ် အနည်းဆုံး ၅ လုံး ထည့်ပါ');
+    
+    // Server သို့ Data ပို့မည်
+    await loadDB();
+    if(!DB.deposits) DB.deposits = [];
+    DB.deposits.push({
+        uid: currentUser.id, name: currentUser.name, method: depMethod, amount: depAmount, txId: tx, date: new Date().toLocaleString()
+    });
+    await saveDB();
+    
+    toast('ငွေသွင်းရန် တောင်းဆိုမှု အောင်မြင်ပါသည်။ ခဏစောင့်ပေးပါ။');
+    cancelDeposit();
+    switchTab('game', document.querySelector('.nav-item'));
+};
 
+/* ====================================================
+   🔥 Admin Setting Phones 🔥
+==================================================== */
+window.saveAdminPhones = async () => {
+    await loadDB();
+    DB.settings.kpayPhone = $('admin-set-kpay').value.trim();
+    DB.settings.wavePhone = $('admin-set-wave').value.trim();
+    await saveDB();
+    toast('ဖုန်းနံပါတ်များ သိမ်းဆည်းပြီးပါပြီ');
+};
+window.adminDirectAdd = async () => {
+    await loadDB();
+    const id = $('admin-add-uid').value, amt = +$('admin-add-amt').value;
+    let uKey = Object.keys(DB.users).find(k => DB.users[k].id === id);
+    if(uKey) { DB.users[uKey].balance += amt; await saveDB(); toast('ငွေဖြည့်ပြီးပါပြီ'); } else toast('ID မတွေ့ပါ');
+};
 </script>
 </body>
 </html>
