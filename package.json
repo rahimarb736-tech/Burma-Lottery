@@ -1,5 +1,5 @@
 {
-  "name": "wingo-backend",
+  "name": "burma-lottery-backend",
   "version": "1.0.0",
   "description": "Burma Lottery WinGo Backend Server",
   "main": "index.js",
