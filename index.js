@@ -18,9 +18,6 @@ const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
 const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
 const botUser = new TelegramBot(USER_BOT_TOKEN, { polling: true });
 
-// ==========================================
-// 🔥 Database စနစ်
-// ==========================================
 const DB_FILE = './db.json';
 let DB;
 
@@ -33,7 +30,7 @@ const DEFAULT_DB = {
       manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, 
       serverActive: true, links: [] 
   },
-  transactions: [], // ငွေသွင်း/ငွေထုတ် မှတ်တမ်းအားလုံး
+  transactions: [], 
   currentGame: 'wingo30s',
   games: {
     wingo30s: { bets: [], history: [], myBets: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0 },
@@ -71,7 +68,7 @@ botSet.onText(/\/set (\w+) (\d)/, (msg, match) => {
     }
 });
 
-// 🔥 ငွေသွင်း အတည်ပြုခြင်း (Deposit Approve)
+// 🔥 ငွေသွင်း အတည်ပြုခြင်း
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const cmd = match[1]; const uid = match[2]; const amount = parseInt(match[3]);
@@ -90,18 +87,18 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     saveDB();
 });
 
-// 🔥 ငွေထုတ် အတည်ပြုခြင်း (Withdraw Approve)
+// 🔥 ငွေထုတ် အတည်ပြုခြင်း
 botFinance.onText(/\/wdok (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
     let pendingWd = DB.transactions.find(t => t.uid === uid && t.type === 'withdraw' && t.status === 'pending');
     if(pendingWd) {
         pendingWd.status = 'approved'; saveDB();
-        botFinance.sendMessage(msg.chat.id, `✅ UID: ${uid} ၏ ငွေထုတ်တောင်းဆိုမှုကို အတည်ပြု (Approved) လုပ်ပေးလိုက်ပါပြီ။ မှတ်တမ်းအမှတ်စဉ်: ${pendingWd.id}`);
+        botFinance.sendMessage(msg.chat.id, `✅ UID: ${uid} ၏ ငွေထုတ်တောင်းဆိုမှုကို အတည်ပြု (Approved) လုပ်ပေးလိုက်ပါပြီ။`);
     } else botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေထုတ်တောင်းဆိုမှု မရှိပါ။`);
 });
 
-// 🔥 ငွေထုတ် ပယ်ဖျက်ခြင်း (Withdraw Reject & Refund)
+// 🔥 ငွေထုတ် ပယ်ဖျက်ခြင်း (Refund)
 botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
@@ -109,7 +106,7 @@ botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(pendingWd) {
         pendingWd.status = 'rejected';
         let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid);
-        if(userKey) DB.users[userKey].balance += pendingWd.amount; // ငွေပြန်အမ်းမည်
+        if(userKey) DB.users[userKey].balance += pendingWd.amount;
         saveDB();
         botFinance.sendMessage(msg.chat.id, `🚫 UID: ${uid} ၏ ငွေထုတ်တောင်းဆိုမှုကို ပယ်ဖျက် (Rejected) ပြီး ငွေပြန်အမ်းပေးလိုက်ပါပြီ။`);
     } else botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေထုတ်တောင်းဆိုမှု မရှိပါ။`);
@@ -124,7 +121,7 @@ botUser.onText(/\/check (\w+)/, (msg, match) => {
     } else botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} မရှိပါ။`);
 });
 
-// WinGo Game Loop
+// Game Loop
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 setInterval(() => {
     const timeNow = Date.now();
@@ -177,7 +174,6 @@ function drawResult(game, blockIndex, dur) {
     }
 }
 
-// API Endpoints
 app.get('/', (req, res) => res.send('Server is running'));
 app.get('/api/db', (req, res) => res.json(DB));
 app.post('/api/update', (req, res) => {
@@ -193,26 +189,23 @@ app.post('/api/update', (req, res) => {
         }
     }
 
-    // 🔥 ငွေသွင်း/ငွေထုတ် Telegram Alert
     if (newDB.transactions && (!DB.transactions || newDB.transactions.length > DB.transactions.length)) {
         let latestTx = newDB.transactions[newDB.transactions.length - 1];
-        
         if (newDB.settings.adminChatId) {
             if(latestTx.type === 'deposit') {
                 let totalAmt = latestTx.amount == 5000 ? 5250 : latestTx.amount; 
-                let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ မှတ်တမ်းအမှတ်စဉ်: ${latestTx.id}\n▫️ ငွေပေးချေမှု: <b>${latestTx.method}</b>\n▫️ ပမာဏ: ${latestTx.amount.toLocaleString()} Ks\n`;
+                let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ ငွေပေးချေမှု: <b>${latestTx.method}</b>\n▫️ ပမာဏ: ${latestTx.amount.toLocaleString()} Ks\n`;
                 if (latestTx.amount == 5000) msg += `🎁 ဘောနပ်စ်: +250 Ks (စုစုပေါင်း 5250 Ks)\n`;
                 msg += `▫️ နောက်ဆုံး ၆ လုံး: <b>${latestTx.txId}</b>\n\nအတည်ပြုရန် အောက်ပါစာကို Copy ကူး၍ ပြန်ပို့ပါ👇\n\n<code>/add ${latestTx.uid} ${totalAmt}</code>`;
                 try { botFinance.sendMessage(newDB.settings.adminChatId, msg, {parse_mode: 'HTML'}); } catch(e) {}
             } 
             else if (latestTx.type === 'withdraw') {
-                let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ မှတ်တမ်းအမှတ်စဉ်: ${latestTx.id}\n▫️ ထုတ်မည့် ပမာဏ: <b>${latestTx.amount.toLocaleString()} Ks</b>\n▫️ ငွေလွှဲပေးရမည့်စနစ်: <b>${latestTx.method}</b>\n▫️ အကောင့်အမည်: <b>${latestTx.accName}</b>\n▫️ ဖုန်းနံပါတ်: <b>${latestTx.accPhone}</b>\n\n`;
+                let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ ထုတ်မည့် ပမာဏ: <b>${latestTx.amount.toLocaleString()} Ks</b>\n▫️ ငွေလွှဲပေးရမည့်စနစ်: <b>${latestTx.method}</b>\n▫️ အကောင့်အမည်: <b>${latestTx.accName}</b>\n▫️ ဖုန်းနံပါတ်: <b>${latestTx.accPhone}</b>\n\n`;
                 msg += `ငွေလွှဲပေးပြီးပါက အတည်ပြုရန် အောက်ပါစာကို Copy ကူး၍ ပြန်ပို့ပါ👇\n\n<code>/wdok ${latestTx.uid}</code>\n\n(ငွေမလွှဲဘဲ ပယ်ဖျက်လိုပါက <code>/wdno ${latestTx.uid}</code> ဟုပို့ပါ)`;
                 try { botFinance.sendMessage(newDB.settings.adminChatId, msg, {parse_mode: 'HTML'}); } catch(e) {}
             }
         }
     }
-    
     DB = newDB; saveDB(); res.send({ success: true });
 });
 
