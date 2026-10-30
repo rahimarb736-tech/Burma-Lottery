@@ -80,7 +80,6 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
 
     if(cmd === 'add') {
         DB.users[userKey].balance += amount;
-        // ငွေသွင်း Pending ရှိလျှင် Approved သို့ ပြောင်းမည်
         let pendingDep = DB.transactions.find(t => t.uid === uid && t.type === 'deposit' && t.status === 'pending');
         if(pendingDep) pendingDep.status = 'approved';
         botFinance.sendMessage(msg.chat.id, `✅ ငွေသွင်းပြီးပါပြီ။ UID: ${uid} | လက်ကျန်: ${DB.users[userKey].balance.toLocaleString()} Ks`);
@@ -98,11 +97,11 @@ botFinance.onText(/\/wdok (\w+)/, (msg, match) => {
     let pendingWd = DB.transactions.find(t => t.uid === uid && t.type === 'withdraw' && t.status === 'pending');
     if(pendingWd) {
         pendingWd.status = 'approved'; saveDB();
-        botFinance.sendMessage(msg.chat.id, `✅ UID: ${uid} ၏ ငွေထုတ်တောင်းဆိုမှုကို အတည်ပြု (Approved) လုပ်ပေးလိုက်ပါပြီ။`);
+        botFinance.sendMessage(msg.chat.id, `✅ UID: ${uid} ၏ ငွေထုတ်တောင်းဆိုမှုကို အတည်ပြု (Approved) လုပ်ပေးလိုက်ပါပြီ။ မှတ်တမ်းအမှတ်စဉ်: ${pendingWd.id}`);
     } else botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေထုတ်တောင်းဆိုမှု မရှိပါ။`);
 });
 
-// 🔥 ငွေထုတ် ပယ်ဖျက်ခြင်း (Withdraw Reject)
+// 🔥 ငွေထုတ် ပယ်ဖျက်ခြင်း (Withdraw Reject & Refund)
 botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
@@ -201,13 +200,13 @@ app.post('/api/update', (req, res) => {
         if (newDB.settings.adminChatId) {
             if(latestTx.type === 'deposit') {
                 let totalAmt = latestTx.amount == 5000 ? 5250 : latestTx.amount; 
-                let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ ငွေပေးချေမှု: <b>${latestTx.method}</b>\n▫️ ပမာဏ: ${latestTx.amount.toLocaleString()} Ks\n`;
+                let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ မှတ်တမ်းအမှတ်စဉ်: ${latestTx.id}\n▫️ ငွေပေးချေမှု: <b>${latestTx.method}</b>\n▫️ ပမာဏ: ${latestTx.amount.toLocaleString()} Ks\n`;
                 if (latestTx.amount == 5000) msg += `🎁 ဘောနပ်စ်: +250 Ks (စုစုပေါင်း 5250 Ks)\n`;
                 msg += `▫️ နောက်ဆုံး ၆ လုံး: <b>${latestTx.txId}</b>\n\nအတည်ပြုရန် အောက်ပါစာကို Copy ကူး၍ ပြန်ပို့ပါ👇\n\n<code>/add ${latestTx.uid} ${totalAmt}</code>`;
                 try { botFinance.sendMessage(newDB.settings.adminChatId, msg, {parse_mode: 'HTML'}); } catch(e) {}
             } 
             else if (latestTx.type === 'withdraw') {
-                let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ ထုတ်မည့် ပမာဏ: <b>${latestTx.amount.toLocaleString()} Ks</b>\n▫️ ငွေလွှဲပေးရမည့်စနစ်: <b>${latestTx.method}</b>\n▫️ အကောင့်အမည်: <b>${latestTx.accName}</b>\n▫️ ဖုန်းနံပါတ်: <b>${latestTx.accPhone}</b>\n\n`;
+                let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု ရောက်နေပါပြီ</b>\n\n▫️ UID: <b>${latestTx.uid}</b>\n▫️ မှတ်တမ်းအမှတ်စဉ်: ${latestTx.id}\n▫️ ထုတ်မည့် ပမာဏ: <b>${latestTx.amount.toLocaleString()} Ks</b>\n▫️ ငွေလွှဲပေးရမည့်စနစ်: <b>${latestTx.method}</b>\n▫️ အကောင့်အမည်: <b>${latestTx.accName}</b>\n▫️ ဖုန်းနံပါတ်: <b>${latestTx.accPhone}</b>\n\n`;
                 msg += `ငွေလွှဲပေးပြီးပါက အတည်ပြုရန် အောက်ပါစာကို Copy ကူး၍ ပြန်ပို့ပါ👇\n\n<code>/wdok ${latestTx.uid}</code>\n\n(ငွေမလွှဲဘဲ ပယ်ဖျက်လိုပါက <code>/wdno ${latestTx.uid}</code> ဟုပို့ပါ)`;
                 try { botFinance.sendMessage(newDB.settings.adminChatId, msg, {parse_mode: 'HTML'}); } catch(e) {}
             }
