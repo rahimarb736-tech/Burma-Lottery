@@ -835,13 +835,25 @@ function renderHistory() {
 }
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 
+// 🔥 10k တွင် ရွေးချယ်မှု မှတ်မိနေသော ပြဿနာအား ဖြေရှင်းထားသော openBetSheet 🔥
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
     const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); 
     if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); 
-    betType = t; betNum = n; baseAmt = 10; sheetQty = 1; 
-    text('betSheetTitle', `Bet: ${t}`); $('sheetQtyInput').value = 1; updateTotalBet(); $('betSheetOverlay').classList.add('show'); 
+    
+    betType = t; betNum = n; 
+    baseAmt = 10; sheetQty = 1; 
+    
+    text('betSheetTitle', `Bet: ${t}`); 
+    $('sheetQtyInput').value = 1; 
+    
+    // Amount Option များကို 10 သို့ Reset ချပေးခြင်း
+    document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); 
+    document.querySelector('#sheetAmountOpts button').classList.add('active'); // ပထမဆုံး (10) ခလုတ်ကို Active လုပ်ပေးမည်
+    
+    updateTotalBet(); 
+    $('betSheetOverlay').classList.add('show'); 
 };
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
@@ -1032,7 +1044,7 @@ function renderUserLinks() {
     container.innerHTML = DB.settings.links.map(l => `<a href="${l.url}" target="_blank" style="display:block; padding:14px; background:${l.color}; color:white; border-radius:12px; margin-bottom:10px; text-decoration:none; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align:center;">${l.label}</a>`).join('');
 }
 
-// 🔥 JS ရလဒ်ပြ Popup အပိုင်း
+// 🔥 JS ရလဒ်ပြ Popup အပိုင်း (အရှုံးအတွက် null ပြသမှု ဖြေရှင်းပြီး)
 function showResult(win, amt, num, period, gameKey) {
     const card = $('ckPopupCard'); 
     let isBig = num >= 5;
@@ -1052,14 +1064,17 @@ function showResult(win, amt, num, period, gameKey) {
     }
     
     let tagsHtml = '';
-    if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
-    else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
-    else if ([1,3,7,9].includes(num)) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span>`; } 
-    else { tagsHtml += `<span class="ck-tag red">အနီ</span>`; }
-    
-    let colorClass = num===0?'multi':num===5?'multi2':[1,3,7,9].includes(num)?'green':'red';
-    tagsHtml += `<span class="ck-tag num-tag ${colorClass}">${num}</span>`;
-    tagsHtml += `<span class="ck-tag ${isBig ? 'orange' : 'blue'}">${isBig ? 'အကြီး' : 'အသေး'}</span>`;
+    // Null ပြဿနာ မဖြစ်စေရန် အတိအကျ စစ်ဆေးပေးခြင်း
+    if (num !== null && num !== undefined) {
+        if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
+        else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
+        else if ([1,3,7,9].includes(num)) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span>`; } 
+        else { tagsHtml += `<span class="ck-tag red">အနီ</span>`; }
+        
+        let colorClass = num===0?'multi':num===5?'multi2':[1,3,7,9].includes(num)?'green':'red';
+        tagsHtml += `<span class="ck-tag num-tag ${colorClass}">${num}</span>`;
+        tagsHtml += `<span class="ck-tag ${isBig ? 'orange' : 'blue'}">${isBig ? 'အကြီး' : 'အသေး'}</span>`;
+    }
     
     $('resTagsContainer').innerHTML = tagsHtml;
     $('ckTicketPeriod').innerText = `ပွဲအမှတ်စဉ်: ${gameName} ${period}`; 
