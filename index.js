@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ==========================================
-// 🔥 Bot Token များ (လုံခြုံရေးအရ Environment Variables သုံးရန် အကြံပြုပါသည်)
+// 🔥 Bot Token များ
 // ==========================================
 const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
@@ -86,9 +86,11 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
 });
 
 // ==========================================
-// 🔥 Bot Commands (Finance)
+// 🔥 Bot Commands (Finance & User)
 // ==========================================
 botFinance.onText(/\/admin/, (msg) => { botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); });
+
+// ငွေသွင်း အတည်ပြု/ဖြတ်
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const cmd = match[1], uid = match[2], amt = parseInt(match[3]);
@@ -106,12 +108,27 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     saveDB();
 });
 
+// ငွေသွင်း ပယ်ဖျက် (Reject Deposit)
+botFinance.onText(/\/depno (\w+)/, (msg, match) => {
+    if(!isAdmin(msg.chat.id)) return;
+    const uid = match[1];
+    let p = DB.transactions.find(t => t.uid === uid && t.type === 'deposit' && t.status === 'pending');
+    if(p) { 
+        p.status = 'rejected'; saveDB(); 
+        botFinance.sendMessage(msg.chat.id, `🚫 UID: ${uid} ၏ ငွေသွင်းတောင်းဆိုမှုကို ပယ်ဖျက် (Rejected) လိုက်ပါပြီ။`); 
+    } else {
+        botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေသွင်းတောင်းဆိုမှု မရှိပါ။`);
+    }
+});
+
+// ငွေထုတ် အတည်ပြု
 botFinance.onText(/\/wdok (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
     if(p) { p.status = 'approved'; saveDB(); botFinance.sendMessage(msg.chat.id, `✅ ငွေထုတ် အတည်ပြုပြီးပါပြီ။`); }
 });
 
+// ငွေထုတ် ပယ်ဖျက် (Refund)
 botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
@@ -123,12 +140,10 @@ botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     }
 });
 
-// ==========================================
-// 🔥 Bot Commands (User Bot - ပြင်ဆင်ပြီး)
-// ==========================================
-botUser.onText(/\/admin/, (msg) => { 
-    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
-    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
+// User Bot Commands
+botUser.onText(/\/admin/, (msg) => {
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
+    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`);
 });
 
 botUser.onText(/\/check (\w+)/, (msg, match) => {
@@ -148,7 +163,7 @@ botUser.onText(/\/users/, (msg) => {
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
 });
 
-// User Bot အား /admin ကို အမြဲတမ်း တုံ့ပြန်နိုင်စေရန် ထပ်ဆောင်းရေးသားချက်
+// User Bot Catch-all for /admin mapping fallback
 botUser.on('message', (msg) => {
     if (msg.text === '/admin') {
         DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
@@ -245,7 +260,7 @@ function drawResult(game, blockIndex, dur) {
 }
 
 // ==========================================
-// 🔥 REST APIs
+// 🔥 REST APIs 
 // ==========================================
 app.get('/', (req, res) => res.send('Server Running'));
 
@@ -271,6 +286,7 @@ app.get('/api/sync', (req, res) => {
             state.games[g].bets = DB.games[g].bets;
             state.games[g].todayProfit = DB.games[g].todayProfit;
             state.games[g].todayComm = DB.games[g].todayComm;
+            state.games[g].totalProfit = DB.games[g].totalProfit;
         }
     }
     res.json(state);
@@ -317,7 +333,7 @@ app.post('/api/bet', (req, res) => {
     if(rem < 5000) return res.json({success: false, msg: "ပွဲပိတ်ထားပါပြီ။"});
     if(user.balance < amount) return res.json({success: false, msg: "လက်ကျန်ငွေ မလုံလောက်ပါ"});
 
-    user.balance -= amount; // Deduct safely on server
+    user.balance -= amount; 
     DB.games[game].bets.push({ userKey: phone, type, num, amount });
     saveDB();
     res.json({success: true, balance: user.balance});
@@ -336,14 +352,14 @@ app.post('/api/finance', (req, res) => {
         user.balance -= amount;
         DB.transactions.push({ id: tid, uid: user.id, type, method, amount, accName, accPhone, status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
-            let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks\n\n<code>/wdok ${user.id}</code> (သို့) <code>/wdno ${user.id}</code>`;
+            let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks\n\nအတည်ပြုရန်: <code>/wdok ${user.id}</code>\nပယ်ဖျက်ရန်: <code>/wdno ${user.id}</code>`;
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     } else {
         DB.transactions.push({ id: tid, uid: user.id, type, method, amount, txId, status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
             let bonus = Math.floor(amount * 0.05);
-            let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks (+ ${bonus} Bonus)\n▫️ TxID: ${txId}\n\n<code>/add ${user.id} ${amount + bonus}</code>`;
+            let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks (+ ${bonus} Bonus)\n▫️ TxID: ${txId}\n\nအတည်ပြုရန်: <code>/add ${user.id} ${amount + bonus}</code>\nပယ်ဖျက်ရန်: <code>/depno ${user.id}</code>`;
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     }
