@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// ==========================================
+// 🔥 Firebase Database ချိတ်ဆက်မှု
+// ==========================================
+const FIREBASE_URL = 'https://burmalottery-68256-default-rtdb.asia-southeast1.firebasedatabase.app/db.json';
 
 // ==========================================
 // 🔥 Bot Token များ (လုံခြုံရေးအရ Environment Variables သုံးရန် အကြံပြုပါသည်)
@@ -20,9 +23,8 @@ const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
 const botUser = new TelegramBot(USER_BOT_TOKEN, { polling: true });
 
 // ==========================================
-// 🔥 Database ဖိုင်စနစ်
+// 🔥 Database Structure
 // ==========================================
-const DB_FILE = path.join(__dirname, 'db.json');
 let DB;
 
 const DEFAULT_DB = {
@@ -39,22 +41,43 @@ const DEFAULT_DB = {
     lastResetDate: new Date().toLocaleDateString()
 };
 
-function loadDB() {
+async function loadDB() {
     try {
-        if (fs.existsSync(DB_FILE)) {
-            let fileData = fs.readFileSync(DB_FILE, 'utf8');
-            if (fileData.trim() === '') throw new Error("Empty DB");
-            DB = JSON.parse(fileData);
+        const res = await fetch(FIREBASE_URL);
+        const data = await res.json();
+        if (data && data.settings) {
+            DB = data;
             if(!DB.transactions) DB.transactions = [];
             for (let g in DB.games) if (DB.games[g].totalProfit === undefined) DB.games[g].totalProfit = 0;
             if(!DB.lastResetDate) DB.lastResetDate = new Date().toLocaleDateString();
-        } else { DB = JSON.parse(JSON.stringify(DEFAULT_DB)); saveDB(); }
-    } catch (e) { console.log("Initializing new DB."); DB = JSON.parse(JSON.stringify(DEFAULT_DB)); saveDB(); }
+            console.log("✅ Firebase DB ချိတ်ဆက်မှု အောင်မြင်ပါသည်။");
+        } else {
+            console.log("Initializing new Firebase DB.");
+            DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+            saveDB();
+        }
+    } catch (e) {
+        console.log("Firebase Load Error, starting with default DB.");
+        DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+    }
 }
-function saveDB() { try { fs.writeFileSync(DB_FILE, JSON.stringify(DB, null, 2), 'utf8'); } catch (e) { console.error(e); } }
+
+async function saveDB() {
+    if (!DB) return;
+    try {
+        await fetch(FIREBASE_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(DB)
+        });
+    } catch (e) { 
+        console.error("Firebase Save Error"); 
+    }
+}
+
 function isAdmin(chatId) { return DB.settings.adminChatId && chatId.toString() === DB.settings.adminChatId.toString(); }
 
-loadDB();
+loadDB(); // Server စတက်သည်နှင့် Firebase မှ Data လှမ်းယူမည်
 
 // ==========================================
 // 🔥 Bot Commands (Set Bot)
@@ -108,7 +131,7 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     saveDB();
 });
 
-// 📌 ငွေသွင်း ပယ်ဖျက် (Reject Deposit) [အသစ် ထည့်သွင်းထားသော အပိုင်း]
+// ငွေသွင်း ပယ်ဖျက် (Reject Deposit)
 botFinance.onText(/\/depno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
@@ -177,6 +200,7 @@ botUser.on('message', (msg) => {
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 
 setInterval(() => {
+    if (!DB) return;
     const timeNow = Date.now();
     let dStr = new Date().toLocaleDateString();
     if (DB.lastResetDate !== dStr) {
@@ -217,6 +241,7 @@ setInterval(() => {
 }, 1000);
 
 function drawResult(game, blockIndex, dur) {
+    if (!DB) return;
     let d = new Date(blockIndex * dur);
     let periodStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockIndex % 10000}`;
     
@@ -265,6 +290,7 @@ function drawResult(game, blockIndex, dur) {
 app.get('/', (req, res) => res.send('Server Running'));
 
 app.get('/api/sync', (req, res) => {
+    if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [] });
     let phone = req.query.phone;
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk');
     let state = { settings: DB.settings, games: {}, user: null, transactions: [] };
@@ -293,6 +319,7 @@ app.get('/api/sync', (req, res) => {
 });
 
 app.post('/api/auth', (req, res) => {
+    if (!DB) return res.json({success: false, msg: "Database Loading..."});
     const { action, phone, pwd, name, inviteCode } = req.body;
     
     if (action === 'login') {
@@ -323,6 +350,7 @@ app.post('/api/auth', (req, res) => {
 });
 
 app.post('/api/bet', (req, res) => {
+    if (!DB) return res.json({success: false, msg: "Database Error"});
     const { phone, game, type, num, amount } = req.body;
     if(!DB.settings.serverActive) return res.json({success: false, msg: "Server ပိတ်ထားပါသည်"});
     
@@ -333,13 +361,14 @@ app.post('/api/bet', (req, res) => {
     if(rem < 5000) return res.json({success: false, msg: "ပွဲပိတ်ထားပါပြီ။"});
     if(user.balance < amount) return res.json({success: false, msg: "လက်ကျန်ငွေ မလုံလောက်ပါ"});
 
-    user.balance -= amount; // Deduct safely on server
+    user.balance -= amount;
     DB.games[game].bets.push({ userKey: phone, type, num, amount });
     saveDB();
     res.json({success: true, balance: user.balance});
 });
 
 app.post('/api/finance', (req, res) => {
+    if (!DB) return res.json({success: false});
     const { type, phone, method, amount, txId, accName, accPhone } = req.body;
     let user = DB.users[phone];
     if(!user) return res.json({success: false});
@@ -367,6 +396,7 @@ app.post('/api/finance', (req, res) => {
 });
 
 app.post('/api/admin', (req, res) => {
+    if (!DB) return res.json({success: false});
     const { phone, action, data } = req.body;
     if(phone !== 'admin' && phone !== 'Asrissrk') return res.json({success: false});
     
@@ -383,4 +413,4 @@ app.post('/api/admin', (req, res) => {
     saveDB(); res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Server running'));
+app.listen(process.env.PORT || 3000, () => console.log('Server running with Firebase'));
