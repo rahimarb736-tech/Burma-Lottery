@@ -86,7 +86,7 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
 });
 
 // ==========================================
-// 🔥 Bot Commands (Finance & User)
+// 🔥 Bot Commands (Finance)
 // ==========================================
 botFinance.onText(/\/admin/, (msg) => { botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); });
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
@@ -123,9 +123,37 @@ botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     }
 });
 
+// ==========================================
+// 🔥 Bot Commands (User Bot - ပြင်ဆင်ပြီး)
+// ==========================================
+botUser.onText(/\/admin/, (msg) => { 
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
+    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
+});
+
+botUser.onText(/\/check (\w+)/, (msg, match) => {
+    if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။ (အရင်ဆုံး /admin ဟုရိုက်ပါ)`);
+    const uid = match[1]; 
+    let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid || k === uid);
+    if(userKey) {
+        let u = DB.users[userKey];
+        botUser.sendMessage(msg.chat.id, `👤 အမည်: ${u.name}\nUID: ${u.id}\nဖုန်း: ${u.phone}\nငွေ: ${u.balance.toLocaleString()} Ks\nစကားဝှက်: ${u.pwd}`);
+    } else {
+        botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} ကို ရှာမတွေ့ပါ။`);
+    }
+});
+
 botUser.onText(/\/users/, (msg) => {
-    if(!isAdmin(msg.chat.id)) return;
+    if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
+});
+
+// User Bot အား /admin ကို အမြဲတမ်း တုံ့ပြန်နိုင်စေရန် ထပ်ဆောင်းရေးသားချက်
+botUser.on('message', (msg) => {
+    if (msg.text === '/admin') {
+        DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
+        botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`);
+    }
 });
 
 // ==========================================
@@ -217,21 +245,18 @@ function drawResult(game, blockIndex, dur) {
 }
 
 // ==========================================
-// 🔥 REST APIs (Security Fixes Applied)[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)
+// 🔥 REST APIs
 // ==========================================
 app.get('/', (req, res) => res.send('Server Running'));
 
-// 1. Data Sync (Filtered Data for Client)
 app.get('/api/sync', (req, res) => {
     let phone = req.query.phone;
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk');
-    
-    // Create safe state object
     let state = { settings: DB.settings, games: {}, user: null, transactions: [] };
     
     if (phone && DB.users[phone]) {
         state.user = { ...DB.users[phone] };
-        if(!isAdminReq) delete state.user.pwd; // Protect password[span_10](start_span)[span_10](end_span)
+        if(!isAdminReq) delete state.user.pwd;
         state.transactions = DB.transactions.filter(t => t.uid === state.user.id);
     }
     
@@ -251,7 +276,6 @@ app.get('/api/sync', (req, res) => {
     res.json(state);
 });
 
-// 2. Authentication
 app.post('/api/auth', (req, res) => {
     const { action, phone, pwd, name, inviteCode } = req.body;
     
@@ -282,7 +306,6 @@ app.post('/api/auth', (req, res) => {
     }
 });
 
-// 3. Placing a Bet (Server-side Logic to fix Race Condition)[span_11](start_span)[span_11](end_span)
 app.post('/api/bet', (req, res) => {
     const { phone, game, type, num, amount } = req.body;
     if(!DB.settings.serverActive) return res.json({success: false, msg: "Server ပိတ်ထားပါသည်"});
@@ -300,7 +323,6 @@ app.post('/api/bet', (req, res) => {
     res.json({success: true, balance: user.balance});
 });
 
-// 4. Financial Requests
 app.post('/api/finance', (req, res) => {
     const { type, phone, method, amount, txId, accName, accPhone } = req.body;
     let user = DB.users[phone];
@@ -328,7 +350,6 @@ app.post('/api/finance', (req, res) => {
     saveDB(); res.json({success: true});
 });
 
-// 5. Admin Actions
 app.post('/api/admin', (req, res) => {
     const { phone, action, data } = req.body;
     if(phone !== 'admin' && phone !== 'Asrissrk') return res.json({success: false});
