@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ==========================================
-// 🔥 Bot Token များ
+// 🔥 Bot Token များ (လုံခြုံရေးအရ Environment Variables သုံးရန် အကြံပြုပါသည်)
 // ==========================================
 const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
@@ -86,7 +86,7 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
 });
 
 // ==========================================
-// 🔥 Bot Commands (Finance & User)
+// 🔥 Bot Commands (Finance)
 // ==========================================
 botFinance.onText(/\/admin/, (msg) => { botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); });
 
@@ -108,7 +108,7 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     saveDB();
 });
 
-// ငွေသွင်း ပယ်ဖျက် (Reject Deposit)
+// 📌 ငွေသွင်း ပယ်ဖျက် (Reject Deposit) [အသစ် ထည့်သွင်းထားသော အပိုင်း]
 botFinance.onText(/\/depno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
@@ -121,14 +121,12 @@ botFinance.onText(/\/depno (\w+)/, (msg, match) => {
     }
 });
 
-// ငွေထုတ် အတည်ပြု
 botFinance.onText(/\/wdok (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
     if(p) { p.status = 'approved'; saveDB(); botFinance.sendMessage(msg.chat.id, `✅ ငွေထုတ် အတည်ပြုပြီးပါပြီ။`); }
 });
 
-// ငွေထုတ် ပယ်ဖျက် (Refund)
 botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
@@ -140,10 +138,12 @@ botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     }
 });
 
-// User Bot Commands
-botUser.onText(/\/admin/, (msg) => {
-    DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
-    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`);
+// ==========================================
+// 🔥 Bot Commands (User Bot - ပြင်ဆင်ပြီး)
+// ==========================================
+botUser.onText(/\/admin/, (msg) => { 
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
+    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
 });
 
 botUser.onText(/\/check (\w+)/, (msg, match) => {
@@ -163,7 +163,7 @@ botUser.onText(/\/users/, (msg) => {
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
 });
 
-// User Bot Catch-all for /admin mapping fallback
+// User Bot အား /admin ကို အမြဲတမ်း တုံ့ပြန်နိုင်စေရန် ထပ်ဆောင်းရေးသားချက်
 botUser.on('message', (msg) => {
     if (msg.text === '/admin') {
         DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
@@ -260,7 +260,7 @@ function drawResult(game, blockIndex, dur) {
 }
 
 // ==========================================
-// 🔥 REST APIs 
+// 🔥 REST APIs
 // ==========================================
 app.get('/', (req, res) => res.send('Server Running'));
 
@@ -333,7 +333,7 @@ app.post('/api/bet', (req, res) => {
     if(rem < 5000) return res.json({success: false, msg: "ပွဲပိတ်ထားပါပြီ။"});
     if(user.balance < amount) return res.json({success: false, msg: "လက်ကျန်ငွေ မလုံလောက်ပါ"});
 
-    user.balance -= amount; 
+    user.balance -= amount; // Deduct safely on server
     DB.games[game].bets.push({ userKey: phone, type, num, amount });
     saveDB();
     res.json({success: true, balance: user.balance});
