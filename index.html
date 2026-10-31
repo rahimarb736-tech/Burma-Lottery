@@ -194,40 +194,63 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .btn-cancel { background: #e0e0e0; color: #555; } 
 .btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
 
-/* --- Win/Lose Popup Design --- */
-.result-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(5px); }
+/* --- 🔥 အသစ်ပြင်ဆင်ထားသော Win/Lose Popup Design 🔥 --- */
+.result-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(4px); }
 .result-popup-overlay.show { opacity: 1; pointer-events: auto; }
-.ck-popup-card { width: 310px; border-radius: 20px; padding: 45px 15px 25px; text-align: center; position: relative; transform: scale(0.7) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.result-popup-overlay.show .ck-popup-card { transform: scale(1) translateY(0); }
-.ck-popup-card.win { background: linear-gradient(180deg, #ff4c29 0%, #d82b12 100%); border: 3px solid #ff9a44; box-shadow: 0 20px 50px rgba(255, 76, 41, 0.4); }
-.ck-popup-card.lose { background: linear-gradient(180deg, #d3e0ea 0%, #a8c0d6 100%); border: 3px solid #f1f6f9; box-shadow: 0 20px 50px rgba(168, 192, 214, 0.4); }
-.ck-popup-header-icon { position: absolute; top: -55px; left: 50%; transform: translateX(-50%); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; z-index: 2; }
-.ck-popup-card.win .ck-popup-header-icon { background: radial-gradient(circle, #ffd54f 0%, #ff9800 100%); border: 4px solid #fff; box-shadow: 0 5px 15px rgba(255, 152, 0, 0.6); }
-.ck-popup-card.lose .ck-popup-header-icon { background: radial-gradient(circle, #eceff1 0%, #b0bec5 100%); border: 4px solid #fff; box-shadow: 0 5px 15px rgba(176, 190, 197, 0.6); }
-.ck-popup-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-.ck-popup-card.win .ck-popup-title { color: #ffffff; }
-.ck-popup-card.lose .ck-popup-title { color: #2c3e50; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-.ck-popup-subtitle { font-size: 13px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.ck-popup-card.win .ck-popup-subtitle { color: #ffebee; }
-.ck-popup-card.lose .ck-popup-subtitle { color: #455a64; }
-.ck-popup-tags { display: flex; align-items: center; justify-content: center; gap: 6px; }
-.ck-tag { padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; color: white; display: inline-block; text-shadow: 0 1px 2px rgba(0,0,0,0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.ck-tag.green { background: #10b981; } .ck-tag.red { background: #ef4444; } .ck-tag.purple { background: #8b5cf6; } .ck-tag.blue { background: #3b82f6; } .ck-tag.orange { background: #f59e0b; }
-.ck-tag.multi { background: linear-gradient(135deg, #8b5cf6 50%, #ef4444 50%); } .ck-tag.multi2 { background: linear-gradient(135deg, #8b5cf6 50%, #10b981 50%); }
-.ck-tag.num-tag { font-size: 16px; padding: 2px 10px; border-radius: 50%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.8); }
-.ck-paper-scroll { background: #fff; border-radius: 4px; margin: 20px 10px 15px; padding: 20px 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-.ck-paper-scroll::before, .ck-paper-scroll::after { content: ''; position: absolute; left: -10px; right: -10px; height: 16px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); z-index: 3; }
-.ck-popup-card.win .ck-paper-scroll::before, .ck-popup-card.win .ck-paper-scroll::after { background: linear-gradient(180deg, #ffca28, #f57c00); }
-.ck-popup-card.lose .ck-paper-scroll::before, .ck-popup-card.lose .ck-paper-scroll::after { background: linear-gradient(180deg, #cfd8dc, #90a4ae); }
-.ck-paper-scroll::before { top: -8px; } .ck-paper-scroll::after { bottom: -8px; }
-.ck-scroll-title { font-weight: bold; font-size: 15px; margin-bottom: 5px; }
-.ck-scroll-amt { font-weight: 900; font-size: 32px; letter-spacing: -1px; margin-bottom: 12px; }
-.ck-popup-card.win .ck-scroll-title { color: #d82b12; } .ck-popup-card.win .ck-scroll-amt { color: #d82b12; }
-.ck-popup-card.lose .ck-scroll-title { color: #455a64; } .ck-popup-card.lose .ck-scroll-amt { color: #455a64; font-size: 26px; }
-.ck-scroll-period { font-size: 10px; color: #777; border-top: 1px dashed #ddd; padding-top: 10px; font-family: monospace; }
-.ck-auto-close { margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; gap: 5px; }
-.ck-popup-card.lose .ck-auto-close { color: #455a64; }
-.countdown-circle { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; font-weight: bold; font-size: 11px; }
+.popup-container { display: flex; flex-direction: column; align-items: center; transform: scale(0.8) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 320px; }
+.result-popup-overlay.show .popup-container { transform: scale(1) translateY(0); }
+
+.ck-popup-card { width: 100%; border-radius: 20px; position: relative; display: flex; flex-direction: column; padding-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+.ck-popup-card.win { background: linear-gradient(180deg, #fba128 0%, #f68916 100%); }
+.ck-popup-card.lose { background: linear-gradient(180deg, #c4d7ed 0%, #aabdd4 100%); }
+
+.popup-header-art { position: relative; margin-top: -55px; display: flex; flex-direction: column; align-items: center; z-index: 10;}
+.rocket-bg { width: 105px; height: 105px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 4px solid #fff; position: relative; z-index: 5; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+.ck-popup-card.win .rocket-bg { background: linear-gradient(180deg, #ffde6a 0%, #f69d14 100%); }
+.ck-popup-card.lose .rocket-bg { background: linear-gradient(180deg, #e4eaf0 0%, #b2c5d8 100%); }
+.rocket-icon { width: 48px; height: 48px; color: #fff; }
+
+.ribbon-banner { width: 100%; text-align: center; margin-top: 15px; margin-bottom: 5px; z-index: 4; position: relative; padding: 0 10px;}
+.ribbon-text { font-size: 23px; font-weight: 900; line-height: 1.4; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.ck-popup-card.lose .ribbon-text { color: #5b7b9e; text-shadow: 0 1px 0px rgba(255,255,255,0.7); font-size: 26px; }
+
+.popup-body { padding: 0 25px; }
+.result-label { font-size: 13px; font-weight: bold; margin-bottom: 12px; }
+.ck-popup-card.win .result-label { color: #b75204; }
+.ck-popup-card.lose .result-label { color: #5a7698; }
+
+.ck-popup-tags { display: flex; align-items: center; gap: 6px; margin-bottom: 25px; flex-wrap: wrap; }
+.ck-tag { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; color: white; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+.ck-tag.green { background: linear-gradient(135deg, #10b981, #059669); } 
+.ck-tag.red { background: linear-gradient(135deg, #ef4444, #dc2626); } 
+.ck-tag.purple { background: linear-gradient(135deg, #a855f7, #7e22ce); } 
+.ck-tag.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); } 
+.ck-tag.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.ck-tag.multi { background: linear-gradient(135deg, #a855f7 50%, #ef4444 50%); } 
+.ck-tag.multi2 { background: linear-gradient(135deg, #a855f7 50%, #10b981 50%); }
+.ck-tag.num-tag { font-size: 16px; width: 26px; height: 26px; border-radius: 50%; padding: 0; border: 2px solid rgba(255,255,255,0.5); }
+
+.paper-slot-container { position: relative; margin-top: 10px; }
+.paper-slot { height: 16px; border-radius: 20px; box-shadow: inset 0 5px 8px rgba(0,0,0,0.3); position: relative; z-index: 10; margin: 0 15px; }
+.ck-popup-card.win .paper-slot { background: #cd680a; }
+.ck-popup-card.lose .paper-slot { background: #8ba2b9; }
+
+.paper-scroll { background: #fdfdfd; border-radius: 0 0 8px 8px; margin: -8px 18px 0; padding: 25px 15px 15px; position: relative; z-index: 5; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-align: center; border-bottom: 2px solid #eaeaea; }
+.ck-scroll-title { font-weight: 800; font-size: 14px; margin-bottom: 5px; }
+.ck-popup-card.win .ck-scroll-title { color: #ee4957; }
+.ck-popup-card.lose .ck-scroll-title { color: #5b7b9e; display: none; }
+.ck-scroll-amt { font-weight: 900; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 12px; }
+.ck-popup-card.win .ck-scroll-amt { color: #ee4957; }
+.ck-popup-card.lose .ck-scroll-amt { color: #5b7b9e; font-size: 30px; margin-bottom: 5px; }
+.ck-scroll-period { font-size: 10px; color: #a1a1a1; padding-top: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ck-auto-close { margin-top: 25px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; }
+.ck-popup-card.win .ck-auto-close { color: #a25506; }
+.ck-popup-card.lose .ck-auto-close { color: #6983a0; }
+.circle-check { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; }
+
+.popup-close-btn { margin-top: 20px; width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: transparent; color: #fff; font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; padding: 0; line-height: 1; opacity: 0.8; }
+.popup-close-btn:active { transform: scale(0.9); opacity: 1; background: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
@@ -580,28 +603,42 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
+<!-- 🔥 ပြင်ဆင်ထားသော Win/Lose Popup 🔥 -->
 <div id="resultPopupOverlay" class="result-popup-overlay">
-  <div id="ckPopupCard" class="ck-popup-card win">
-    <div class="ck-popup-header-icon">🚀</div>
-    <div class="ck-popup-title" id="ckPopupTitle">သင်အနိုင်ရရှိအတွက်<br>ဂုဏ်ယူပါသည်</div>
-    
-    <div class="ck-popup-subtitle" id="ckPopupSubtitleText">ထီပေါက်ရလဒ်များ: 
-      <div class="ck-popup-tags">
-        <span class="ck-tag" id="resTagColor">အစိမ်း</span>
-        <span class="ck-tag num-tag" id="resTagNum">5</span>
-        <span class="ck-tag" id="resTagSize">အကြီး</span>
+  <div class="popup-container">
+      <div id="ckPopupCard" class="ck-popup-card win">
+        <div class="popup-header-art">
+            <div class="rocket-bg">
+                <svg class="rocket-icon" viewBox="0 0 24 24" fill="currentColor">
+                   <path d="M12 2C12 2 6 7 6 14C6 16.5 7.5 18 7.5 18L6 22H9L10.5 19H13.5L15 22H18L16.5 18C16.5 18 18 16.5 18 14C18 7 12 2 12 2ZM12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11Z"/>
+                </svg>
+            </div>
+            <div class="ribbon-banner">
+                <div class="ribbon-text" id="ckPopupTitle">သင်အနိုင်ရတဲ့အတွက်<br>ဂုဏ်ယူပါတယ်</div>
+            </div>
+        </div>
+
+        <div class="popup-body">
+            <div class="result-label">ထီပေါက်ရလဒ်များ:</div>
+            <div class="ck-popup-tags" id="resTagsContainer">
+                <!-- JS မှ Tag များ အလိုအလျောက် ဝင်မည် -->
+            </div>
+
+            <div class="paper-slot-container">
+                <div class="paper-slot"></div>
+                <div class="paper-scroll">
+                    <div class="ck-scroll-title" id="ckScrollTitle">ဘောနပ်စ်</div>
+                    <div class="ck-scroll-amt" id="ckTicketAmt">K1,960.00</div>
+                    <div class="ck-scroll-period" id="ckTicketPeriod">ပွဲအမှတ်စဉ်: 30 second...</div>
+                </div>
+            </div>
+
+            <div class="ck-auto-close">
+               <div class="circle-check"></div> <span id="ckCountdown">3</span> စက္ကန့် အလိုအလျောက်ပိတ်မည်။
+            </div>
+        </div>
       </div>
-    </div>
-    
-    <div class="ck-paper-scroll">
-      <div class="ck-scroll-title" id="ckScrollTitle">ဘောနပ်စ်</div>
-      <div class="ck-scroll-amt" id="ckTicketAmt">+K 1,960.00</div>
-      <div class="ck-scroll-period" id="ckTicketPeriod">ပွဲအမှတ်စဉ်: 30 second...</div>
-    </div>
-    
-    <div class="ck-auto-close">
-       <span class="countdown-circle" id="ckCountdown">3</span> <span>စက္ကန့် အလိုအလျောက်ပိတ်မည်။</span>
-    </div>
+      <button class="popup-close-btn" onclick="closeResultPopup()">✕</button>
   </div>
 </div>
 
@@ -965,17 +1002,48 @@ function renderUserLinks() {
     container.innerHTML = DB.settings.links.map(l => `<a href="${l.url}" target="_blank" style="display:block; padding:14px; background:${l.color}; color:white; border-radius:12px; margin-bottom:10px; text-decoration:none; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align:center;">${l.label}</a>`).join('');
 }
 
+// 🔥 JS ရလဒ်ပြ Popup အပိုင်း (အသစ်)
 function showResult(win, amt, num, period, gameKey) {
-  const card = $('ckPopupCard'); let isBig = num >= 5;
-  if(win) { card.className = 'ck-popup-card win'; $('ckPopupTitle').innerHTML = 'သင်အနိုင်ရရှိအတွက်<br>ဂုဏ်ယူပါသည်'; $('ckScrollTitle').innerText = 'ဘောနပ်စ်'; $('ckTicketAmt').innerText = '+K ' + amt.toLocaleString() + '.00'; } 
-  else { card.className = 'ck-popup-card lose'; $('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ'; $('ckScrollTitle').innerText = 'မနိုင်ပါ'; $('ckTicketAmt').innerText = '-K ' + amt.toLocaleString() + '.00'; }
-  let colorClass = num===0?'multi':num===5?'multi2':[1,3,7,9].includes(num)?'green':'red';
-  $('resTagColor').className = 'ck-tag ' + colorClass; $('resTagNum').innerText = num; $('resTagNum').className = 'ck-tag num-tag ' + colorClass; $('resTagSize').innerText = isBig ? 'အကြီး' : 'အသေး'; $('resTagSize').className = 'ck-tag ' + (isBig ? 'orange' : 'blue');
-  let gameName = gameKey === 'wingo30s' ? '30 second' : gameKey === 'wingo1m' ? '1 Min' : gameKey === 'wingo3m' ? '3 Min' : '5 Min';
-  $('ckTicketPeriod').innerText = `ပွဲအမှတ်စဉ်: ${gameName} ${period}`; $('resultPopupOverlay').classList.add('show');
-  let c = 3; $('ckCountdown').innerText = c; if(popupTimer) clearInterval(popupTimer);
-  popupTimer = setInterval(() => { c--; if(c<=0) { clearInterval(popupTimer); closeResultPopup(); } else $('ckCountdown').innerText = c; }, 1000);
+    const card = $('ckPopupCard'); 
+    let isBig = num >= 5;
+    let gameName = gameKey === 'wingo30s' ? '30 second' : gameKey === 'wingo1m' ? '1 Min' : gameKey === 'wingo3m' ? '3 Min' : '5 Min';
+    
+    if (win) { 
+        card.className = 'ck-popup-card win'; 
+        $('ckPopupTitle').innerHTML = 'သင်အနိုင်ရတဲ့အတွက်<br>ဂုဏ်ယူပါတယ်'; 
+        $('ckScrollTitle').style.display = 'block';
+        $('ckScrollTitle').innerText = 'ဘောနပ်စ်'; 
+        $('ckTicketAmt').innerText = 'K' + amt.toLocaleString() + '.00'; 
+    } else { 
+        card.className = 'ck-popup-card lose'; 
+        $('ckPopupTitle').innerHTML = 'ကံမကောင်းပါ'; 
+        $('ckScrollTitle').style.display = 'none';
+        $('ckTicketAmt').innerText = 'မနိုင်ပါ'; 
+    }
+    
+    let tagsHtml = '';
+    if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
+    else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
+    else if ([1,3,7,9].includes(num)) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span>`; } 
+    else { tagsHtml += `<span class="ck-tag red">အနီ</span>`; }
+    
+    let colorClass = num===0?'multi':num===5?'multi2':[1,3,7,9].includes(num)?'green':'red';
+    tagsHtml += `<span class="ck-tag num-tag ${colorClass}">${num}</span>`;
+    tagsHtml += `<span class="ck-tag ${isBig ? 'orange' : 'blue'}">${isBig ? 'အကြီး' : 'အသေး'}</span>`;
+    
+    $('resTagsContainer').innerHTML = tagsHtml;
+    $('ckTicketPeriod').innerText = `ပွဲအမှတ်စဉ်: ${gameName} ${period}`; 
+    $('resultPopupOverlay').classList.add('show');
+    
+    let c = 3; $('ckCountdown').innerText = c; 
+    if(popupTimer) clearInterval(popupTimer);
+    popupTimer = setInterval(() => { 
+        c--; 
+        if(c<=0) { clearInterval(popupTimer); closeResultPopup(); } 
+        else { $('ckCountdown').innerText = c; } 
+    }, 1000);
 }
+
 window.closeResultPopup = function() { if(popupTimer) clearInterval(popupTimer); $('resultPopupOverlay').classList.remove('show'); };
 window.showRules = function() { let r = `<div style="text-align:left; font-size:13px; line-height:1.6; color:#444;"><p><b>၁။ အကြီး / အသေး</b><br>- <b>အသေး:</b> 0-4 <br>- <b>အကြီး:</b> 5-9 <br>(<b>၂ ဆ</b> ရမည်)</p><p><b>၂။ အရောင်</b><br>- <b>အစိမ်း:</b> 1,3,7,9 (<b>၂ ဆ</b>), 5 (<b>၁.၅ ဆ</b>)<br>- <b>အနီ:</b> 2,4,6,8 (<b>၂ ဆ</b>), 0 (<b>၁.၅ ဆ</b>)<br>- <b>ခရမ်း:</b> 0,5 (<b>၄.၅ ဆ</b>)</p><p><b>၃။ နံပါတ်</b><br>- 0-9 (<b>၉ ဆ</b>)</p><p style="color:#ef4444; font-size:11px;">* ၂% ဝန်ဆောင်ခ နှုတ်ပါမည်။</p></div>`; openInfo('ကစားနည်း', r); };
 window.openInfo = function(title, body) { text('infoTitle', title); $('infoBody').innerHTML = body; $('infoOverlay').classList.add('show'); };
