@@ -292,7 +292,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div class="input-wrap">
           <label>စကားဝှက်</label>
           <input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required>
-          <!-- 🔒 မျက်စိပုံစံခလုတ် -->
           <button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">
               <svg><use href="#i-eye-off"/></svg>
           </button>
@@ -692,7 +691,6 @@ async function apiCall(endpoint, data = {}) {
             body: JSON.stringify(data)
         });
         const result = await res.json();
-        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Force Logout)
         if (result.forceLogout) {
             toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
             localStorage.removeItem('wingo_session');
@@ -722,7 +720,6 @@ function syncState() {
     fetch(`${BACKEND_URL}/api/sync?phone=${sessionPhone}&sessionId=${currentSessionId}`, { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {
-        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Sync)
         if (data.sessionValid === false) {
              toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
              localStorage.removeItem('wingo_session');
@@ -777,11 +774,9 @@ document.addEventListener('click', function initAudio() {
   if(audioCtx.state === 'suspended') audioCtx.resume();
 }, {once:true});
 
-// 🔥 အသံမြည်ခြင်းကို သေချာ ထိန်းချုပ်ထားသော function
 function playBeep() { 
     if(!isSoundOn || !audioCtx) return;
     if($('view-game').classList.contains('hidden')) return;
-
     try { 
         if(audioCtx.state === 'running') { 
             let osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); 
@@ -887,7 +882,6 @@ function renderHistory() {
 }
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 
-// 🔥 10k တွင် ရွေးချယ်မှု မှတ်မိနေသော ပြဿနာအား ဖြေရှင်းထားသော openBetSheet
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
@@ -1095,7 +1089,7 @@ function renderUserLinks() {
     container.innerHTML = DB.settings.links.map(l => `<a href="${l.url}" target="_blank" style="display:block; padding:14px; background:${l.color}; color:white; border-radius:12px; margin-bottom:10px; text-decoration:none; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align:center;">${l.label}</a>`).join('');
 }
 
-// 🔥 JS ရလဒ်ပြ Popup အပိုင်း (အရှုံးအတွက် null ပြသမှု ဖြေရှင်းပြီး)
+// 🔥 JS ရလဒ်ပြ Popup အပိုင်း
 function showResult(win, amt, num, period, gameKey) {
     const card = $('ckPopupCard'); 
     let isBig = num >= 5;
@@ -1115,7 +1109,6 @@ function showResult(win, amt, num, period, gameKey) {
     }
     
     let tagsHtml = '';
-    // Null ပြဿနာ မဖြစ်စေရန် အတိအကျ စစ်ဆေးပေးခြင်း
     if (num !== null && num !== undefined) {
         if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
         else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
@@ -1147,4 +1140,4 @@ window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
 window.showHelp = function() { switchTab('profile'); };
 </script>
 </body>
-            </html>
+    </html>
