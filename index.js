@@ -83,15 +83,19 @@ loadDB();
 // 🔥 Bot Commands (Set Bot)
 // ==========================================
 botSet.onText(/\/admin/, (msg) => { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botSet.sendMessage(msg.chat.id, `✅ Set Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); });
+
+// 🛠 ဤနေရာတွင် Auto Draw မပိတ်စေရန် အမှန်ပြင်ထားပါသည်
 botSet.onText(/\/set (30s|1m|3m|5m) (\d)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let input = match[1]; const num = parseInt(match[2]);
     let game = input === '30s' ? 'wingo30s' : input === '1m' ? 'wingo1m' : input === '3m' ? 'wingo3m' : 'wingo5m';
     if (num >= 0 && num <= 9) {
-        DB.settings.manualNum[game] = num; DB.settings.autoDraw[game] = false; saveDB();
-        botSet.sendMessage(msg.chat.id, `🎯 ${input} အတွက် ဂဏန်း [ ${num} ] အား ကြိုတင်သတ်မှတ်ပြီးပါပြီ။`);
+        DB.settings.manualNum[game] = num; 
+        saveDB();
+        botSet.sendMessage(msg.chat.id, `🎯 ${input} အတွက် ဂဏန်း [ ${num} ] အား ဒီတစ်ပွဲစာအတွက် ကြိုတင်သတ်မှတ်ပြီးပါပြီ။ နောက်ပွဲများတွင် Auto Draw ပြန်အလုပ်လုပ်ပါမည်။`);
     }
 });
+
 botSet.onText(/\/profit(.*)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const type = match[1].trim().toLowerCase();
@@ -367,7 +371,7 @@ app.post('/api/finance', (req, res) => {
 
     let user = DB.users[phone];
     if(!user) return res.json({success: false});
-    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ ဝင်ရောက်ထားသည်", forceLogout: true});
+    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true});
     
     let dStr = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
     let tid = `${type === 'deposit' ? 'DP' : 'WD'}-${dStr}-${Math.floor(1000+Math.random()*9000)}`;
@@ -388,8 +392,8 @@ app.post('/api/finance', (req, res) => {
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     }
-
-    // 🔥 မှတ်တမ်းအဟောင်းများ (၅၀၀) ထက်ကျော်လျှင် ဖြတ်ထုတ်မည်
+    
+    // မှတ်တမ်းအဟောင်းများ (၅၀၀) ထက်ကျော်လျှင် ဖြတ်ထုတ်မည်
     if (DB.transactions.length > 500) {
         DB.transactions = DB.transactions.slice(-500);
     }
@@ -407,7 +411,8 @@ app.post('/api/admin', (req, res) => {
     else if(action === 'deleteLink') { DB.settings.links.splice(data, 1); }
     else if(action === 'toggleServer') { DB.settings.serverActive = data; }
     else if(action === 'toggleAutoDraw') { DB.settings.autoDraw[data.game] = data.val; }
-    else if(action === 'setManual') { DB.settings.manualNum[data.game] = data.val; DB.settings.autoDraw[data.game] = false; }
+    // 🛠 ဤနေရာတွင် Auto Draw မပိတ်စေရန် အမှန်ပြင်ထားပါသည်
+    else if(action === 'setManual') { DB.settings.manualNum[data.game] = data.val; }
     else if(action === 'adjustBalance') {
         let u = Object.keys(DB.users).find(k => DB.users[k].id === data.uid);
         if(u) {
