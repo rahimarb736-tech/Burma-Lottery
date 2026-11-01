@@ -1,10 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+const fetch = require('node-fetch');
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.set('trust proxy', true);
 
 // ==========================================
 // 🔥 Firebase Database ချိတ်ဆက်မှု
@@ -12,7 +14,7 @@ app.use(express.json({ limit: '10mb' }));
 const FIREBASE_URL = 'https://burmalottery-68256-default-rtdb.asia-southeast1.firebasedatabase.app/db.json';
 
 // ==========================================
-// 🔥 Bot Token များ (လုံခြုံရေးအရ Environment Variables သုံးရန် အကြံပြုပါသည်)
+// 🔥 Bot Token များ
 // ==========================================
 const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
@@ -28,7 +30,7 @@ const botUser = new TelegramBot(USER_BOT_TOKEN, { polling: true });
 let DB;
 
 const DEFAULT_DB = {
-    users: {},
+    users: {}, 
     settings: { adminChatId: null, kpayPhone: '09xxxxxxxxx', wavePhone: '09xxxxxxxxx', autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
     transactions: [],
     currentGame: 'wingo30s',
@@ -70,20 +72,17 @@ async function saveDB() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(DB)
         });
-    } catch (e) { 
-        console.error("Firebase Save Error"); 
-    }
+    } catch (e) { console.error("Firebase Save Error"); }
 }
 
 function isAdmin(chatId) { return DB.settings.adminChatId && chatId.toString() === DB.settings.adminChatId.toString(); }
 
-loadDB(); // Server စတက်သည်နှင့် Firebase မှ Data လှမ်းယူမည်
+loadDB(); 
 
 // ==========================================
 // 🔥 Bot Commands (Set Bot)
 // ==========================================
 botSet.onText(/\/admin/, (msg) => { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botSet.sendMessage(msg.chat.id, `✅ Set Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); });
-
 botSet.onText(/\/set (30s|1m|3m|5m) (\d)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let input = match[1]; const num = parseInt(match[2]);
@@ -93,7 +92,6 @@ botSet.onText(/\/set (30s|1m|3m|5m) (\d)/, (msg, match) => {
         botSet.sendMessage(msg.chat.id, `🎯 ${input} အတွက် ဂဏန်း [ ${num} ] အား ကြိုတင်သတ်မှတ်ပြီးပါပြီ။`);
     }
 });
-
 botSet.onText(/\/profit(.*)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const type = match[1].trim().toLowerCase();
@@ -112,86 +110,61 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
 // 🔥 Bot Commands (Finance)
 // ==========================================
 botFinance.onText(/\/admin/, (msg) => { botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); });
-
-// ငွေသွင်း အတည်ပြု/ဖြတ်
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const cmd = match[1], uid = match[2], amt = parseInt(match[3]);
     let uKey = Object.keys(DB.users).find(k => DB.users[k].id === uid);
     if(!uKey) return botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} မတွေ့ပါ။`);
+    
+    // 🔒 Security: Check negative values (Admin Bot ရိုက်ရာတွင် အမှားကာကွယ်ခြင်း)
+    if (amt <= 0 || isNaN(amt)) return botFinance.sendMessage(msg.chat.id, `❌ ပမာဏ မှားယွင်းနေပါသည်။`);
+
     if(cmd === 'add') {
         DB.users[uKey].balance += amt;
         let p = DB.transactions.find(t => t.uid === uid && t.type === 'deposit' && t.status === 'pending');
         if(p) p.status = 'approved';
         botFinance.sendMessage(msg.chat.id, `✅ ငွေသွင်းပြီးပါပြီ။ UID: ${uid} | လက်ကျန်: ${DB.users[uKey].balance.toLocaleString()} Ks`);
     } else {
+        if (DB.users[uKey].balance < amt) return botFinance.sendMessage(msg.chat.id, `❌ User လက်ကျန်မလောက်ပါ။`);
         DB.users[uKey].balance -= amt;
         botFinance.sendMessage(msg.chat.id, `✅ ငွေဖြတ်ပြီးပါပြီ။ UID: ${uid}`);
     }
     saveDB();
 });
-
-// ငွေသွင်း ပယ်ဖျက် (Reject Deposit)
 botFinance.onText(/\/depno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const uid = match[1];
     let p = DB.transactions.find(t => t.uid === uid && t.type === 'deposit' && t.status === 'pending');
-    if(p) { 
-        p.status = 'rejected'; saveDB(); 
-        botFinance.sendMessage(msg.chat.id, `🚫 UID: ${uid} ၏ ငွေသွင်းတောင်းဆိုမှုကို ပယ်ဖျက် (Rejected) လိုက်ပါပြီ။`); 
-    } else {
-        botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေသွင်းတောင်းဆိုမှု မရှိပါ။`);
-    }
+    if(p) { p.status = 'rejected'; saveDB(); botFinance.sendMessage(msg.chat.id, `🚫 UID: ${uid} ၏ ငွေသွင်းတောင်းဆိုမှုကို ပယ်ဖျက် (Rejected) လိုက်ပါပြီ။`); } 
+    else { botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} တွင် စောင့်ဆိုင်းနေသော ငွေသွင်းတောင်းဆိုမှု မရှိပါ။`); }
 });
-
 botFinance.onText(/\/wdok (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
     if(p) { p.status = 'approved'; saveDB(); botFinance.sendMessage(msg.chat.id, `✅ ငွေထုတ် အတည်ပြုပြီးပါပြီ။`); }
 });
-
 botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let p = DB.transactions.find(t => t.uid === match[1] && t.type === 'withdraw' && t.status === 'pending');
-    if(p) { 
-        p.status = 'rejected'; 
-        let u = Object.keys(DB.users).find(k => DB.users[k].id === match[1]);
-        if(u) DB.users[u].balance += p.amount; // Refund
-        saveDB(); botFinance.sendMessage(msg.chat.id, `🚫 ငွေထုတ်ပယ်ဖျက်ပြီး Refund ပြန်ပေးလိုက်ပါပြီ။`); 
-    }
+    if(p) { p.status = 'rejected'; let u = Object.keys(DB.users).find(k => DB.users[k].id === match[1]); if(u) DB.users[u].balance += p.amount; saveDB(); botFinance.sendMessage(msg.chat.id, `🚫 ငွေထုတ်ပယ်ဖျက်ပြီး Refund ပြန်ပေးလိုက်ပါပြီ။`); }
 });
 
 // ==========================================
-// 🔥 Bot Commands (User Bot - ပြင်ဆင်ပြီး)
+// 🔥 Bot Commands (User Bot)
 // ==========================================
-botUser.onText(/\/admin/, (msg) => { 
-    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
-    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
-});
-
+botUser.onText(/\/admin/, (msg) => { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); });
 botUser.onText(/\/check (\w+)/, (msg, match) => {
-    if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။ (အရင်ဆုံး /admin ဟုရိုက်ပါ)`);
-    const uid = match[1]; 
-    let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid || k === uid);
-    if(userKey) {
-        let u = DB.users[userKey];
-        botUser.sendMessage(msg.chat.id, `👤 အမည်: ${u.name}\nUID: ${u.id}\nဖုန်း: ${u.phone}\nငွေ: ${u.balance.toLocaleString()} Ks\nစကားဝှက်: ${u.pwd}`);
-    } else {
-        botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} ကို ရှာမတွေ့ပါ။`);
-    }
+    if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
+    const uid = match[1]; let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid || k === uid);
+    if(userKey) { let u = DB.users[userKey]; botUser.sendMessage(msg.chat.id, `👤 အမည်: ${u.name}\nUID: ${u.id}\nဖုန်း: ${u.phone}\nငွေ: ${u.balance.toLocaleString()} Ks\nစကားဝှက်: ${u.pwd}`); } 
+    else { botUser.sendMessage(msg.chat.id, `❌ UID: ${uid} ကို ရှာမတွေ့ပါ။`); }
 });
-
 botUser.onText(/\/users/, (msg) => {
     if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
 });
-
-// User Bot အား /admin ကို အမြဲတမ်း တုံ့ပြန်နိုင်စေရန် ထပ်ဆောင်းရေးသားချက်
 botUser.on('message', (msg) => {
-    if (msg.text === '/admin') {
-        DB.settings.adminChatId = msg.chat.id.toString(); saveDB();
-        botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`);
-    }
+    if (msg.text === '/admin') { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); }
 });
 
 // ==========================================
@@ -212,25 +185,27 @@ setInterval(() => {
         const dur = DURATIONS[game]; const currentBlock = Math.floor(timeNow / dur); let g = DB.games[game];
         const rem = dur - (timeNow % dur);
         
-        // Auto Loss Calculation (at 5 seconds remaining)
-        if (rem <= 5000 && rem > 4000 && DB.settings.autoDraw[game] && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
-            let possibleLosses = Array(10).fill(0);
-            g.bets.forEach(b => {
-                for (let i = 0; i <= 9; i++) {
-                    let win = false, mul = 0;
-                    if (b.type === 'num' && b.num === i) { win = true; mul = 9; }
-                    else if (b.type === 'big' && i >= 5) { win = true; mul = 2; }
-                    else if (b.type === 'small' && i < 5) { win = true; mul = 2; }
-                    else if (b.type === 'green' && [1,3,7,9,5].includes(i)) { win = true; mul = (i===5)? 1.5 : 2; }
-                    else if (b.type === 'red' && [2,4,6,8,0].includes(i)) { win = true; mul = (i===0)? 1.5 : 2; }
-                    else if (b.type === 'purple' && [0,5].includes(i)) { win = true; mul = 4.5; }
-                    if (win) possibleLosses[i] += (b.amount * mul * 0.98);
-                }
-            });
-            let minLoss = Math.min(...possibleLosses);
-            let bestNums = [];
-            for(let i=0; i<=9; i++) if(possibleLosses[i] === minLoss) bestNums.push(i);
-            DB.settings.manualNum[game] = bestNums[Math.floor(Math.random() * bestNums.length)];
+        // Auto Loss Calculation
+        if (rem <= 5000 && rem > 4000 && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
+            if (DB.settings.autoDraw[game]) {
+                let possibleLosses = Array(10).fill(0);
+                g.bets.forEach(b => {
+                    for (let i = 0; i <= 9; i++) {
+                        let win = false, mul = 0;
+                        if (b.type === 'num' && b.num === i) { win = true; mul = 9; }
+                        else if (b.type === 'big' && i >= 5) { win = true; mul = 2; }
+                        else if (b.type === 'small' && i < 5) { win = true; mul = 2; }
+                        else if (b.type === 'green' && [1,3,7,9,5].includes(i)) { win = true; mul = (i===5)? 1.5 : 2; }
+                        else if (b.type === 'red' && [2,4,6,8,0].includes(i)) { win = true; mul = (i===0)? 1.5 : 2; }
+                        else if (b.type === 'purple' && [0,5].includes(i)) { win = true; mul = 4.5; }
+                        if (win) possibleLosses[i] += (b.amount * mul * 0.98);
+                    }
+                });
+                let minLoss = Math.min(...possibleLosses);
+                let bestNums = [];
+                for(let i=0; i<=9; i++) if(possibleLosses[i] === minLoss) bestNums.push(i);
+                DB.settings.manualNum[game] = bestNums[Math.floor(Math.random() * bestNums.length)];
+            }
         }
 
         if (g.lastBlock !== currentBlock) {
@@ -246,7 +221,7 @@ function drawResult(game, blockIndex, dur) {
     let periodStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockIndex % 10000}`;
     
     let winNum = DB.settings.manualNum[game] !== null ? DB.settings.manualNum[game] : Math.floor(Math.random() * 10);
-    DB.settings.manualNum[game] = null; // Reset for next draw
+    DB.settings.manualNum[game] = null; 
     
     DB.games[game].history.unshift({ period: periodStr, num: winNum });
     if(DB.games[game].history.length > 100) DB.games[game].history.pop();
@@ -285,24 +260,38 @@ function drawResult(game, blockIndex, dur) {
 }
 
 // ==========================================
-// 🔥 REST APIs
+// 🔥 REST APIs (Security များကို တင်းကျပ်ထားသည်)
 // ==========================================
-app.get('/', (req, res) => res.send('Server Running'));
+app.get('/', (req, res) => res.send('Server Running with Security Fixes'));
 
 app.get('/api/sync', (req, res) => {
-    if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [] });
+    if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [], sessionValid: false });
     let phone = req.query.phone;
+    let sessionId = req.query.sessionId;
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk');
-    let state = { settings: DB.settings, games: {}, user: null, transactions: [] };
+    
+    // 🔒 Security: မျက်စိဖြင့်မြင်ရမည့် Data များကိုသာ ပို့ပေးမည်။ Admin မဟုတ်လျှင် အခြားသူများ၏ အချက်အလက်များကို ဖြတ်ထုတ်မည်။
+    let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true };
     
     if (phone && DB.users[phone]) {
-        state.user = { ...DB.users[phone] };
-        if(!isAdminReq) delete state.user.pwd;
-        state.transactions = DB.transactions.filter(t => t.uid === state.user.id);
+        if (DB.users[phone].sessionId && DB.users[phone].sessionId !== sessionId) {
+            state.sessionValid = false;
+        } else {
+            state.user = { ...DB.users[phone] };
+            delete state.user.pwd; // 🔒 Security: Password များကို Frontend သို့ လုံးဝ မပို့ပါ
+            state.transactions = DB.transactions.filter(t => t.uid === state.user.id);
+        }
     }
     
     if (isAdminReq) {
-        state.users = DB.users;
+        // Admin ဖြစ်မှသာလျှင် User အားလုံး၏ အချက်အလက်များကို ယူခွင့်ပေးမည်
+        let safeUsers = {};
+        for (let u in DB.users) {
+            safeUsers[u] = { ...DB.users[u] };
+            // Admin Panel သို့လည်း Password မပို့ရန် (လိုလျှင် User Bot မှ /check ဖြင့် ကြည့်ပါ)
+            delete safeUsers[u].pwd; 
+        }
+        state.users = safeUsers;
         state.transactions = DB.transactions;
     }
 
@@ -320,30 +309,52 @@ app.get('/api/sync', (req, res) => {
 
 app.post('/api/auth', (req, res) => {
     if (!DB) return res.json({success: false, msg: "Database Loading..."});
-    const { action, phone, pwd, name, inviteCode } = req.body;
+    const { action, phone, pwd, name, inviteCode, sessionId } = req.body;
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown IP';
     
+    // 🔒 Security: Input Validation
+    if (!phone || typeof phone !== 'string' || phone.length > 20) return res.json({success: false, msg: "ဖုန်းနံပါတ် အမှား"});
+    if (!pwd || typeof pwd !== 'string') return res.json({success: false, msg: "စကားဝှက် အမှား"});
+
     if (action === 'login') {
         if(phone === 'Asrissrk' && pwd === 'alihusainandrahimar') {
-            if(!DB.users['admin']) DB.users['admin'] = { id: 'Admin', phone: 'Asrissrk', name: 'Super Admin', pwd, balance: 999999, isAdmin: true };
+            if(!DB.users['admin']) DB.users['admin'] = { id: 'Admin', phone: 'Asrissrk', name: 'Super Admin', pwd, balance: 999999, isAdmin: true, sessionId: sessionId };
+            else DB.users['admin'].sessionId = sessionId;
             saveDB(); return res.json({ success: true, phone: 'admin' });
         }
         let uKey = Object.keys(DB.users).find(k => k === phone || DB.users[k].id === phone);
-        if(uKey && DB.users[uKey].pwd === pwd) return res.json({ success: true, phone: uKey });
+        if(uKey && DB.users[uKey].pwd === pwd) {
+            DB.users[uKey].sessionId = sessionId; 
+            saveDB();
+            return res.json({ success: true, phone: uKey });
+        }
         return res.json({ success: false, msg: "အချက်အလက် မှားယွင်းနေပါသည်" });
     }
     
     if (action === 'register') {
         if(DB.users[phone]) return res.json({ success: false, msg: "အကောင့်ရှိပြီးသားပါ" });
+        
+        let isExistingIp = Object.values(DB.users).some(u => u.ip === ip);
+        
         let bal = 0;
         if(inviteCode) {
             let inviter = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
-            if(inviter) { DB.users[inviter].balance += 1999; bal = 1999; }
-            else return res.json({ success: false, msg: "ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်" });
+            if(inviter) { 
+                if (isExistingIp) {
+                     console.log(`[Anti-Cheat] IP ${ip} tried to claim bonus again.`);
+                } else {
+                     DB.users[inviter].balance += 1999; bal = 1999; 
+                }
+            } else {
+                return res.json({ success: false, msg: "ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်" });
+            }
         }
+        
         let newId = Math.floor(10000 + Math.random() * 90000).toString();
-        DB.users[phone] = { id: newId, phone, name, pwd, balance: bal, isAdmin: false };
+        DB.users[phone] = { id: newId, phone, name: String(name).substring(0, 20), pwd, balance: bal, isAdmin: false, ip: ip, sessionId: sessionId };
+        
         if(DB.settings.adminChatId) {
-            try{ botUser.sendMessage(DB.settings.adminChatId, `🎉 အကောင့်သစ်: ${name} (${newId})`); }catch(e){}
+            try{ botUser.sendMessage(DB.settings.adminChatId, `🎉 အကောင့်သစ်: ${name} (${newId})\nIP: ${ip}${isExistingIp ? ' ⚠️ (IP ထပ်နေပါသည်)' : ''}`); }catch(e){}
         }
         saveDB(); return res.json({ success: true, phone: phone });
     }
@@ -351,11 +362,15 @@ app.post('/api/auth', (req, res) => {
 
 app.post('/api/bet', (req, res) => {
     if (!DB) return res.json({success: false, msg: "Database Error"});
-    const { phone, game, type, num, amount } = req.body;
+    const { phone, game, type, num, amount, sessionId } = req.body;
     if(!DB.settings.serverActive) return res.json({success: false, msg: "Server ပိတ်ထားပါသည်"});
     
+    // 🔒 Security: Check amount prevents negative numbers
+    if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
+
     let user = DB.users[phone];
     if(!user) return res.json({success: false, msg: "User မတွေ့ပါ"});
+    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true}); 
     
     const rem = DURATIONS[game] - (Date.now() % DURATIONS[game]);
     if(rem < 5000) return res.json({success: false, msg: "ပွဲပိတ်ထားပါပြီ။"});
@@ -369,9 +384,14 @@ app.post('/api/bet', (req, res) => {
 
 app.post('/api/finance', (req, res) => {
     if (!DB) return res.json({success: false});
-    const { type, phone, method, amount, txId, accName, accPhone } = req.body;
+    const { type, phone, method, amount, txId, accName, accPhone, sessionId } = req.body;
+    
+    // 🔒 Security: Check amount prevents negative numbers
+    if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
+
     let user = DB.users[phone];
     if(!user) return res.json({success: false});
+    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true});
     
     let dStr = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
     let tid = `${type === 'deposit' ? 'DP' : 'WD'}-${dStr}-${Math.floor(1000+Math.random()*9000)}`;
@@ -379,13 +399,13 @@ app.post('/api/finance', (req, res) => {
     if(type === 'withdraw') {
         if(user.balance < amount) return res.json({success: false, msg: "လက်ကျန်မလုံလောက်ပါ"});
         user.balance -= amount;
-        DB.transactions.push({ id: tid, uid: user.id, type, method, amount, accName, accPhone, status: 'pending', date: new Date().toLocaleString() });
+        DB.transactions.push({ id: tid, uid: user.id, type, method, amount, accName: String(accName).substring(0, 30), accPhone: String(accPhone).substring(0, 20), status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
             let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks\n\nအတည်ပြုရန်: <code>/wdok ${user.id}</code>\nပယ်ဖျက်ရန်: <code>/wdno ${user.id}</code>`;
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     } else {
-        DB.transactions.push({ id: tid, uid: user.id, type, method, amount, txId, status: 'pending', date: new Date().toLocaleString() });
+        DB.transactions.push({ id: tid, uid: user.id, type, method, amount, txId: String(txId).substring(0, 30), status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
             let bonus = Math.floor(amount * 0.05);
             let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks (+ ${bonus} Bonus)\n▫️ TxID: ${txId}\n\nအတည်ပြုရန်: <code>/add ${user.id} ${amount + bonus}</code>\nပယ်ဖျက်ရန်: <code>/depno ${user.id}</code>`;
@@ -413,4 +433,4 @@ app.post('/api/admin', (req, res) => {
     saveDB(); res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Server running with Firebase'));
+app.listen(process.env.PORT || 3000, () => console.log('Server running with Security Fixes'));
