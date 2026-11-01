@@ -119,7 +119,12 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .input-wrap { position: relative; }
 .auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; outline:none; }
 .auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
-.eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; font-size: 16px; }
+
+/* 🔒 မျက်စိပုံစံ CSS (အသစ်ပြင်ဆင်ထားသည်) */
+.eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; display: grid; place-items: center; border: none; cursor: pointer; transition: 0.2s; }
+.eye-icon:hover { color: var(--red); }
+.eye-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
 .btn-main { width: 100%; padding: 12px; border-radius: 25px; background: var(--gradient); color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 9px #f3464920; margin-top: 3px; transition: 0.1s; border:none; cursor:pointer;}
 .btn-main:active { transform: scale(0.97); }
 
@@ -255,6 +260,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 </head>
 <body>
 
+<!-- 🔒 Password ဖျောက်/ပေါ် မျက်စိပုံအတွက် SVG ပေါင်းထည့်ထားပါသည် -->
 <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6M12 2v3M18 5l2 2"/></symbol>
 <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7M20 11h-6v6h6"/><circle cx="16" cy="14" r=".5"/></symbol>
@@ -264,6 +270,8 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5zM15 8a6 6 0 0 1 0 8M18 4a11 11 0 0 1 0 16"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 3h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v17h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4zM12 4v17M7 7h2M15 7h2M7 11h2M15 11h2"/></symbol>
 <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+<symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></symbol>
 </defs></svg>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -281,14 +289,29 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
     <form id="formLogin" class="auth-form" onsubmit="event.preventDefault();doLogin()">
       <div class="input-wrap"><label>ဖုန်းနံပါတ် (သို့) ID</label><input type="text" id="loginPhone" placeholder="09xxxxxxxxx" required></div>
-      <div class="input-wrap"><label>စကားဝှက်</label><input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">◉</button></div>
+      <div class="input-wrap">
+          <label>စကားဝှက်</label>
+          <input type="password" id="loginPwd" placeholder="စကားဝှက် ထည့်ပါ" required>
+          <!-- 🔒 မျက်စိပုံစံခလုတ် -->
+          <button type="button" class="eye-icon" onclick="togglePassword('loginPwd',this)">
+              <svg><use href="#i-eye-off"/></svg>
+          </button>
+      </div>
       <button class="btn-main" type="submit" id="btnLoginSub">အကောင့်ဝင်မည်</button>
     </form>
     <form id="formSignup" class="auth-form hidden" onsubmit="event.preventDefault();doSignup()">
       <div class="input-wrap"><label>ဖုန်းနံပါတ် (မြန်မာနံပါတ်မှန်ရန်)</label><input type="tel" id="signPhone" placeholder="09xxxxxxxxx" required></div>
       <div class="input-wrap"><label>အမည်</label><input type="text" id="signName" placeholder="သင့်အမည်" required></div>
-      <div class="input-wrap"><label>စကားဝှက်</label><input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)">◉</button></div>
-      <div class="input-wrap"><label>စကားဝှက် အတည်ပြုရန်</label><input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required><button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)">◉</button></div>
+      <div class="input-wrap">
+          <label>စကားဝှက်</label>
+          <input type="password" id="signPwd" placeholder="အနည်းဆုံး ၆ လုံး" required>
+          <button type="button" class="eye-icon" onclick="togglePassword('signPwd',this)"><svg><use href="#i-eye-off"/></svg></button>
+      </div>
+      <div class="input-wrap">
+          <label>စကားဝှက် အတည်ပြုရန်</label>
+          <input type="password" id="signPwd2" placeholder="စကားဝှက် ပြန်ထည့်ပါ" required>
+          <button type="button" class="eye-icon" onclick="togglePassword('signPwd2',this)"><svg><use href="#i-eye-off"/></svg></button>
+      </div>
       <div class="input-wrap" style="background:#f4f5f8; padding:10px; border-radius:8px; border:1px dashed #4080ff;">
         <label style="color:var(--blue); font-weight:bold;">👥 ဖိတ်ခေါ်ကုဒ် (Invite Code) - မထည့်လည်းရသည်</label>
         <input type="text" id="signInviteCode" placeholder="သူငယ်ချင်း၏ ၅ လုံးပြည့် ID ထည့်ပါ" style="background:#fff; border-color:#dbe4ff;">
@@ -651,6 +674,8 @@ const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 3
 let activeGame = 'wingo30s'; let adminActiveGame = 'wingo30s'; let currentPage = 1, lastBeepedSec = -1;
 let betType = null, betNum = null, baseAmt = 10, sheetQty = 1; let popupTimer = null;
 let currentUser = null; let DB = { settings: { autoDraw: {}, manualNum: {}, links: [] }, games: {} };
+let currentSessionId = localStorage.getItem('wingo_session_id') || Math.random().toString(36).substr(2, 9);
+localStorage.setItem('wingo_session_id', currentSessionId);
 
 const $ = id => document.getElementById(id);
 const text = (id, val) => { if($(id)) $(id).innerText = val; };
@@ -660,12 +685,20 @@ async function apiCall(endpoint, data = {}) {
     try {
         let sessionPhone = localStorage.getItem('wingo_session') || '';
         if(sessionPhone && !data.phone) data.phone = sessionPhone;
+        data.sessionId = currentSessionId;
         const res = await fetch(`${BACKEND_URL}${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        return await res.json();
+        const result = await res.json();
+        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Force Logout)
+        if (result.forceLogout) {
+            toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
+            localStorage.removeItem('wingo_session');
+            setTimeout(() => location.reload(), 2000);
+        }
+        return result;
     } catch(e) { return {success: false, msg: 'ဆက်သွယ်မှု ပြတ်တောက်နေပါသည်'}; }
 }
 
@@ -685,7 +718,18 @@ function checkTxStatus(txs) {
 
 function syncState() {
     let sessionPhone = localStorage.getItem('wingo_session') || '';
-    fetch(`${BACKEND_URL}/api/sync?phone=${sessionPhone}`, { cache: 'no-store' }).then(res => res.json()).then(data => {
+    if (!sessionPhone) return;
+    fetch(`${BACKEND_URL}/api/sync?phone=${sessionPhone}&sessionId=${currentSessionId}`, { cache: 'no-store' })
+    .then(res => res.json())
+    .then(data => {
+        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Sync)
+        if (data.sessionValid === false) {
+             toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
+             localStorage.removeItem('wingo_session');
+             setTimeout(() => location.reload(), 2000);
+             return;
+        }
+
         DB.settings = data.settings;
         let shouldUpdateHistory = false;
         for(let g in data.games) {
@@ -708,9 +752,6 @@ function syncState() {
                  $('nav-admin').classList.remove('hidden');
                  DB.users = data.users;
             }
-        } else if (sessionPhone) {
-            localStorage.removeItem('wingo_session');
-            $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden');
         }
 
         updateUI();
@@ -761,7 +802,20 @@ window.toggleSound = function() {
 };
 
 window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
-window.togglePassword = function(id, btn) { const i = $(id); i.type = i.type === 'password' ? 'text' : 'password'; btn.innerText = i.type === 'password' ? '◉' : '◉'; };
+
+// 🔒 မျက်စိပုံစံ Password ဖျောက်/ပေါ် စနစ် 
+window.togglePassword = function(id, btn) { 
+    const input = $(id); 
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<svg><use href="#i-eye"/></svg>';
+        btn.style.color = 'var(--red)';
+    } else {
+        input.type = 'password';
+        btn.innerHTML = '<svg><use href="#i-eye-off"/></svg>';
+        btn.style.color = '#9394a1';
+    }
+};
 
 window.doLogin = async function() {
     const btn = $('btnLoginSub'); btn.innerText = 'ခဏစောင့်ပါ...'; btn.disabled = true;
@@ -835,7 +889,6 @@ function renderHistory() {
 }
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 
-// 🔥 10k တွင် ရွေးချယ်မှု မှတ်မိနေသော ပြဿနာအား ဖြေရှင်းထားသော openBetSheet 🔥
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
@@ -850,7 +903,7 @@ window.openBetSheet = function(t, n=null) {
     
     // Amount Option များကို 10 သို့ Reset ချပေးခြင်း
     document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); 
-    document.querySelector('#sheetAmountOpts button').classList.add('active'); // ပထမဆုံး (10) ခလုတ်ကို Active လုပ်ပေးမည်
+    document.querySelector('#sheetAmountOpts button').classList.add('active'); 
     
     updateTotalBet(); 
     $('betSheetOverlay').classList.add('show'); 
@@ -1044,7 +1097,7 @@ function renderUserLinks() {
     container.innerHTML = DB.settings.links.map(l => `<a href="${l.url}" target="_blank" style="display:block; padding:14px; background:${l.color}; color:white; border-radius:12px; margin-bottom:10px; text-decoration:none; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align:center;">${l.label}</a>`).join('');
 }
 
-// 🔥 JS ရလဒ်ပြ Popup အပိုင်း (အရှုံးအတွက် null ပြသမှု ဖြေရှင်းပြီး)
+// 🔥 JS ရလဒ်ပြ Popup အပိုင်း 
 function showResult(win, amt, num, period, gameKey) {
     const card = $('ckPopupCard'); 
     let isBig = num >= 5;
@@ -1064,7 +1117,6 @@ function showResult(win, amt, num, period, gameKey) {
     }
     
     let tagsHtml = '';
-    // Null ပြဿနာ မဖြစ်စေရန် အတိအကျ စစ်ဆေးပေးခြင်း
     if (num !== null && num !== undefined) {
         if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
         else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
