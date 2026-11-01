@@ -120,6 +120,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; outline:none; }
 .auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
 
+/* 🔒 မျက်စိပုံစံ CSS */
 .eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; display: grid; place-items: center; border: none; cursor: pointer; transition: 0.2s; }
 .eye-icon:hover { color: var(--red); }
 .eye-icon svg { width: 18px; height: 18px; fill: currentColor; }
@@ -198,7 +199,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .btn-cancel { background: #e0e0e0; color: #555; } 
 .btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
 
-/* --- 🔥 Win/Lose Popup Design 🔥 --- */
+/* --- 🔥 အသစ်ပြင်ဆင်ထားသော Win/Lose Popup Design 🔥 --- */
 .result-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(4px); }
 .result-popup-overlay.show { opacity: 1; pointer-events: auto; }
 .popup-container { display: flex; flex-direction: column; align-items: center; transform: scale(0.8) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 320px; }
@@ -376,17 +377,11 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပွဲပိတ်ထားပါပြီ · နောက်ပွဲကို စောင့်ပါ</p></div>
     </section>
     
-    <!-- 🔥 အသစ်ပြင်ထားသော မှတ်တမ်း UI 🔥 -->
     <section class="history-section">
-      <div class="history-tabs" id="historyTabs">
-        <button class="active" onclick="setHistoryTab('game', this)">ဂိမ်းမှတ်တမ်း</button>
-        <button onclick="setHistoryTab('mine', this)">ကျွန်ုပ်၏မှတ်တမ်း</button>
-      </div>
       <div class="table-container" id="gameHistoryTable">
         <table><thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး / သေး</th><th>အရောင်</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
       </div>
-      <div id="myBetsList" class="hidden"></div>
+      <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
     </section>
   </section>
 
@@ -496,7 +491,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
     </div>
   </div>
 
-  <!-- PRO ADMIN DASHBOARD VIEW -->
+  <!-- 🔥 PRO ADMIN DASHBOARD VIEW 🔥 -->
   <div id="view-admin" class="page-view hidden">
     <div class="admin-nav">
         <button class="active" onclick="switchAdminSubTab('control', this)">ဂိမ်းထိန်းချုပ်</button>
@@ -631,7 +626,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<!-- Win/Lose Popup -->
+<!-- 🔥 ပြင်ဆင်ထားသော Win/Lose Popup 🔥 -->
 <div id="resultPopupOverlay" class="result-popup-overlay">
   <div class="popup-container">
       <div id="ckPopupCard" class="ck-popup-card win">
@@ -648,7 +643,9 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 
         <div class="popup-body">
             <div class="result-label">ထီပေါက်ရလဒ်များ:</div>
-            <div class="ck-popup-tags" id="resTagsContainer"></div>
+            <div class="ck-popup-tags" id="resTagsContainer">
+                <!-- JS မှ Tag များ အလိုအလျောက် ဝင်မည် -->
+            </div>
 
             <div class="paper-slot-container">
                 <div class="paper-slot"></div>
@@ -695,6 +692,7 @@ async function apiCall(endpoint, data = {}) {
             body: JSON.stringify(data)
         });
         const result = await res.json();
+        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Force Logout)
         if (result.forceLogout) {
             toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
             localStorage.removeItem('wingo_session');
@@ -724,6 +722,7 @@ function syncState() {
     fetch(`${BACKEND_URL}/api/sync?phone=${sessionPhone}&sessionId=${currentSessionId}`, { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {
+        // 🔥 Multi-device login ကန်ထုတ်စနစ် (Sync)
         if (data.sessionValid === false) {
              toast("အခြားဖုန်းမှ သင့်အကောင့်အား ဝင်ရောက်သွားပါသည်။");
              localStorage.removeItem('wingo_session');
@@ -739,7 +738,7 @@ function syncState() {
                 if(currentUser && data.user && data.user.myBets && data.user.myBets.length > 0 && g === activeGame) {
                     let latestMyBet = data.user.myBets[0];
                     if(latestMyBet.period === data.games[g].history[0].period) {
-                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), data.games[g].history[0].num, latestMyBet.period, g);
+                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), latestMyBet.num, latestMyBet.period, g);
                     }
                 }
             }
@@ -768,15 +767,8 @@ window.onload = function() {
     const invite = new URLSearchParams(window.location.search).get('invite');
     if (invite && !sessionPhone) { switchAuth('signup'); $('signInviteCode').value = invite; }
     
-    if(!sessionPhone) { 
-        $('authScreen').classList.remove('hidden'); 
-        $('app-container').classList.add('hidden'); 
-    } else { 
-        $('authScreen').classList.add('hidden'); 
-        $('app-container').classList.remove('hidden'); 
-        syncState(); 
-        setInterval(syncState, 2000); 
-    }
+    if(!sessionPhone) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
+    else { syncState(); setInterval(syncState, 2000); }
 };
 
 let audioCtx, isSoundOn = true;
@@ -785,6 +777,7 @@ document.addEventListener('click', function initAudio() {
   if(audioCtx.state === 'suspended') audioCtx.resume();
 }, {once:true});
 
+// 🔥 အသံမြည်ခြင်းကို သေချာ ထိန်းချုပ်ထားသော function
 function playBeep() { 
     if(!isSoundOn || !audioCtx) return;
     if($('view-game').classList.contains('hidden')) return;
@@ -809,6 +802,7 @@ window.toggleSound = function() {
 
 window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
 
+// 🔒 မျက်စိပုံစံ Password ဖျောက်/ပေါ် စနစ် 
 window.togglePassword = function(id, btn) { 
     const input = $(id); 
     if (input.type === 'password') {
@@ -875,7 +869,7 @@ function tick() {
     if(rem < 5000 && $('betSheetOverlay').classList.contains('show')) { closeBetSheet(); toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။'); }
   } else { 
       $('lockOverlay').classList.add('hidden'); 
-      lastBeepedSec = -1; 
+      lastBeepedSec = -1;
   }
 }
 
@@ -890,37 +884,12 @@ function renderHistory() {
     tb.innerHTML += `<tr><td class="td-period">${h.period}</td><td class="td-num" style="color:${c}">${h.num}</td><td class="td-bs ${h.num>=5?'big':'small'}">${h.num>=5?'အကြီး':'အသေး'}</td><td><div class="color-dots"><div class="dot" style="background:${bg};"></div></div></td></tr>`;
   });
   text('pageInfo', `${currentPage} / ${Math.ceil(todayHist.length/12)||1}`);
-  
-  if(historyTab === 'mine') {
-    const myBetsContainer = $('myBetsList');
-    if(currentUser && currentUser.myBets) {
-        let myBets = currentUser.myBets;
-        if(myBets.length === 0) { myBetsContainer.innerHTML = '<p style="text-align:center;padding:20px;color:#999">မှတ်တမ်းမရှိပါ</p>'; } else {
-            myBetsContainer.innerHTML = myBets.slice(0,30).map(b => {
-                let labelText = b.type === 'big' ? 'အကြီး (big)' : b.type === 'small' ? 'အသေး (small)' : b.type === 'green' ? 'အစိမ်း' : b.type === 'red' ? 'အနီ' : b.type === 'purple' ? 'ခရမ်း' : 'နံပါတ် ' + b.num;
-                let tagClass = 'ck-tag '; if(b.type === 'big') tagClass += 'orange'; else if(b.type === 'small') tagClass += 'blue'; else if(b.type === 'green') tagClass += 'green'; else if(b.type === 'red') tagClass += 'red'; else if(b.type === 'purple') tagClass += 'purple'; else if(b.type === 'num') { tagClass += (b.num === 0 ? 'multi' : b.num === 5 ? 'multi2' : [1,3,7,9].includes(b.num) ? 'green' : 'red'); }
-                let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး'; let statusClass = b.win ? 'win' : 'lose';
-                let amtStr = b.win ? `+K ${b.payout.toLocaleString()}.00` : `-K ${b.amount.toLocaleString()}.00`;
-                return `<div class="ck-bet-item"><div class="ck-bet-left"><span class="${tagClass}">${labelText}</span><span class="ck-bet-period">${b.period}</span><span class="ck-bet-time">${b.date}</span></div><div class="ck-bet-right"><div class="ck-bet-status ${statusClass}">${statusText}</div><div class="ck-bet-amt ${statusClass}">${amtStr}</div></div></div>`;
-            }).join('');
-        }
-    }
-  }
 }
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
 
-window.setHistoryTab = function(tab, btn) {
-    historyTab = tab;
-    document.querySelectorAll('.history-tabs button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    $('gameHistoryTable').classList.toggle('hidden', tab !== 'game');
-    $('myBetsList').classList.toggle('hidden', tab !== 'mine');
-    renderHistory();
-};
-
+// 🔥 10k တွင် ရွေးချယ်မှု မှတ်မိနေသော ပြဿနာအား ဖြေရှင်းထားသော openBetSheet
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
-    if(!DB.settings.serverActive) return toast('Server ပိတ်ထားပါသည်');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
     const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); 
     if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); 
@@ -1063,13 +1032,7 @@ function renderAdminControl() {
         else if([1,3,7,9].includes(i)) bgGradient = 'linear-gradient(140deg, #7ddba9, #2db67e)';
         let isSelected = DB.settings.manualNum[adminActiveGame] === i;
         btn.style.cssText = `padding:12px 5px; border-radius:8px; font-weight:900; font-size:18px; color:#fff; background:${bgGradient}; border: ${isSelected ? '3px solid #333' : '3px solid transparent'}; opacity: ${isSelected ? '1' : '0.4'}; transform: ${isSelected ? 'scale(1.1)' : 'scale(1)'}; transition: 0.2s; cursor:pointer;`;
-        
-        // 🛠 ဤနေရာတွင် Auto Draw မပိတ်စေရန် အမှန်ပြင်ထားပါသည်
-        btn.onclick = async () => { 
-            await apiCall('/api/admin', { action: 'setManual', data: { game: adminActiveGame, val: i } }); 
-            toast(`နံပါတ် ${i} ကို ဒီပွဲအတွက် သတ်မှတ်လိုက်ပါပြီ`); 
-            renderAdminControl(); 
-        };
+        btn.onclick = async () => { await apiCall('/api/admin', { action: 'setManual', data: { game: adminActiveGame, val: i } }); toast(`နံပါတ် ${i} သတ်မှတ်ပြီး`); };
         aGrid.appendChild(btn);
     }
 
@@ -1132,6 +1095,7 @@ function renderUserLinks() {
     container.innerHTML = DB.settings.links.map(l => `<a href="${l.url}" target="_blank" style="display:block; padding:14px; background:${l.color}; color:white; border-radius:12px; margin-bottom:10px; text-decoration:none; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align:center;">${l.label}</a>`).join('');
 }
 
+// 🔥 JS ရလဒ်ပြ Popup အပိုင်း (အရှုံးအတွက် null ပြသမှု ဖြေရှင်းပြီး)
 function showResult(win, amt, num, period, gameKey) {
     const card = $('ckPopupCard'); 
     let isBig = num >= 5;
@@ -1151,6 +1115,7 @@ function showResult(win, amt, num, period, gameKey) {
     }
     
     let tagsHtml = '';
+    // Null ပြဿနာ မဖြစ်စေရန် အတိအကျ စစ်ဆေးပေးခြင်း
     if (num !== null && num !== undefined) {
         if (num === 0) { tagsHtml += `<span class="ck-tag red">အနီ</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
         else if (num === 5) { tagsHtml += `<span class="ck-tag green">အစိမ်း</span> <span class="ck-tag purple">ခရမ်း</span>`; } 
@@ -1182,4 +1147,4 @@ window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
 window.showHelp = function() { switchTab('profile'); };
 </script>
 </body>
-</html>
+            </html>
