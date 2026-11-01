@@ -116,7 +116,6 @@ botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     let uKey = Object.keys(DB.users).find(k => DB.users[k].id === uid);
     if(!uKey) return botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} မတွေ့ပါ။`);
     
-    // 🔒 Security: Check negative values (Admin Bot ရိုက်ရာတွင် အမှားကာကွယ်ခြင်း)
     if (amt <= 0 || isNaN(amt)) return botFinance.sendMessage(msg.chat.id, `❌ ပမာဏ မှားယွင်းနေပါသည်။`);
 
     if(cmd === 'add') {
@@ -162,9 +161,6 @@ botUser.onText(/\/check (\w+)/, (msg, match) => {
 botUser.onText(/\/users/, (msg) => {
     if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
-});
-botUser.on('message', (msg) => {
-    if (msg.text === '/admin') { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); }
 });
 
 // ==========================================
@@ -260,9 +256,9 @@ function drawResult(game, blockIndex, dur) {
 }
 
 // ==========================================
-// 🔥 REST APIs (Security များကို တင်းကျပ်ထားသည်)
+// 🔥 REST APIs 
 // ==========================================
-app.get('/', (req, res) => res.send('Server Running with Security Fixes'));
+app.get('/', (req, res) => res.send('Server Running'));
 
 app.get('/api/sync', (req, res) => {
     if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [], sessionValid: false });
@@ -270,7 +266,6 @@ app.get('/api/sync', (req, res) => {
     let sessionId = req.query.sessionId;
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk');
     
-    // 🔒 Security: မျက်စိဖြင့်မြင်ရမည့် Data များကိုသာ ပို့ပေးမည်။ Admin မဟုတ်လျှင် အခြားသူများ၏ အချက်အလက်များကို ဖြတ်ထုတ်မည်။
     let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true };
     
     if (phone && DB.users[phone]) {
@@ -278,19 +273,14 @@ app.get('/api/sync', (req, res) => {
             state.sessionValid = false;
         } else {
             state.user = { ...DB.users[phone] };
-            delete state.user.pwd; // 🔒 Security: Password များကို Frontend သို့ လုံးဝ မပို့ပါ
+            delete state.user.pwd; 
             state.transactions = DB.transactions.filter(t => t.uid === state.user.id);
         }
     }
     
     if (isAdminReq) {
-        // Admin ဖြစ်မှသာလျှင် User အားလုံး၏ အချက်အလက်များကို ယူခွင့်ပေးမည်
         let safeUsers = {};
-        for (let u in DB.users) {
-            safeUsers[u] = { ...DB.users[u] };
-            // Admin Panel သို့လည်း Password မပို့ရန် (လိုလျှင် User Bot မှ /check ဖြင့် ကြည့်ပါ)
-            delete safeUsers[u].pwd; 
-        }
+        for (let u in DB.users) { safeUsers[u] = { ...DB.users[u] }; delete safeUsers[u].pwd; }
         state.users = safeUsers;
         state.transactions = DB.transactions;
     }
@@ -312,7 +302,6 @@ app.post('/api/auth', (req, res) => {
     const { action, phone, pwd, name, inviteCode, sessionId } = req.body;
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown IP';
     
-    // 🔒 Security: Input Validation
     if (!phone || typeof phone !== 'string' || phone.length > 20) return res.json({success: false, msg: "ဖုန်းနံပါတ် အမှား"});
     if (!pwd || typeof pwd !== 'string') return res.json({success: false, msg: "စကားဝှက် အမှား"});
 
@@ -324,9 +313,7 @@ app.post('/api/auth', (req, res) => {
         }
         let uKey = Object.keys(DB.users).find(k => k === phone || DB.users[k].id === phone);
         if(uKey && DB.users[uKey].pwd === pwd) {
-            DB.users[uKey].sessionId = sessionId; 
-            saveDB();
-            return res.json({ success: true, phone: uKey });
+            DB.users[uKey].sessionId = sessionId; saveDB(); return res.json({ success: true, phone: uKey });
         }
         return res.json({ success: false, msg: "အချက်အလက် မှားယွင်းနေပါသည်" });
     }
@@ -335,27 +322,18 @@ app.post('/api/auth', (req, res) => {
         if(DB.users[phone]) return res.json({ success: false, msg: "အကောင့်ရှိပြီးသားပါ" });
         
         let isExistingIp = Object.values(DB.users).some(u => u.ip === ip);
-        
         let bal = 0;
         if(inviteCode) {
             let inviter = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
             if(inviter) { 
-                if (isExistingIp) {
-                     console.log(`[Anti-Cheat] IP ${ip} tried to claim bonus again.`);
-                } else {
-                     DB.users[inviter].balance += 1999; bal = 1999; 
-                }
-            } else {
-                return res.json({ success: false, msg: "ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်" });
-            }
+                if (!isExistingIp) { DB.users[inviter].balance += 1999; bal = 1999; }
+            } else return res.json({ success: false, msg: "ဖိတ်ခေါ်ကုဒ် မှားယွင်းနေပါသည်" });
         }
         
         let newId = Math.floor(10000 + Math.random() * 90000).toString();
         DB.users[phone] = { id: newId, phone, name: String(name).substring(0, 20), pwd, balance: bal, isAdmin: false, ip: ip, sessionId: sessionId };
         
-        if(DB.settings.adminChatId) {
-            try{ botUser.sendMessage(DB.settings.adminChatId, `🎉 အကောင့်သစ်: ${name} (${newId})\nIP: ${ip}${isExistingIp ? ' ⚠️ (IP ထပ်နေပါသည်)' : ''}`); }catch(e){}
-        }
+        if(DB.settings.adminChatId) { try{ botUser.sendMessage(DB.settings.adminChatId, `🎉 အကောင့်သစ်: ${name} (${newId})\nIP: ${ip}`); }catch(e){} }
         saveDB(); return res.json({ success: true, phone: phone });
     }
 });
@@ -365,7 +343,6 @@ app.post('/api/bet', (req, res) => {
     const { phone, game, type, num, amount, sessionId } = req.body;
     if(!DB.settings.serverActive) return res.json({success: false, msg: "Server ပိတ်ထားပါသည်"});
     
-    // 🔒 Security: Check amount prevents negative numbers
     if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
 
     let user = DB.users[phone];
@@ -386,12 +363,11 @@ app.post('/api/finance', (req, res) => {
     if (!DB) return res.json({success: false});
     const { type, phone, method, amount, txId, accName, accPhone, sessionId } = req.body;
     
-    // 🔒 Security: Check amount prevents negative numbers
     if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
 
     let user = DB.users[phone];
     if(!user) return res.json({success: false});
-    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true});
+    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ ဝင်ရောက်ထားသည်", forceLogout: true});
     
     let dStr = `${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}`;
     let tid = `${type === 'deposit' ? 'DP' : 'WD'}-${dStr}-${Math.floor(1000+Math.random()*9000)}`;
@@ -412,6 +388,12 @@ app.post('/api/finance', (req, res) => {
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     }
+
+    // 🔥 မှတ်တမ်းအဟောင်းများ (၅၀၀) ထက်ကျော်လျှင် ဖြတ်ထုတ်မည်
+    if (DB.transactions.length > 500) {
+        DB.transactions = DB.transactions.slice(-500);
+    }
+    
     saveDB(); res.json({success: true});
 });
 
@@ -428,9 +410,12 @@ app.post('/api/admin', (req, res) => {
     else if(action === 'setManual') { DB.settings.manualNum[data.game] = data.val; DB.settings.autoDraw[data.game] = false; }
     else if(action === 'adjustBalance') {
         let u = Object.keys(DB.users).find(k => DB.users[k].id === data.uid);
-        if(u) DB.users[u].balance += data.amt;
+        if(u) {
+            DB.users[u].balance += data.amt;
+            if (DB.users[u].balance < 0) DB.users[u].balance = 0; // 🔥 ငွေလက်ကျန် အနုတ်မပြစေရန်
+        }
     }
     saveDB(); res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Server running with Security Fixes'));
+app.listen(process.env.PORT || 3000, () => console.log('Server running on port 3000'));
