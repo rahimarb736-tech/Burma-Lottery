@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.set('trust proxy', true);
 
-// 🛡️ API Spam / DDoS Attack ကာကွယ်ရန် (Custom Rate Limiter)
+// 🛡️ API Spam / DDoS Attack ကာကွယ်ရန်
 const rateLimitMap = new Map();
 function apiLimiter(req, res, next) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
@@ -65,8 +65,6 @@ async function loadDB() {
             if (!DB.settings.links) DB.settings.links = [];
             
             if(!DB.transactions) DB.transactions = [];
-            
-            // 🐛 FIXED: Firebase က Empty Array တွေကို ဖျက်ပစ်တတ်သဖြင့် ပျောက်နေပါက အလိုလို ပြန်တည်ဆောက်ပေးခြင်း
             for (let g in DB.games) {
                 if (!DB.games[g].bets) DB.games[g].bets = [];
                 if (!DB.games[g].history) DB.games[g].history = [];
@@ -105,7 +103,8 @@ botSet.onText(/\/set (30s|1m|3m|5m) (\d)/, (msg, match) => {
     let input = match[1]; const num = parseInt(match[2]);
     let game = input === '30s' ? 'wingo30s' : input === '1m' ? 'wingo1m' : input === '3m' ? 'wingo3m' : 'wingo5m';
     if (num >= 0 && num <= 9) {
-        DB.settings.manualNum[game] = num; DB.settings.autoDraw[game] = false; saveDB();
+        // 🐛 FIXED: Auto Draw ကို ပိတ်ပစ်သည့် Bug အား ဖယ်ရှားလိုက်ပါပြီ
+        DB.settings.manualNum[game] = num; saveDB();
         botSet.sendMessage(msg.chat.id, `🎯 ${input} အတွက် ဂဏန်း [ ${num} ] အား ကြိုတင်သတ်မှတ်ပြီးပါပြီ။`);
     }
 });
@@ -194,7 +193,6 @@ setInterval(() => {
         const dur = DURATIONS[game]; const currentBlock = Math.floor(timeNow / dur); let g = DB.games[game];
         const rem = dur - (timeNow % dur);
         
-        // 🐛 FIXED: g.bets ပျောက်နေသည့်အခါ Undefined Error မတက်စေရန် စစ်ဆေးမှုထပ်ထည့်ထားခြင်း
         if (rem <= 5000 && !g.isAutoDrawn && g.bets && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
             if (DB.settings.autoDraw[game]) {
                 let possibleLosses = Array(10).fill(0);
@@ -231,6 +229,7 @@ function drawResult(game, blockIndex, dur) {
     let d = new Date(blockIndex * dur);
     let periodStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${blockIndex % 10000}`;
     
+    // Manual Set လုပ်ထားရင် အဲ့ဂဏန်းကိုယူမည်၊ ပီးရင် ချက်ချင်း Null ပြန်ပြောင်းမည်ဖြစ်၍ နောက်ပွဲတွင် Auto Loss ပြန်ဖြစ်မည်
     let winNum = DB.settings.manualNum[game] !== null ? DB.settings.manualNum[game] : Math.floor(Math.random() * 10);
     DB.settings.manualNum[game] = null; 
     
@@ -439,7 +438,10 @@ app.post('/api/admin', (req, res) => {
     else if(action === 'deleteLink') { DB.settings.links.splice(data, 1); }
     else if(action === 'toggleServer') { DB.settings.serverActive = data; }
     else if(action === 'toggleAutoDraw') { DB.settings.autoDraw[data.game] = data.val; }
-    else if(action === 'setManual') { DB.settings.manualNum[data.game] = data.val; DB.settings.autoDraw[data.game] = false; }
+    else if(action === 'setManual') { 
+        // 🐛 FIXED: Auto Draw ကို ပိတ်ပစ်သည့် Bug အား ဖယ်ရှားလိုက်ပါပြီ
+        DB.settings.manualNum[data.game] = data.val; 
+    }
     else if(action === 'adjustBalance') {
         let u = Object.keys(DB.users).find(k => DB.users[k].id === data.uid);
         if(u) DB.users[u].balance += data.amt;
