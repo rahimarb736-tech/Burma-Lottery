@@ -1,66 +1,79 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const fetch = require('node-fetch');
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.set('trust proxy', true); // IP Address မှန်ကန်စွာ ရယူနိုင်ရန်
+app.set('trust proxy', true);
 
-// ==========================================
-// 🔥 Bot Token များ
-// ==========================================
+const FIREBASE_URL = 'https://burmalottery-68256-default-rtdb.asia-southeast1.firebasedatabase.app/db.json';
+
 const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
 const USER_BOT_TOKEN = process.env.USER_BOT_TOKEN || '9092936025:AAGDYORAcX50Z0EjjYTlUXwUOZa-cOaO0tc';
+
+// 🔒 Telegram Bot အတွက် လုံခြုံရေး Password (မိမိစိတ်ကြိုက် ပြောင်းနိုင်သည်)
+const BOT_ADMIN_PWD = process.env.BOT_ADMIN_PWD || 'wingo2024';
 
 const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
 const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
 const botUser = new TelegramBot(USER_BOT_TOKEN, { polling: true });
 
-// ==========================================
-// 🔥 Database Structure
-// ==========================================
-const DB_FILE = path.join(__dirname, 'db.json');
 let DB;
-
 const DEFAULT_DB = {
-    users: {}, // { "09...": { id, phone, name, pwd, balance, isAdmin, ip, sessionId } }
+    users: {}, 
     settings: { adminChatId: null, kpayPhone: '09xxxxxxxxx', wavePhone: '09xxxxxxxxx', autoDraw: { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true }, manualNum: { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null }, serverActive: true, links: [] },
     transactions: [],
     currentGame: 'wingo30s',
     games: {
-        wingo30s: { bets: [], history: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
-        wingo1m: { bets: [], history: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
-        wingo3m: { bets: [], history: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
-        wingo5m: { bets: [], history: [], lastBlock: null, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 }
+        wingo30s: { bets: [], history: [], lastBlock: null, isAutoDrawn: false, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
+        wingo1m: { bets: [], history: [], lastBlock: null, isAutoDrawn: false, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
+        wingo3m: { bets: [], history: [], lastBlock: null, isAutoDrawn: false, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 },
+        wingo5m: { bets: [], history: [], lastBlock: null, isAutoDrawn: false, todayProfit: 0, todayComm: 0, currentPeriodProfit: 0, currentPeriodComm: 0, totalProfit: 0 }
     },
     lastResetDate: new Date().toLocaleDateString()
 };
 
-function loadDB() {
+async function loadDB() {
     try {
-        if (fs.existsSync(DB_FILE)) {
-            let fileData = fs.readFileSync(DB_FILE, 'utf8');
-            if (fileData.trim() === '') throw new Error("Empty DB");
-            DB = JSON.parse(fileData);
+        const res = await fetch(FIREBASE_URL);
+        const data = await res.json();
+        if (data && data.settings) {
+            DB = data;
             if(!DB.transactions) DB.transactions = [];
-            for (let g in DB.games) if (DB.games[g].totalProfit === undefined) DB.games[g].totalProfit = 0;
+            for (let g in DB.games) {
+                if (DB.games[g].totalProfit === undefined) DB.games[g].totalProfit = 0;
+                if (DB.games[g].isAutoDrawn === undefined) DB.games[g].isAutoDrawn = false;
+            }
             if(!DB.lastResetDate) DB.lastResetDate = new Date().toLocaleDateString();
-        } else { DB = JSON.parse(JSON.stringify(DEFAULT_DB)); saveDB(); }
-    } catch (e) { console.log("Initializing new DB."); DB = JSON.parse(JSON.stringify(DEFAULT_DB)); saveDB(); }
+        } else {
+            DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+            saveDB();
+        }
+    } catch (e) {
+        DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+    }
 }
-function saveDB() { try { fs.writeFileSync(DB_FILE, JSON.stringify(DB, null, 2), 'utf8'); } catch (e) { console.error(e); } }
+
+async function saveDB() {
+    if (!DB) return;
+    try {
+        await fetch(FIREBASE_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DB) });
+    } catch (e) { }
+}
+
 function isAdmin(chatId) { return DB.settings.adminChatId && chatId.toString() === DB.settings.adminChatId.toString(); }
 
-loadDB(); 
+loadDB();
 
-// ==========================================
-// 🔥 Bot Commands (Set Bot)
-// ==========================================
-botSet.onText(/\/admin/, (msg) => { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botSet.sendMessage(msg.chat.id, `✅ Set Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); });
+// 🛡️ FIXED: Bot Hijacking ကာကွယ်ရန် Password ထည့်စစ်ထားခြင်း
+botSet.onText(/\/admin (.+)/, (msg, match) => { 
+    if(match[1] !== BOT_ADMIN_PWD) return botSet.sendMessage(msg.chat.id, `❌ စကားဝှက် မှားယွင်းနေပါသည်။`);
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
+    botSet.sendMessage(msg.chat.id, `✅ Set Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
+});
 botSet.onText(/\/set (30s|1m|3m|5m) (\d)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     let input = match[1]; const num = parseInt(match[2]);
@@ -84,19 +97,17 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
     botSet.sendMessage(msg.chat.id, report, {parse_mode: 'HTML'});
 });
 
-// ==========================================
-// 🔥 Bot Commands (Finance)
-// ==========================================
-botFinance.onText(/\/admin/, (msg) => { botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); });
+// 🛡️ FIXED: Bot Hijacking ကာကွယ်ရန် Password ထည့်စစ်ထားခြင်း
+botFinance.onText(/\/admin (.+)/, (msg, match) => { 
+    if(match[1] !== BOT_ADMIN_PWD) return botFinance.sendMessage(msg.chat.id, `❌ စကားဝှက် မှားယွင်းနေပါသည်။`);
+    botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`); 
+});
 botFinance.onText(/\/(add|sub) (\w+) (\d+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return;
     const cmd = match[1], uid = match[2], amt = parseInt(match[3]);
     let uKey = Object.keys(DB.users).find(k => DB.users[k].id === uid);
     if(!uKey) return botFinance.sendMessage(msg.chat.id, `❌ UID: ${uid} မတွေ့ပါ။`);
-    
-    // 🔒 Security: Check negative values
     if (amt <= 0 || isNaN(amt)) return botFinance.sendMessage(msg.chat.id, `❌ ပမာဏ မှားယွင်းနေပါသည်။`);
-
     if(cmd === 'add') {
         DB.users[uKey].balance += amt;
         let p = DB.transactions.find(t => t.uid === uid && t.type === 'deposit' && t.status === 'pending');
@@ -127,10 +138,12 @@ botFinance.onText(/\/wdno (\w+)/, (msg, match) => {
     if(p) { p.status = 'rejected'; let u = Object.keys(DB.users).find(k => DB.users[k].id === match[1]); if(u) DB.users[u].balance += p.amount; saveDB(); botFinance.sendMessage(msg.chat.id, `🚫 ငွေထုတ်ပယ်ဖျက်ပြီး Refund ပြန်ပေးလိုက်ပါပြီ။`); }
 });
 
-// ==========================================
-// 🔥 Bot Commands (User Bot)
-// ==========================================
-botUser.onText(/\/admin/, (msg) => { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); });
+// 🛡️ FIXED: Bot Hijacking ကာကွယ်ရန် Password ထည့်စစ်ထားခြင်း
+botUser.onText(/\/admin (.+)/, (msg, match) => { 
+    if(match[1] !== BOT_ADMIN_PWD) return botUser.sendMessage(msg.chat.id, `❌ စကားဝှက် မှားယွင်းနေပါသည်။`);
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
+    botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); 
+});
 botUser.onText(/\/check (\w+)/, (msg, match) => {
     if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
     const uid = match[1]; let userKey = Object.keys(DB.users).find(k => DB.users[k].id === uid || k === uid);
@@ -141,13 +154,7 @@ botUser.onText(/\/users/, (msg) => {
     if(!isAdmin(msg.chat.id)) return botUser.sendMessage(msg.chat.id, `❌ Admin ခွင့်ပြုချက်မရှိပါ။`);
     botUser.sendMessage(msg.chat.id, `👥 စုစုပေါင်း User: <b>${Object.keys(DB.users).length}</b> ယောက်`, {parse_mode: 'HTML'});
 });
-botUser.on('message', (msg) => {
-    if (msg.text === '/admin') { DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); botUser.sendMessage(msg.chat.id, `✅ User Bot မှ Admin အဖြစ် ချိတ်ဆက်ပြီးပါပြီ။`); }
-});
 
-// ==========================================
-// 🔥 Game Logic & Auto Loss
-// ==========================================
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 
 setInterval(() => {
@@ -163,8 +170,7 @@ setInterval(() => {
         const dur = DURATIONS[game]; const currentBlock = Math.floor(timeNow / dur); let g = DB.games[game];
         const rem = dur - (timeNow % dur);
         
-        // Auto Loss Calculation
-        if (rem <= 5000 && rem > 4000 && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
+        if (rem <= 5000 && !g.isAutoDrawn && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
             if (DB.settings.autoDraw[game]) {
                 let possibleLosses = Array(10).fill(0);
                 g.bets.forEach(b => {
@@ -184,11 +190,13 @@ setInterval(() => {
                 for(let i=0; i<=9; i++) if(possibleLosses[i] === minLoss) bestNums.push(i);
                 DB.settings.manualNum[game] = bestNums[Math.floor(Math.random() * bestNums.length)];
             }
+            g.isAutoDrawn = true;
         }
 
         if (g.lastBlock !== currentBlock) {
             if (g.lastBlock !== null && DB.settings.serverActive) drawResult(game, g.lastBlock, dur);
             g.lastBlock = currentBlock;
+            g.isAutoDrawn = false;
         }
     }
 }, 1000);
@@ -237,37 +245,33 @@ function drawResult(game, blockIndex, dur) {
     }
 }
 
-// ==========================================
-// 🔥 REST APIs (Security များကို တင်းကျပ်ထားသည်)
-// ==========================================
-app.get('/', (req, res) => res.send('Server Running'));
+app.get('/', (req, res) => res.send('Server Running securely'));
 
 app.get('/api/sync', (req, res) => {
     if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [], sessionValid: false });
     let phone = req.query.phone;
     let sessionId = req.query.sessionId;
-    let isAdminReq = (phone === 'admin' || phone === 'Asrissrk');
     
-    // 🔒 Security: မျက်စိဖြင့်မြင်ရမည့် Data များကိုသာ ပို့ပေးမည်။ Admin မဟုတ်လျှင် အခြားသူများ၏ အချက်အလက်များကို ဖြတ်ထုတ်မည်။
+    // 🛡️ FIXED: Data Leakage ကာကွယ်ရန် Session ကိုပါ သေချာတိုက်စစ်ခြင်း
+    let adminUser = DB.users['admin'];
+    let isAdminReq = (phone === 'admin' || phone === 'Asrissrk') && adminUser && adminUser.sessionId === sessionId;
+    
     let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true };
     
     if (phone && DB.users[phone]) {
-        // 🔥 Multi-Device Login / Session Overwrite စစ်ဆေးခြင်း
         if (DB.users[phone].sessionId && DB.users[phone].sessionId !== sessionId) {
             state.sessionValid = false;
         } else {
             state.user = { ...DB.users[phone] };
-            delete state.user.pwd; // 🔒 Security: Password များကို Frontend သို့ လုံးဝ မပို့ပါ
+            delete state.user.pwd; 
             state.transactions = DB.transactions.filter(t => t.uid === state.user.id);
         }
     }
     
     if (isAdminReq) {
-        // Admin ဖြစ်မှသာလျှင် User အားလုံး၏ အချက်အလက်များကို ယူခွင့်ပေးမည်
         let safeUsers = {};
         for (let u in DB.users) {
             safeUsers[u] = { ...DB.users[u] };
-            // Admin Panel သို့လည်း Password မပို့ရန် (လိုလျှင် User Bot မှ /check ဖြင့် ကြည့်ပါ)
             delete safeUsers[u].pwd; 
         }
         state.users = safeUsers;
@@ -291,7 +295,6 @@ app.post('/api/auth', (req, res) => {
     const { action, phone, pwd, name, inviteCode, sessionId } = req.body;
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown IP';
     
-    // 🔒 Security: Input Validation
     if (!phone || typeof phone !== 'string' || phone.length > 20) return res.json({success: false, msg: "ဖုန်းနံပါတ် အမှား"});
     if (!pwd || typeof pwd !== 'string') return res.json({success: false, msg: "စကားဝှက် အမှား"});
 
@@ -303,7 +306,7 @@ app.post('/api/auth', (req, res) => {
         }
         let uKey = Object.keys(DB.users).find(k => k === phone || DB.users[k].id === phone);
         if(uKey && DB.users[uKey].pwd === pwd) {
-            DB.users[uKey].sessionId = sessionId; // 🔥 အကောင့်သစ်ဝင်လာသော ဖုန်းအတွက် Session ID အသစ် သတ်မှတ်ခြင်း (ဟောင်းလျှင် ကျသွားမည်)
+            DB.users[uKey].sessionId = sessionId; 
             saveDB();
             return res.json({ success: true, phone: uKey });
         }
@@ -313,15 +316,15 @@ app.post('/api/auth', (req, res) => {
     if (action === 'register') {
         if(DB.users[phone]) return res.json({ success: false, msg: "အကောင့်ရှိပြီးသားပါ" });
         
-        // 🔥 IP Address စစ်ဆေးခြင်း (Anti-Sybil / Anti-Cheat)
-        let isExistingIp = Object.values(DB.users).some(u => u.ip === ip);
+        // 🛡️ FIXED: မြန်မာဖုန်းနံပါတ် Format ဟုတ်/မဟုတ် Backend မှ ထပ်စစ်ခြင်း
+        if (!/^09\d{7,9}$/.test(phone)) return res.json({success: false, msg: "မြန်မာဖုန်းနံပါတ် အမှန်ဖြည့်ပါ"});
         
+        let isExistingIp = Object.values(DB.users).some(u => u.ip === ip);
         let bal = 0;
         if(inviteCode) {
             let inviter = Object.keys(DB.users).find(k => DB.users[k].id === inviteCode);
             if(inviter) { 
                 if (isExistingIp) {
-                     // ဒီ IP နဲ့ အရင်က အကောင့်ဖွင့်ထားဖူးရင် Bonus မပေးပါ
                      console.log(`[Anti-Cheat] IP ${ip} tried to claim bonus again.`);
                 } else {
                      DB.users[inviter].balance += 1999; bal = 1999; 
@@ -346,12 +349,11 @@ app.post('/api/bet', (req, res) => {
     const { phone, game, type, num, amount, sessionId } = req.body;
     if(!DB.settings.serverActive) return res.json({success: false, msg: "Server ပိတ်ထားပါသည်"});
     
-    // 🔒 Security: Check amount prevents negative numbers
     if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
 
     let user = DB.users[phone];
     if(!user) return res.json({success: false, msg: "User မတွေ့ပါ"});
-    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true}); // 🔥 Session လုံခြုံရေး
+    if(user.sessionId && user.sessionId !== sessionId) return res.json({success: false, msg: "အခြားဖုန်းမှ အကောင့်ဝင်ရောက်ထားပါသည်", forceLogout: true}); 
     
     const rem = DURATIONS[game] - (Date.now() % DURATIONS[game]);
     if(rem < 5000) return res.json({success: false, msg: "ပွဲပိတ်ထားပါပြီ။"});
@@ -367,7 +369,6 @@ app.post('/api/finance', (req, res) => {
     if (!DB) return res.json({success: false});
     const { type, phone, method, amount, txId, accName, accPhone, sessionId } = req.body;
     
-    // 🔒 Security: Check amount prevents negative numbers
     if (typeof amount !== 'number' || amount <= 0 || isNaN(amount)) return res.json({success: false, msg: "ပမာဏ မှားယွင်းနေပါသည်"});
 
     let user = DB.users[phone];
@@ -386,6 +387,10 @@ app.post('/api/finance', (req, res) => {
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     } else {
+        // 🛡️ FIXED: လုပ်ငန်းစဉ်အမှတ် (TxID) အဟောင်း ထပ်သုံးခြင်းမှ ကာကွယ်ခြင်း
+        let isDuplicateTx = DB.transactions.some(t => t.txId === String(txId).substring(0, 30));
+        if (isDuplicateTx) return res.json({success: false, msg: "ဤလုပ်ငန်းစဉ်အမှတ် (TxID) အသုံးပြုပြီးပါပြီ"});
+
         DB.transactions.push({ id: tid, uid: user.id, type, method, amount, txId: String(txId).substring(0, 30), status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
             let bonus = Math.floor(amount * 0.05);
@@ -393,13 +398,20 @@ app.post('/api/finance', (req, res) => {
             try{ botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}); }catch(e){}
         }
     }
+    
+    if (DB.transactions.length > 1000) DB.transactions.shift();
     saveDB(); res.json({success: true});
 });
 
 app.post('/api/admin', (req, res) => {
     if (!DB) return res.json({success: false});
-    const { phone, action, data } = req.body;
-    if(phone !== 'admin' && phone !== 'Asrissrk') return res.json({success: false});
+    const { phone, action, data, sessionId } = req.body;
+    
+    // 🛡️ FIXED: Admin API သို့ လှမ်း၍ ငွေလိမ်ထည့်ခြင်းကို Session ဖြင့် ကာကွယ်ခြင်း
+    let adminUser = DB.users['admin'];
+    if((phone !== 'admin' && phone !== 'Asrissrk') || !adminUser || adminUser.sessionId !== sessionId) {
+        return res.json({success: false, msg: 'Unauthorized request'});
+    }
     
     if(action === 'savePhones') { DB.settings.kpayPhone = data.k; DB.settings.wavePhone = data.w; }
     else if(action === 'addLink') { DB.settings.links.push(data); }
@@ -414,4 +426,4 @@ app.post('/api/admin', (req, res) => {
     saveDB(); res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Server running'));
+app.listen(process.env.PORT || 3000, () => console.log('Server running securely'));
