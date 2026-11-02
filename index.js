@@ -7,8 +7,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.set('trust proxy', true);
 
-// 🛡️ 3. API Spam / DDoS Attack ကာကွယ်ရန် (Custom Rate Limiter)
-// Package အသစ်သွင်းစရာမလိုဘဲ IP တစ်ခုမှ ၁ မိနစ်အတွင်း Request အခါ ၁၀၀ ထက်ပိုခေါ်လျှင် Block ပါမည်။
+// 🛡️ API Spam / DDoS Attack ကာကွယ်ရန် (Custom Rate Limiter)
 const rateLimitMap = new Map();
 function apiLimiter(req, res, next) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
@@ -66,7 +65,11 @@ async function loadDB() {
             if (!DB.settings.links) DB.settings.links = [];
             
             if(!DB.transactions) DB.transactions = [];
+            
+            // 🐛 FIXED: Firebase က Empty Array တွေကို ဖျက်ပစ်တတ်သဖြင့် ပျောက်နေပါက အလိုလို ပြန်တည်ဆောက်ပေးခြင်း
             for (let g in DB.games) {
+                if (!DB.games[g].bets) DB.games[g].bets = [];
+                if (!DB.games[g].history) DB.games[g].history = [];
                 if (DB.games[g].totalProfit === undefined) DB.games[g].totalProfit = 0;
                 if (DB.games[g].isAutoDrawn === undefined) DB.games[g].isAutoDrawn = false;
             }
@@ -191,7 +194,8 @@ setInterval(() => {
         const dur = DURATIONS[game]; const currentBlock = Math.floor(timeNow / dur); let g = DB.games[game];
         const rem = dur - (timeNow % dur);
         
-        if (rem <= 5000 && !g.isAutoDrawn && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
+        // 🐛 FIXED: g.bets ပျောက်နေသည့်အခါ Undefined Error မတက်စေရန် စစ်ဆေးမှုထပ်ထည့်ထားခြင်း
+        if (rem <= 5000 && !g.isAutoDrawn && g.bets && g.bets.length > 0 && DB.settings.manualNum[game] === null) {
             if (DB.settings.autoDraw[game]) {
                 let possibleLosses = Array(10).fill(0);
                 g.bets.forEach(b => {
@@ -276,7 +280,6 @@ app.get('/api/sync', (req, res) => {
     let adminUser = DB.users['admin'];
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk') && adminUser && adminUser.sessionId === sessionId;
     
-    // 🛡️ 2. Time Sync အတွက် serverTime ထည့်ပေးလိုက်ခြင်း
     let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true, serverTime: Date.now() };
     
     if (phone && DB.users[phone]) {
@@ -302,10 +305,10 @@ app.get('/api/sync', (req, res) => {
     for(let g in DB.games) {
         state.games[g] = { history: DB.games[g].history };
         if (isAdminReq) {
-            state.games[g].bets = DB.games[g].bets;
-            state.games[g].todayProfit = DB.games[g].todayProfit;
-            state.games[g].todayComm = DB.games[g].todayComm;
-            state.games[g].totalProfit = DB.games[g].totalProfit;
+            state.games[g].bets = DB.games[g].bets || [];
+            state.games[g].todayProfit = DB.games[g].todayProfit || 0;
+            state.games[g].todayComm = DB.games[g].todayComm || 0;
+            state.games[g].totalProfit = DB.games[g].totalProfit || 0;
         }
     }
     res.json(state);
@@ -379,6 +382,7 @@ app.post('/api/bet', (req, res) => {
     if(user.balance < amount) return res.json({success: false, msg: "လက်ကျန်ငွေ မလုံလောက်ပါ"});
 
     user.balance -= amount;
+    if (!DB.games[game].bets) DB.games[game].bets = [];
     DB.games[game].bets.push({ userKey: phone, type, num, amount });
     saveDB();
     res.json({success: true, balance: user.balance});
