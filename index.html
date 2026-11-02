@@ -868,7 +868,13 @@ function tick() {
   
   if(rem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
-    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
+    
+    // 🛡️ Background ရောက်နေချိန် အသံလုံးဝ မမြည်စေရန် !document.hidden အား ထည့်သွင်းထားပါသည်
+    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec && !document.hidden) { 
+        playBeep(); 
+        lastBeepedSec = sec; 
+    }
+    
     if(rem < 5000 && $('betSheetOverlay').classList.contains('show')) { closeBetSheet(); toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။'); }
   } else { 
       $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1;
@@ -913,7 +919,7 @@ window.openBetSheet = function(t, n=null) {
 };
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
-window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
+window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; text('totalBetDisplay', (baseAmt * sheetQty).toLocaleString()); };
 
 window.confirmBet = async function() { 
