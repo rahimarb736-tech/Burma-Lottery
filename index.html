@@ -400,7 +400,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
           </div>
           <p style="font-size:12px; margin-bottom:10px;">ပမာဏ ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ</p>
           
-          <!-- 🐛 ပြင်ဆင်ပြီး: ဂဏန်းကိုယ်တိုင်ရိုက်ထည့်လျှင် အလိုလို Update ဖြစ်မည့်အပိုင်း -->
+          <!-- 🐛 FIXED: ငွေပမာဏ Input မှာ ကိုယ်တိုင်ရိုက်ထည့်ရင် Button တွေအကုန် Clear ဖြစ်ပြီး ပမာဏမှန်အောင်စစ်မည် -->
           <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အနည်းဆုံး ၂,၀၀၀ Ks မှစ၍ သွင်းနိုင်ပါသည်" oninput="clearDepAmtBtns(); depAmount=0; updateDepBonus()">
           
           <div id="dep-bonus-text" style="color:var(--green); font-size:12px; margin-bottom:15px; font-weight:bold;">+ 5% ဘောနပ်စ်: 250 Ks (စုစုပေါင်း - 5,250 Ks)</div>
@@ -626,7 +626,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
   </div>
 </div>
 
-<!-- 🔥 ပြင်ဆင်ထားသော Win/Lose Popup 🔥 -->
+<!-- 🔥 Win/Lose Popup 🔥 -->
 <div id="resultPopupOverlay" class="result-popup-overlay">
   <div class="popup-container">
       <div id="ckPopupCard" class="ck-popup-card win">
@@ -643,9 +643,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 
         <div class="popup-body">
             <div class="result-label">ထီပေါက်ရလဒ်များ:</div>
-            <div class="ck-popup-tags" id="resTagsContainer">
-                <!-- JS မှ Tag များ အလိုအလျောက် ဝင်မည် -->
-            </div>
+            <div class="ck-popup-tags" id="resTagsContainer"></div>
 
             <div class="paper-slot-container">
                 <div class="paper-slot"></div>
@@ -676,6 +674,9 @@ let betType = null, betNum = null, baseAmt = 10, sheetQty = 1; let popupTimer = 
 let currentUser = null; let DB = { settings: { autoDraw: {}, manualNum: {}, links: [] }, games: {} };
 let currentSessionId = localStorage.getItem('wingo_session_id') || Math.random().toString(36).substr(2, 9);
 localStorage.setItem('wingo_session_id', currentSessionId);
+
+// 🛡️ 1. Server Time Sync အတွက် Global Variable
+let timeOffset = 0; 
 
 const $ = id => document.getElementById(id);
 const text = (id, val) => { if($(id)) $(id).innerText = val; };
@@ -727,6 +728,11 @@ function syncState() {
              setTimeout(() => location.reload(), 2000);
              return;
         }
+        
+        // 🛡️ 1. Server Timestamp ကို ယူပြီး ဖုန်းနာရီနဲ့ ညှိခြင်း (Sync)
+        if (data.serverTime) {
+            timeOffset = data.serverTime - Date.now();
+        }
 
         DB.settings = data.settings;
         let shouldUpdateHistory = false;
@@ -736,7 +742,7 @@ function syncState() {
                 if(currentUser && data.user && data.user.myBets && data.user.myBets.length > 0 && g === activeGame) {
                     let latestMyBet = data.user.myBets[0];
                     if(latestMyBet.period === data.games[g].history[0].period) {
-                        // 🐛 ပြင်ဆင်ပြီး: အရောင်ထိုးလျှင် null မဖြစ်စေရန် တကယ့်ဂဏန်းအစစ်ကို ပြပေးမည်
+                        // 🐛 FIXED: User's bet num replaced with actual winning num from history
                         showResult(latestMyBet.win, Math.abs(latestMyBet.payout), data.games[g].history[0].num, latestMyBet.period, g);
                     }
                 }
@@ -767,7 +773,11 @@ window.onload = function() {
     if (invite && !sessionPhone) { switchAuth('signup'); $('signInviteCode').value = invite; }
     
     if(!sessionPhone) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
-    else { syncState(); setInterval(syncState, 2000); }
+    else { 
+        syncState(); 
+        // 🛡️ 2. Server Load လျှော့ချရန် Auto Sync ကို 2s အစား 3s (3000ms) သို့ ပြောင်းထားပါသည်
+        setInterval(syncState, 3000); 
+    }
 };
 
 let audioCtx, isSoundOn = true;
@@ -845,7 +855,8 @@ function buildGrid() {
 window.switchGame = function(k, btn) { activeGame = k; document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); currentPage = 1; renderHistory(); updateUI(); };
 
 function tick() {
-  const t = Date.now(), dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
+  // 🛡️ 1. Server Time Sync: ဖုန်းနာရီအစား Server ၏ နာရီဖြင့် အချိန်ကို တွက်ချက်ခြင်း
+  const t = Date.now() + timeOffset, dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
   let d = new Date(block * dur); text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${block % 10000}`);
   let sec = Math.ceil(rem/1000), m = Math.floor(sec/60), s = sec%60; $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   
@@ -886,7 +897,9 @@ window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].hist
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
-    const rem = DURATIONS[activeGame] - (Date.now() % DURATIONS[activeGame]); 
+    
+    // 🛡️ 1. Server Time Sync: ထိုးခွင့်အချိန်ကိုပါ Server အချိန်ဖြင့် တိုက်စစ်ပါမည်
+    const rem = DURATIONS[activeGame] - ((Date.now() + timeOffset) % DURATIONS[activeGame]); 
     if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); 
     
     betType = t; betNum = n; 
@@ -996,7 +1009,7 @@ function renderTransactions(txs) {
 }
 
 window.switchAdminSubTab = function(tab, btn) {
-    // 🐛 ပြင်ဆင်ပြီး: Admin Tab ခလုတ်များကို နှိပ်သည့်အခါ Wallet ခလုတ်များကို မထိခိုက်စေရန်
+    // 🐛 FIXED: Target only #view-admin tabs to avoid removing .active from wallet buttons
     document.querySelectorAll('#view-admin .admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
     ['control','users','settings'].forEach(t => $('admin-sub-'+t).classList.add('hidden'));
     $('admin-sub-'+tab).classList.remove('hidden');
