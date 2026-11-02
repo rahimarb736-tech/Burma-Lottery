@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-// 🐛 FIXED: Render တွင် Node.js 18+ သုံးထားသဖြင့် node-fetch မလိုတော့ပါ။ (Native fetch သုံးမည်)
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
@@ -14,11 +13,9 @@ const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiE
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
 const USER_BOT_TOKEN = process.env.USER_BOT_TOKEN || '9092936025:AAGDYORAcX50Z0EjjYTlUXwUOZa-cOaO0tc';
 
-// 🔒 Telegram Bot အတွက် လုံခြုံရေး Password
 const BOT_ADMIN_PWD = process.env.BOT_ADMIN_PWD || 'wingo2024';
 
 const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
-// 🐛 FIXED: Render တွင် Server ၂ ခုပြိုင်တူ Run သည့်အခါ Polling Conflict ကြောင့် Crash မဖြစ်စေရန်
 botSet.on('polling_error', () => {}); 
 
 const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
@@ -49,7 +46,6 @@ async function loadDB() {
         if (data && data.settings) {
             DB = data;
             
-            // 🐛 FIXED: Firebase တွင် Structure အသစ်မရှိပါက (Undefined) Error မတက်စေရန် အလိုလိုဖြည့်ပေးခြင်း
             if (!DB.settings.manualNum) DB.settings.manualNum = { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null };
             if (!DB.settings.autoDraw) DB.settings.autoDraw = { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true };
             if (!DB.settings.links) DB.settings.links = [];
@@ -65,7 +61,8 @@ async function loadDB() {
             saveDB();
         }
     } catch (e) {
-        DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+        console.error("Firebase connection error. Retrying in 5 seconds...");
+        setTimeout(loadDB, 5000);
     }
 }
 
@@ -254,7 +251,7 @@ function drawResult(game, blockIndex, dur) {
     }
 }
 
-app.get('/', (req, res) => res.send('Server Running securely without crash'));
+app.get('/', (req, res) => res.send('Server Running securely'));
 
 app.get('/api/sync', (req, res) => {
     if (!DB) return res.json({ settings: {}, games: {}, user: null, transactions: [], sessionValid: false });
