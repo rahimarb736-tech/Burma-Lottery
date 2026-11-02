@@ -198,7 +198,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .btn-cancel { background: #e0e0e0; color: #555; } 
 .btn-confirm { background: linear-gradient(90deg, #4080ff, #2976db); color: white; box-shadow: 0 4px 10px rgba(64, 128, 255, 0.3); }
 
-/* --- 🔥 အသစ်ပြင်ဆင်ထားသော Win/Lose Popup Design 🔥 --- */
+/* --- 🔥 Win/Lose Popup 🔥 --- */
 .result-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(4px); }
 .result-popup-overlay.show { opacity: 1; pointer-events: auto; }
 .popup-container { display: flex; flex-direction: column; align-items: center; transform: scale(0.8) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 320px; }
@@ -400,7 +400,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
           </div>
           <p style="font-size:12px; margin-bottom:10px;">ပမာဏ ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ</p>
           
-          <!-- 🐛 FIXED: ငွေပမာဏ Input မှာ ကိုယ်တိုင်ရိုက်ထည့်ရင် Button တွေအကုန် Clear ဖြစ်ပြီး ပမာဏမှန်အောင်စစ်မည် -->
           <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အနည်းဆုံး ၂,၀၀၀ Ks မှစ၍ သွင်းနိုင်ပါသည်" oninput="clearDepAmtBtns(); depAmount=0; updateDepBonus()">
           
           <div id="dep-bonus-text" style="color:var(--green); font-size:12px; margin-bottom:15px; font-weight:bold;">+ 5% ဘောနပ်စ်: 250 Ks (စုစုပေါင်း - 5,250 Ks)</div>
@@ -533,10 +532,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
         </div>
       </div>
       
-      <div class="admin-card">
-        <h3 style="color:var(--red); margin-bottom:15px; text-align:center;">📊 <span id="adminRankTitle">30s</span> အတွက် ထိုးထားမှုစာရင်း</h3>
-        <div id="admin-ranking-summary"></div>
-      </div>
+      <div id="admin-ranking-summary"></div>
     </div>
 
     <!-- 2. Users & Balance Management Tab -->
@@ -674,13 +670,33 @@ let betType = null, betNum = null, baseAmt = 10, sheetQty = 1; let popupTimer = 
 let currentUser = null; let DB = { settings: { autoDraw: {}, manualNum: {}, links: [] }, games: {} };
 let currentSessionId = localStorage.getItem('wingo_session_id') || Math.random().toString(36).substr(2, 9);
 localStorage.setItem('wingo_session_id', currentSessionId);
-
-// 🛡️ 1. Server Time Sync အတွက် Global Variable
 let timeOffset = 0; 
 
 const $ = id => document.getElementById(id);
 const text = (id, val) => { if($(id)) $(id).innerText = val; };
 function toast(msg) { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
+
+window.copyText = function(id) {
+    let el = $(id);
+    if (!el) return;
+    let textToCopy = el.innerText || el.textContent;
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => toast('Copy ကူးယူပြီးပါပြီ')).catch(() => fallbackCopyText(textToCopy));
+    } else {
+        fallbackCopyText(textToCopy);
+    }
+};
+
+function fallbackCopyText(text) {
+    let textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed"; 
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try { document.execCommand('copy'); toast('Copy ကူးယူပြီးပါပြီ'); } catch (err) { toast('Copy ကူးယူ၍ မရပါ'); }
+    document.body.removeChild(textArea);
+}
 
 async function apiCall(endpoint, data = {}) {
     try {
@@ -729,10 +745,7 @@ function syncState() {
              return;
         }
         
-        // 🛡️ 1. Server Timestamp ကို ယူပြီး ဖုန်းနာရီနဲ့ ညှိခြင်း (Sync)
-        if (data.serverTime) {
-            timeOffset = data.serverTime - Date.now();
-        }
+        if (data.serverTime) timeOffset = data.serverTime - Date.now();
 
         DB.settings = data.settings;
         let shouldUpdateHistory = false;
@@ -742,7 +755,6 @@ function syncState() {
                 if(currentUser && data.user && data.user.myBets && data.user.myBets.length > 0 && g === activeGame) {
                     let latestMyBet = data.user.myBets[0];
                     if(latestMyBet.period === data.games[g].history[0].period) {
-                        // 🐛 FIXED: User's bet num replaced with actual winning num from history
                         showResult(latestMyBet.win, Math.abs(latestMyBet.payout), data.games[g].history[0].num, latestMyBet.period, g);
                     }
                 }
@@ -755,7 +767,7 @@ function syncState() {
             $('authScreen').classList.add('hidden'); $('app-container').classList.remove('hidden');
             if(currentUser.isAdmin) {
                  $('nav-admin').classList.remove('hidden');
-                 DB.users = data.users;
+                 DB.users = data.users || {};
             }
         }
 
@@ -773,11 +785,7 @@ window.onload = function() {
     if (invite && !sessionPhone) { switchAuth('signup'); $('signInviteCode').value = invite; }
     
     if(!sessionPhone) { $('authScreen').classList.remove('hidden'); $('app-container').classList.add('hidden'); } 
-    else { 
-        syncState(); 
-        // 🛡️ 2. Server Load လျှော့ချရန် Auto Sync ကို 2s အစား 3s (3000ms) သို့ ပြောင်းထားပါသည်
-        setInterval(syncState, 3000); 
-    }
+    else { syncState(); setInterval(syncState, 3000); }
 };
 
 let audioCtx, isSoundOn = true;
@@ -802,24 +810,14 @@ function playBeep() {
     } catch(e) {} 
 }
 
-window.toggleSound = function() { 
-    isSoundOn = !isSoundOn; 
-    toast(isSoundOn ? 'အသံ ဖွင့်လိုက်ပါပြီ' : 'အသံ ပိတ်လိုက်ပါပြီ'); 
-};
+window.toggleSound = function() { isSoundOn = !isSoundOn; toast(isSoundOn ? 'အသံ ဖွင့်လိုက်ပါပြီ' : 'အသံ ပိတ်လိုက်ပါပြီ'); };
 
 window.switchAuth = function(type) { $('tabLogin').classList.toggle('active', type === 'login'); $('tabSignup').classList.toggle('active', type === 'signup'); $('formLogin').classList.toggle('hidden', type !== 'login'); $('formSignup').classList.toggle('hidden', type !== 'signup'); };
 
 window.togglePassword = function(id, btn) { 
     const input = $(id); 
-    if (input.type === 'password') {
-        input.type = 'text';
-        btn.innerHTML = '<svg><use href="#i-eye"/></svg>';
-        btn.style.color = 'var(--red)';
-    } else {
-        input.type = 'password';
-        btn.innerHTML = '<svg><use href="#i-eye-off"/></svg>';
-        btn.style.color = '#9394a1';
-    }
+    if (input.type === 'password') { input.type = 'text'; btn.innerHTML = '<svg><use href="#i-eye"/></svg>'; btn.style.color = 'var(--red)'; } 
+    else { input.type = 'password'; btn.innerHTML = '<svg><use href="#i-eye-off"/></svg>'; btn.style.color = '#9394a1'; }
 };
 
 window.doLogin = async function() {
@@ -855,9 +853,10 @@ function buildGrid() {
 window.switchGame = function(k, btn) { activeGame = k; document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); currentPage = 1; renderHistory(); updateUI(); };
 
 function tick() {
-  // 🛡️ 1. Server Time Sync: ဖုန်းနာရီအစား Server ၏ နာရီဖြင့် အချိန်ကို တွက်ချက်ခြင်း
   const t = Date.now() + timeOffset, dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
-  let d = new Date(block * dur); text('periodVal', `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${block % 10000}`);
+  let d = new Date(block * dur + (6.5 * 3600000)); 
+  text('periodVal', `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}-${block % 10000}`);
+  
   let sec = Math.ceil(rem/1000), m = Math.floor(sec/60), s = sec%60; $('timerVal').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   
   if (DB && DB.games && DB.games[activeGame] && DB.games[activeGame].history && DB.games[activeGame].history.length > 0) {
@@ -869,21 +868,20 @@ function tick() {
   
   if(rem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
-    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { 
-        playBeep(); 
-        lastBeepedSec = sec; 
-    }
+    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec) { playBeep(); lastBeepedSec = sec; }
     if(rem < 5000 && $('betSheetOverlay').classList.contains('show')) { closeBetSheet(); toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။'); }
   } else { 
-      $('lockOverlay').classList.add('hidden'); 
-      lastBeepedSec = -1;
+      $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1;
   }
 }
 
 function renderHistory() {
   if (!DB || !DB.games || !DB.games[activeGame] || !DB.games[activeGame].history) return;
   const g = DB.games[activeGame]; const tb = $('historyTableBody'); if(!tb) return; tb.innerHTML = '';
-  const d = new Date(); const todayPrefix = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  
+  let d = new Date(Date.now() + timeOffset + (6.5 * 3600000));
+  const todayPrefix = `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+  
   let todayHist = g.history.filter(h => h.period.startsWith(todayPrefix));
   todayHist.slice((currentPage-1)*12, currentPage*12).forEach(h => {
     let c = (h.num===0||h.num===5)?'#9b5de5':[1,3,7,9].includes(h.num)?'#2dbd7e':'#ff4b4b';
@@ -898,7 +896,6 @@ window.openBetSheet = function(t, n=null) {
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
     if(currentUser.balance < 10) return toast('ငွေမလောက်ပါ'); 
     
-    // 🛡️ 1. Server Time Sync: ထိုးခွင့်အချိန်ကိုပါ Server အချိန်ဖြင့် တိုက်စစ်ပါမည်
     const rem = DURATIONS[activeGame] - ((Date.now() + timeOffset) % DURATIONS[activeGame]); 
     if(rem < 5000) return toast('ပွဲပိတ်ထားပါပြီ'); 
     
@@ -916,18 +913,14 @@ window.openBetSheet = function(t, n=null) {
 };
 window.closeBetSheet = function() { $('betSheetOverlay').classList.remove('show'); };
 window.setSheetBaseAmt = function(amt, btn) { baseAmt = amt; document.querySelectorAll('#sheetAmountOpts button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); updateTotalBet(); };
-window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) + v || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
+window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQtyInput').value) || 1); $('sheetQtyInput').value = sheetQty; updateTotalBet(); };
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; text('totalBetDisplay', (baseAmt * sheetQty).toLocaleString()); };
 
 window.confirmBet = async function() { 
     const total = baseAmt * sheetQty; 
     let res = await apiCall('/api/bet', { game: activeGame, type: betType, num: betNum, amount: total });
-    if(res.success) {
-        currentUser.balance = res.balance;
-        updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ'); 
-    } else {
-        closeBetSheet(); toast(res.msg);
-    }
+    if(res.success) { currentUser.balance = res.balance; updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ'); } 
+    else { closeBetSheet(); toast(res.msg); }
 };
 
 let depMethod = 'KPay', depAmount = 5000, wdMethod = 'KPay', txTimerInterval, txTimeLeft = 1800;
@@ -972,6 +965,7 @@ window.submitDeposit = async function() {
     let amt = $('dep-custom-amt').value ? parseInt($('dep-custom-amt').value) : depAmount;
     let res = await apiCall('/api/finance', { type: 'deposit', method: depMethod, amount: amt, txId: tx });
     if(res.success) { $('dep-step-2').classList.add('hidden'); $('dep-step-1').classList.remove('hidden'); $('dep-custom-amt').value = ''; $('dep-tx-id').value = ''; startTxTimer(); toast('တောင်းဆိုမှု အောင်မြင်ပါသည်'); }
+    else { toast(res.msg || 'မအောင်မြင်ပါ'); }
 };
 
 window.selWdMethod = function(m) { wdMethod = m; $('btn-wd-kpay').classList.toggle('active', m==='KPay'); $('btn-wd-wave').classList.toggle('active', m==='WavePay'); };
@@ -1009,7 +1003,6 @@ function renderTransactions(txs) {
 }
 
 window.switchAdminSubTab = function(tab, btn) {
-    // 🐛 FIXED: Target only #view-admin tabs to avoid removing .active from wallet buttons
     document.querySelectorAll('#view-admin .admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
     ['control','users','settings'].forEach(t => $('admin-sub-'+t).classList.add('hidden'));
     $('admin-sub-'+tab).classList.remove('hidden');
@@ -1053,10 +1046,31 @@ function renderAdminControl() {
         text('todayCommVal', Math.floor(g.todayComm || 0).toLocaleString() + ' Ks');
 
         let nBets = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
-        (g.bets || []).forEach(b => { if(b.type === 'num') nBets[b.num] += b.amount; });
-        let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title">🔢 ဂဏန်းအလိုက် ထိုးငွေ</div>`;
+        let cBets = {green:0, red:0, purple:0};
+        let sBets = {big:0, small:0};
+
+        (g.bets || []).forEach(b => { 
+            if(b.type === 'num') nBets[b.num] += b.amount; 
+            else if(b.type === 'green' || b.type === 'red' || b.type === 'purple') cBets[b.type] += b.amount;
+            else if(b.type === 'big' || b.type === 'small') sBets[b.type] += b.amount;
+        });
+
+        let rankHTML = `<div class="admin-rank-card"><div class="admin-rank-title">🔢 ဂဏန်းအလိုက် ထိုးကြေး</div>`;
         Object.keys(nBets).forEach(num => { rankHTML += `<div class="admin-rank-row"><span>နံပါတ် (${num})</span><b>${nBets[num].toLocaleString()} Ks</b></div>`; });
-        rankHTML += `</div>`; $('admin-ranking-summary').innerHTML = rankHTML;
+        rankHTML += `</div>`;
+        
+        rankHTML += `<div class="admin-rank-card"><div class="admin-rank-title">🎨 အရောင်အလိုက် ထိုးကြေး</div>`;
+        rankHTML += `<div class="admin-rank-row"><span>အစိမ်း (Green)</span><b style="color:var(--green)">${cBets.green.toLocaleString()} Ks</b></div>`;
+        rankHTML += `<div class="admin-rank-row"><span>အနီ (Red)</span><b style="color:var(--red)">${cBets.red.toLocaleString()} Ks</b></div>`;
+        rankHTML += `<div class="admin-rank-row"><span>ခရမ်း (Purple)</span><b style="color:var(--purple)">${cBets.purple.toLocaleString()} Ks</b></div>`;
+        rankHTML += `</div>`;
+
+        rankHTML += `<div class="admin-rank-card"><div class="admin-rank-title">⚖️ အကြီး/အသေး ထိုးကြေး</div>`;
+        rankHTML += `<div class="admin-rank-row"><span>အကြီး (Big)</span><b style="color:var(--orange)">${sBets.big.toLocaleString()} Ks</b></div>`;
+        rankHTML += `<div class="admin-rank-row"><span>အသေး (Small)</span><b style="color:var(--blue)">${sBets.small.toLocaleString()} Ks</b></div>`;
+        rankHTML += `</div>`;
+
+        $('admin-ranking-summary').innerHTML = rankHTML;
     }
 }
 
