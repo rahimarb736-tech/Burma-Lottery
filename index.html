@@ -120,7 +120,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .auth-form input { width: 100%; padding: 13px 38px 13px 12px; font-size: 13px; border: 1px solid #ededf2; border-radius: 9px; background: #f8f8fb; color: var(--text); transition: 0.2s; outline:none; }
 .auth-form input:focus { border-color: #f58e92; background: white; box-shadow: 0 0 0 3px #f3464909; }
 
-/* 🔒 မျက်စိပုံစံ CSS */
 .eye-icon { position: absolute; right: 9px; bottom: 8px; background: transparent; color: #9394a1; padding: 4px; width: 28px; height: 28px; display: grid; place-items: center; border: none; cursor: pointer; transition: 0.2s; }
 .eye-icon:hover { color: var(--red); }
 .eye-icon svg { width: 18px; height: 18px; fill: currentColor; }
@@ -260,7 +259,6 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 </head>
 <body>
 
-<!-- 🔒 Password ဖျောက်/ပေါ် မျက်စိပုံအတွက် SVG ပေါင်းထည့်ထားပါသည် -->
 <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6M12 2v3M18 5l2 2"/></symbol>
 <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7M20 11h-6v6h6"/><circle cx="16" cy="14" r=".5"/></symbol>
@@ -401,7 +399,10 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
              <button id="btn-wave" onclick="selDepMethod('WavePay')" class="dep-method-btn">WavePay</button>
           </div>
           <p style="font-size:12px; margin-bottom:10px;">ပမာဏ ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ</p>
-          <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အနည်းဆုံး ၂,၀၀၀ Ks မှစ၍ သွင်းနိုင်ပါသည်" oninput="updateDepBonus()">
+          
+          <!-- 🐛 FIXED: Clear buttons and reset depAmount on manual input -->
+          <input type="number" id="dep-custom-amt" class="dep-input" placeholder="အနည်းဆုံး ၂,၀၀၀ Ks မှစ၍ သွင်းနိုင်ပါသည်" oninput="clearDepAmtBtns(); depAmount=0; updateDepBonus()">
+          
           <div id="dep-bonus-text" style="color:var(--green); font-size:12px; margin-bottom:15px; font-weight:bold;">+ 5% ဘောနပ်စ်: 250 Ks (စုစုပေါင်း - 5,250 Ks)</div>
           
           <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -735,7 +736,8 @@ function syncState() {
                 if(currentUser && data.user && data.user.myBets && data.user.myBets.length > 0 && g === activeGame) {
                     let latestMyBet = data.user.myBets[0];
                     if(latestMyBet.period === data.games[g].history[0].period) {
-                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), latestMyBet.num, latestMyBet.period, g);
+                        // 🐛 FIXED: User's bet num replaced with actual winning num from history
+                        showResult(latestMyBet.win, Math.abs(latestMyBet.payout), data.games[g].history[0].num, latestMyBet.period, g);
                     }
                 }
             }
@@ -995,7 +997,8 @@ function renderTransactions(txs) {
 }
 
 window.switchAdminSubTab = function(tab, btn) {
-    document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+    // 🐛 FIXED: Target only #view-admin tabs to avoid removing .active from wallet buttons
+    document.querySelectorAll('#view-admin .admin-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active');
     ['control','users','settings'].forEach(t => $('admin-sub-'+t).classList.add('hidden'));
     $('admin-sub-'+tab).classList.remove('hidden');
     if(tab === 'control') renderAdminControl();
@@ -1140,4 +1143,4 @@ window.closeInfo = function() { $('infoOverlay').classList.remove('show'); };
 window.showHelp = function() { switchTab('profile'); };
 </script>
 </body>
-    </html>
+</html>
