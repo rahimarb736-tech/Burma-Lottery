@@ -7,12 +7,28 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.set('trust proxy', true);
 
+// 🛡️ 3. API Spam / DDoS Attack ကာကွယ်ရန် (Custom Rate Limiter)
+// Package အသစ်သွင်းစရာမလိုဘဲ IP တစ်ခုမှ ၁ မိနစ်အတွင်း Request အခါ ၁၀၀ ထက်ပိုခေါ်လျှင် Block ပါမည်။
+const rateLimitMap = new Map();
+function apiLimiter(req, res, next) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    if (!rateLimitMap.has(ip)) rateLimitMap.set(ip, []);
+    const timestamps = rateLimitMap.get(ip).filter(t => now - t < 60000); 
+    if (timestamps.length >= 100) { 
+        return res.status(429).json({ success: false, msg: "လုပ်ဆောင်ချက်များလွန်းပါသည်။ ခဏစောင့်ပါ။" });
+    }
+    timestamps.push(now);
+    rateLimitMap.set(ip, timestamps);
+    next();
+}
+app.use('/api', apiLimiter); 
+
 const FIREBASE_URL = 'https://burmalottery-68256-default-rtdb.asia-southeast1.firebasedatabase.app/db.json';
 
 const SET_BOT_TOKEN = process.env.SET_BOT_TOKEN || '9197617448:AAEnS3-wmucnZ9jiEPsyNoAMs_AjniNHFEg';
 const FINANCE_BOT_TOKEN = process.env.FINANCE_BOT_TOKEN || '9199518779:AAFgTO22IX6Cb5AU8ui3FIIcV42MPNovBPw';
 const USER_BOT_TOKEN = process.env.USER_BOT_TOKEN || '9092936025:AAGDYORAcX50Z0EjjYTlUXwUOZa-cOaO0tc';
-
 const BOT_ADMIN_PWD = process.env.BOT_ADMIN_PWD || 'wingo2024';
 
 const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
@@ -45,7 +61,6 @@ async function loadDB() {
         const data = await res.json();
         if (data && data.settings) {
             DB = data;
-            
             if (!DB.settings.manualNum) DB.settings.manualNum = { wingo30s: null, wingo1m: null, wingo3m: null, wingo5m: null };
             if (!DB.settings.autoDraw) DB.settings.autoDraw = { wingo30s: true, wingo1m: true, wingo3m: true, wingo5m: true };
             if (!DB.settings.links) DB.settings.links = [];
@@ -261,7 +276,8 @@ app.get('/api/sync', (req, res) => {
     let adminUser = DB.users['admin'];
     let isAdminReq = (phone === 'admin' || phone === 'Asrissrk') && adminUser && adminUser.sessionId === sessionId;
     
-    let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true };
+    // 🛡️ 2. Time Sync အတွက် serverTime ထည့်ပေးလိုက်ခြင်း
+    let state = { settings: DB.settings, games: {}, user: null, transactions: [], sessionValid: true, serverTime: Date.now() };
     
     if (phone && DB.users[phone]) {
         if (DB.users[phone].sessionId && DB.users[phone].sessionId !== sessionId) {
