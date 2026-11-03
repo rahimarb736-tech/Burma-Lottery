@@ -84,19 +84,36 @@ input:checked + .slider:before { transform: translateX(20px); }
 .lock-overlay p { font-size: 12px; color: #a1646a; margin-top: 12px; }
 @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-/* --- Table --- */
+/* --- Table & My Bets --- */
 .history-section { padding: 0 15px 18px; }
 .history-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-.history-tabs button { flex: 1; padding: 10px 2px; background: #e9e9ef; border-radius: 8px; font-size: 11px; color: #8b8c99; transition: 0.2s; }
+.history-tabs button { flex: 1; padding: 12px 2px; background: #e9e9ef; border-radius: 8px; font-size: 13px; font-weight: bold; color: #8b8c99; transition: 0.2s; }
 .history-tabs button.active { background: var(--gradient); color: white; box-shadow: 0 3px 7px #f3464920; }
-.table-container { background: #fff; border-radius: 11px; overflow: hidden; box-shadow: var(--shadow); }
+.table-container { background: #fff; border-radius: 11px; overflow: hidden; box-shadow: var(--shadow); min-height: 200px;}
 table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
 th { padding: 13px 3px; background: linear-gradient(90deg, #f84b50, #f84e54); color: #fff; font-weight: 500; font-size: 10px; }
 td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { border-bottom: 0; }
 .td-period { font: 11px system-ui; color: #747582; } .td-num { font: 800 21px system-ui; }
 .td-bs { font-size: 10px; } .td-bs.big { color: #e99b25; } .td-bs.small { color: #6495d7; }
 .color-dots { display: flex; gap: 4px; justify-content: center; } .dot { width: 10px; height: 10px; border-radius: 50%; }
-.pagination { display: flex; gap: 25px; align-items: center; justify-content: center; padding: 17px 0 5px; }
+
+/* --- 🔥 My Bets Record UI 🔥 --- */
+.my-bet-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f4f4f8; }
+.my-bet-item:last-child { border: none; }
+.my-bet-left { display: flex; gap: 12px; align-items: center; }
+.mb-icon { width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #fff; text-transform: capitalize; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.mb-info { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.mb-period { font: 600 13px system-ui; color: var(--text); }
+.mb-date { font-size: 10px; color: var(--text-light); }
+.my-bet-right { text-align: right; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+.mb-status { font-size: 10px; padding: 2px 10px; border-radius: 12px; border: 1px solid; font-weight: bold; background: transparent; display: inline-block; }
+.mb-status.win { color: #36b67b; border-color: #b3e3cc; background: #f0f9f5; }
+.mb-status.lose { color: #f34649; border-color: #ffc4c5; background: #fff5f5; }
+.mb-amt { font: 700 14px system-ui; font-variant-numeric: tabular-nums; }
+.mb-amt.win { color: var(--green); }
+.mb-amt.lose { color: var(--red); }
+
+.pagination { display: flex; gap: 25px; align-items: center; justify-content: center; padding: 17px 0 10px; }
 .pagination button { height: 32px; width: 36px; border-radius: 6px; background: var(--red); color: #fff; font: 20px system-ui; transition: 0.1s; }
 .pagination button:active { transform: scale(0.9); } 
 .pagination button:disabled { background: #e3e4eb; color: #999ba7; opacity: 1; }
@@ -125,7 +142,8 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
 .eye-icon svg { width: 18px; height: 18px; fill: currentColor; }
 
 .btn-main { width: 100%; padding: 12px; border-radius: 25px; background: var(--gradient); color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 9px #f3464920; margin-top: 3px; transition: 0.1s; border:none; cursor:pointer;}
-.btn-main:active { transform: scale(0.97); }
+.btn-main:active:not(:disabled) { transform: scale(0.97); }
+.btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* --- Wallet, Profile & Admin CSS --- */
 .page-view { padding: 16px 15px; }
@@ -374,11 +392,24 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div id="lockOverlay" class="lock-overlay hidden"><h2 id="lockCountdownText">5</h2><p>ပွဲပိတ်ထားပါပြီ · နောက်ပွဲကို စောင့်ပါ</p></div>
     </section>
     
+    <!-- 🔥 အသစ်ထည့်သွင်းထားသော My Bets (ကျွန်ုပ်၏မှတ်တမ်း) နှင့် Game History Tab အပိုင်း 🔥 -->
     <section class="history-section">
+      <div class="history-tabs">
+        <button class="active" id="tab-game-hist" onclick="switchHistTab('game')">ဂိမ်းမှတ်တမ်း</button>
+        <button id="tab-my-hist" onclick="switchHistTab('my')">ကျွန်ုပ်၏မှတ်တမ်း</button>
+      </div>
+
+      <!-- ဂိမ်းမှတ်တမ်း (Game History) -->
       <div class="table-container" id="gameHistoryTable">
         <table><thead><tr><th>ပွဲအမှတ်စဉ်</th><th>နံပါတ်</th><th>ကြီး / သေး</th><th>အရောင်</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
       </div>
-      <div class="pagination"><button onclick="changePage(-1)">‹</button><span id="pageInfo">1 / 1</span><button onclick="changePage(1)">›</button></div>
+
+      <!-- ကျွန်ုပ်၏မှတ်တမ်း (My Bets) -->
+      <div class="table-container hidden" id="myHistoryList">
+         <div id="myBetsBody"></div>
+         <div class="pagination"><button onclick="changeMyPage(-1)">‹</button><span id="myPageInfo">1 / 1</span><button onclick="changeMyPage(1)">›</button></div>
+      </div>
     </section>
   </section>
 
@@ -421,7 +452,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
            </div>
            <p style="font-size:12px; margin-bottom:10px; color:var(--red);">* ငွေလွှဲပြီးပါက လုပ်ငန်းစဉ်အမှတ် ၏ နောက်ဆုံး ၆ လုံးအား အောက်တွင်ထည့်ပါ *</p>
            <input type="number" id="dep-tx-id" class="dep-input" placeholder="ဥပမာ - 123456">
-           <button class="btn-main" onclick="submitDeposit()">အတည်ပြုမည် (Submit)</button>
+           <button class="btn-main" id="btnSubmitDep" onclick="submitDeposit()">အတည်ပြုမည် (Submit)</button>
            <button onclick="cancelDep()" style="width:100%; padding:12px; margin-top:10px; background:#f0f0f0; border-radius:10px; font-weight:bold; color:#555;">နောက်သို့</button>
         </div>
     </div>
@@ -441,7 +472,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
             <input type="number" id="wd-amt" class="dep-input" placeholder="ထုတ်ယူမည့် ပမာဏ (အနည်းဆုံး ၁၀,၀၀၀)">
             <input type="text" id="wd-name" class="dep-input" placeholder="အကောင့်အမည် (KBZPay / Wave)">
             <input type="number" id="wd-phone" class="dep-input" placeholder="ငွေလွှဲလက်ခံမည့် ဖုန်းနံပါတ်">
-            <button class="btn-main" onclick="submitWithdraw()">ငွေထုတ်မည် (Withdraw)</button>
+            <button class="btn-main" id="btnSubmitWd" onclick="submitWithdraw()">ငွေထုတ်မည် (Withdraw)</button>
         </div>
     </div>
 
@@ -616,7 +647,7 @@ td { padding: 11px 3px; border-bottom: 1px solid #f4f4f8; } tr:last-child td { b
       <div class="bet-row"><span>စုစုပေါင်း:</span><span style="font-size: 18px; font-weight: bold; color: var(--blue);"><span id="totalBetDisplay">10</span> Ks</span></div>
       <div class="bet-actions">
         <button class="btn-cancel" onclick="closeBetSheet()">မလုပ်တော့ပါ</button>
-        <button class="btn-confirm" onclick="confirmBet()">အတည်ပြုမည်</button>
+        <button class="btn-confirm" id="btnConfirmBet" onclick="confirmBet()">အတည်ပြုမည်</button>
       </div>
     </div>
   </div>
@@ -671,6 +702,10 @@ let currentUser = null; let DB = { settings: { autoDraw: {}, manualNum: {}, link
 let currentSessionId = localStorage.getItem('wingo_session_id') || Math.random().toString(36).substr(2, 9);
 localStorage.setItem('wingo_session_id', currentSessionId);
 let timeOffset = 0; 
+
+// 🔥 Tabs & Pagination အတွက် Variables အသစ် 🔥
+let currentHistTab = 'game';
+let currentMyPage = 1;
 
 const $ = id => document.getElementById(id);
 const text = (id, val) => { if($(id)) $(id).innerText = val; };
@@ -772,7 +807,10 @@ function syncState() {
         }
 
         updateUI();
-        if(shouldUpdateHistory) renderHistory();
+        if(shouldUpdateHistory) {
+            renderHistory();
+            renderMyHistory(); // 🛡️ Refresh My Bets when History updates
+        }
         if(!$('view-wallet').classList.contains('hidden')) { checkTxStatus(data.transactions); renderTransactions(data.transactions); }
         if(!$('view-admin').classList.contains('hidden')) { renderAdminControl(); renderAdminLinks(); }
     }).catch(e => {});
@@ -850,7 +888,14 @@ function buildGrid() {
         b.style.background = bg; b.innerText = i; b.onclick = () => openBetSheet('num', i); g.appendChild(b); 
     } 
 }
-window.switchGame = function(k, btn) { activeGame = k; document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); currentPage = 1; renderHistory(); updateUI(); };
+window.switchGame = function(k, btn) { 
+    activeGame = k; 
+    document.querySelectorAll('.game-tabs button').forEach(b => b.classList.remove('active')); 
+    if(btn) btn.classList.add('active'); 
+    currentPage = 1; currentMyPage = 1; 
+    renderHistory(); renderMyHistory(); 
+    updateUI(); 
+};
 
 function tick() {
   const t = Date.now() + timeOffset, dur = DURATIONS[activeGame], rem = dur - (t % dur), block = Math.floor(t / dur);
@@ -868,18 +913,29 @@ function tick() {
   
   if(rem <= 5000 && !$('view-game').classList.contains('hidden')) {
     $('lockOverlay').classList.remove('hidden'); text('lockCountdownText', sec);
-    
-    // 🛡️ Background ရောက်နေချိန် အသံလုံးဝ မမြည်စေရန် !document.hidden အား ထည့်သွင်းထားပါသည်
-    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec && !document.hidden) { 
-        playBeep(); 
-        lastBeepedSec = sec; 
-    }
-    
+    if(sec >= 1 && sec <= 5 && lastBeepedSec !== sec && !document.hidden) { playBeep(); lastBeepedSec = sec; }
     if(rem < 5000 && $('betSheetOverlay').classList.contains('show')) { closeBetSheet(); toast('အချိန်လွန်သွားပါပြီ။ ပွဲပိတ်ထားပါသည်။'); }
   } else { 
       $('lockOverlay').classList.add('hidden'); lastBeepedSec = -1;
   }
 }
+
+// 🔥 Game History နှင့် My Bets ကို ပြောင်းပေးမည့် ဖန်ရှင် 🔥
+window.switchHistTab = function(tab) {
+    currentHistTab = tab;
+    $('tab-game-hist').classList.toggle('active', tab === 'game');
+    $('tab-my-hist').classList.toggle('active', tab === 'my');
+    
+    if (tab === 'game') {
+        $('gameHistoryTable').classList.remove('hidden');
+        $('myHistoryList').classList.add('hidden');
+        renderHistory();
+    } else {
+        $('gameHistoryTable').classList.add('hidden');
+        $('myHistoryList').classList.remove('hidden');
+        renderMyHistory();
+    }
+};
 
 function renderHistory() {
   if (!DB || !DB.games || !DB.games[activeGame] || !DB.games[activeGame].history) return;
@@ -897,6 +953,66 @@ function renderHistory() {
   text('pageInfo', `${currentPage} / ${Math.ceil(todayHist.length/12)||1}`);
 }
 window.changePage = function(d) { const t = Math.ceil((DB.games[activeGame].history.length)/12)||1; currentPage += d; if(currentPage < 1) currentPage = 1; if(currentPage > t) currentPage = t; renderHistory(); };
+
+// 🔥 My Bets (ကျွန်ုပ်၏မှတ်တမ်း) Render လုပ်မည့် ဖန်ရှင် 🔥
+function renderMyHistory() {
+    if (!currentUser || !currentUser.myBets || currentUser.myBets.length === 0) {
+        $('myBetsBody').innerHTML = '<p style="text-align:center; padding: 30px 20px; color:#999; font-size:12px;">မှတ်တမ်း မရှိသေးပါ</p>';
+        text('myPageInfo', '1 / 1');
+        return;
+    }
+
+    const mb = currentUser.myBets;
+    const tb = $('myBetsBody'); tb.innerHTML = '';
+    let itemsPerPage = 10;
+    let totalPages = Math.ceil(mb.length / itemsPerPage) || 1;
+    
+    if (currentMyPage > totalPages) currentMyPage = totalPages;
+    if (currentMyPage < 1) currentMyPage = 1;
+
+    let pageData = mb.slice((currentMyPage - 1) * itemsPerPage, currentMyPage * itemsPerPage);
+
+    pageData.forEach(b => {
+        let iconText = b.type;
+        let iconBg = '#ccc';
+        
+        if (b.type === 'big') { iconText = 'Big'; iconBg = 'var(--orange)'; }
+        else if (b.type === 'small') { iconText = 'Small'; iconBg = 'var(--blue)'; }
+        else if (b.type === 'green') { iconText = 'Green'; iconBg = 'var(--green)'; }
+        else if (b.type === 'red') { iconText = 'Red'; iconBg = 'var(--red)'; }
+        else if (b.type === 'purple') { iconText = 'Purple'; iconBg = 'var(--purple)'; }
+        else if (b.type === 'num') { iconText = b.num; iconBg = 'linear-gradient(135deg, #ad67e6 48%, #f45363 52%)'; }
+
+        let statusClass = b.win ? 'win' : 'lose';
+        let statusText = b.win ? 'အောင်မြင်' : 'ကျရှုံး';
+        let amtText = b.win ? `+K${b.payout.toLocaleString()}` : `-K${b.amount.toLocaleString()}`;
+
+        tb.innerHTML += `
+        <div class="my-bet-item">
+            <div class="my-bet-left">
+                <div class="mb-icon" style="background:${iconBg}">${iconText}</div>
+                <div class="mb-info">
+                    <span class="mb-period">${b.period}</span>
+                    <span class="mb-date">${b.date}</span>
+                </div>
+            </div>
+            <div class="my-bet-right">
+                <span class="mb-status ${statusClass}">${statusText}</span>
+                <span class="mb-amt ${statusClass}">${amtText}</span>
+            </div>
+        </div>`;
+    });
+    text('myPageInfo', `${currentMyPage} / ${totalPages}`);
+}
+
+window.changeMyPage = function(d) { 
+    const mb = currentUser ? (currentUser.myBets || []) : [];
+    const t = Math.ceil(mb.length / 10) || 1; 
+    currentMyPage += d; 
+    if(currentMyPage < 1) currentMyPage = 1; 
+    if(currentMyPage > t) currentMyPage = t; 
+    renderMyHistory(); 
+};
 
 window.openBetSheet = function(t, n=null) { 
     if(!currentUser) return toast('အကောင့်ဝင်ပါ');
@@ -923,8 +1039,15 @@ window.changeSheetQty = function(v) { sheetQty = Math.max(1, parseInt($('sheetQt
 window.updateTotalBet = function() { sheetQty = parseInt($('sheetQtyInput').value) || 1; text('totalBetDisplay', (baseAmt * sheetQty).toLocaleString()); };
 
 window.confirmBet = async function() { 
+    const btn = document.getElementById('btnConfirmBet');
+    if (btn.disabled) return;
+    btn.innerText = 'ခဏစောင့်ပါ...'; btn.disabled = true;
+
     const total = baseAmt * sheetQty; 
     let res = await apiCall('/api/bet', { game: activeGame, type: betType, num: betNum, amount: total });
+    
+    btn.innerText = 'အတည်ပြုမည်'; btn.disabled = false;
+    
     if(res.success) { currentUser.balance = res.balance; updateUI(); closeBetSheet(); toast('ထိုးပြီးပါပြီ'); } 
     else { closeBetSheet(); toast(res.msg); }
 };
@@ -969,7 +1092,15 @@ window.cancelDep = function() { $('dep-step-2').classList.add('hidden'); $('dep-
 window.submitDeposit = async function() {
     let tx = $('dep-tx-id').value.trim(); if(tx.length < 5) return toast('လုပ်ငန်းစဉ်အမှတ် မှားယွင်းနေပါသည်');
     let amt = $('dep-custom-amt').value ? parseInt($('dep-custom-amt').value) : depAmount;
+    
+    const btn = document.getElementById('btnSubmitDep');
+    if(btn.disabled) return;
+    btn.innerText = 'ခဏစောင့်ပါ...'; btn.disabled = true;
+
     let res = await apiCall('/api/finance', { type: 'deposit', method: depMethod, amount: amt, txId: tx });
+    
+    btn.innerText = 'အတည်ပြုမည် (Submit)'; btn.disabled = false;
+    
     if(res.success) { $('dep-step-2').classList.add('hidden'); $('dep-step-1').classList.remove('hidden'); $('dep-custom-amt').value = ''; $('dep-tx-id').value = ''; startTxTimer(); toast('တောင်းဆိုမှု အောင်မြင်ပါသည်'); }
     else { toast(res.msg || 'မအောင်မြင်ပါ'); }
 };
@@ -979,7 +1110,15 @@ window.submitWithdraw = async function() {
     let amt = parseInt($('wd-amt').value), name = $('wd-name').value.trim(), phone = $('wd-phone').value.trim();
     if(!amt || amt < 10000) return toast('အနည်းဆုံး ၁၀,၀၀၀ Ks ထုတ်ယူနိုင်ပါသည်');
     if(!name || !phone) return toast('အကောင့်အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ');
+    
+    const btn = document.getElementById('btnSubmitWd');
+    if(btn.disabled) return;
+    btn.innerText = 'ခဏစောင့်ပါ...'; btn.disabled = true;
+
     let res = await apiCall('/api/finance', { type: 'withdraw', method: wdMethod, amount: amt, accName: name, accPhone: phone });
+    
+    btn.innerText = 'ငွေထုတ်မည် (Withdraw)'; btn.disabled = false;
+    
     if(res.success) { $('wd-amt').value = ''; $('wd-name').value = ''; $('wd-phone').value = ''; startTxTimer(); toast('ငွေထုတ်တောင်းဆိုမှု အောင်မြင်ပါသည်'); }
     else { toast(res.msg || 'မအောင်မြင်ပါ'); }
 };
@@ -1087,7 +1226,7 @@ function renderAdminUsers() {
     if(!DB.users) return;
     let usersArr = Object.values(DB.users);
     text('totalUserCount', usersArr.length);
-    $('adminUserList').innerHTML = usersArr.map(u => `<div class="user-item"><div><b>${u.name}</b><br><span style="color:#888; font-family:monospace;">UID: ${u.id} | ဖုန်း: ${u.phone}</span></div><b style="color:var(--red);">${Math.floor(u.balance).toLocaleString()} Ks</b></div>`).join('');
+    $('adminUserList').innerHTML = usersArr.reverse().slice(0, 100).map(u => `<div class="user-item"><div><b>${u.name}</b><br><span style="color:#888; font-family:monospace;">UID: ${u.id} | ဖုန်း: ${u.phone}</span></div><b style="color:var(--red);">${Math.floor(u.balance).toLocaleString()} Ks</b></div>`).join('');
 }
 
 window.adminAddBalance = async function() {
