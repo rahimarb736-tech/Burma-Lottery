@@ -41,7 +41,7 @@ const BOT_ADMIN_PWD = process.env.BOT_ADMIN_PWD || 'wingo2024';
 
 const botSet = new TelegramBot(SET_BOT_TOKEN, { polling: true });
 botSet.on('polling_error', () => {}); 
-botSet.on('error', () => {}); // 🛡️ Generic Error ကြောင့် Crash မဖြစ်ရန်
+botSet.on('error', () => {}); 
 
 const botFinance = new TelegramBot(FINANCE_BOT_TOKEN, { polling: true });
 botFinance.on('polling_error', () => {}); 
@@ -68,7 +68,6 @@ const DEFAULT_DB = {
 
 const DURATIONS = { wingo30s: 30000, wingo1m: 60000, wingo3m: 180000, wingo5m: 300000 };
 
-// 🛡️ Data ပျောက်ဆုံးမှု မရှိစေရန် Write-Lock Queue System အဆင့်မြှင့်တင်မှု
 let isSaving = false;
 let pendingSave = false;
 
@@ -82,9 +81,8 @@ async function saveDB() {
     try {
         await fetch(FIREBASE_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(DB) });
     } catch (e) { 
-        // Fail လည်း ဆက်သွားမည်
     } finally {
-        isSaving = false; // 🐛 FIXED: Error တက်လည်း DB Lock မကျစေရန် finally ဖြင့် ဖွင့်ပေးခြင်း
+        isSaving = false; 
         if (pendingSave) {
             pendingSave = false;
             saveDB();
@@ -160,6 +158,7 @@ botSet.onText(/\/profit(.*)/, (msg, match) => {
 
 botFinance.onText(/\/admin (.+)/, (msg, match) => { 
     if(match[1] !== BOT_ADMIN_PWD) return botFinance.sendMessage(msg.chat.id, `❌ စကားဝှက် မှားယွင်းနေပါသည်။`).catch(()=>{});
+    DB.settings.adminChatId = msg.chat.id.toString(); saveDB(); 
     botFinance.sendMessage(msg.chat.id, `✅ Finance Bot ချိတ်ဆက်ပြီးပါပြီ။`).catch(()=>{}); 
 });
 
@@ -476,7 +475,8 @@ app.post('/api/finance', (req, res) => {
         user.balance -= amount;
         DB.transactions.push({ id: tid, uid: user.id, type, method, amount, accName: safeAccName, accPhone: String(accPhone).substring(0, 20), status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
-            let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks\n\nအတည်ပြုရန်: <code>/wdok ${tid}</code>\nပယ်ဖျက်ရန်: <code>/wdno ${tid}</code>`;
+            // 🛡️ FIXED: ငွေထုတ်ရာတွင် Admin Bot တွင် Method (KPay / Wave) အတိအကျ ပေါ်စေရန် ပြင်ဆင်ထားသည်
+            let msg = `💸 <b>ငွေထုတ်ရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks\n▫️ Method: ${method} (${safeAccName} / ${String(accPhone).substring(0, 20)})\n\nအတည်ပြုရန်: <code>/wdok ${tid}</code>\nပယ်ဖျက်ရန်: <code>/wdno ${tid}</code>`;
             botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}).catch(()=>{});
         }
     } else {
@@ -486,7 +486,8 @@ app.post('/api/finance', (req, res) => {
         DB.transactions.push({ id: tid, uid: user.id, type, method, amount, txId: safeTxId, status: 'pending', date: new Date().toLocaleString() });
         if(DB.settings.adminChatId) {
             let bonus = Math.floor(amount * 0.05);
-            let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks (+ ${bonus} Bonus)\n▫️ TxID: ${safeTxId}\n\nအတည်ပြုရန်: <code>/depok ${safeTxId}</code>\nပယ်ဖျက်ရန်: <code>/depno ${safeTxId}</code>`;
+            // 🛡️ FIXED: ငွေသွင်းရာတွင် Admin Bot တွင် Method အတိအကျ ပေါ်စေရန် ပြင်ဆင်ထားသည်
+            let msg = `💰 <b>ငွေသွင်းရန် တောင်းဆိုမှု</b>\n▫️ UID: <b>${user.id}</b>\n▫️ ပမာဏ: ${amount.toLocaleString()} Ks (+ ${bonus} Bonus)\n▫️ Method: ${method}\n▫️ TxID: ${safeTxId}\n\nအတည်ပြုရန်: <code>/depok ${safeTxId}</code>\nပယ်ဖျက်ရန်: <code>/depno ${safeTxId}</code>`;
             botFinance.sendMessage(DB.settings.adminChatId, msg, {parse_mode: 'HTML'}).catch(()=>{});
         }
     }
@@ -531,11 +532,10 @@ app.post('/api/admin', (req, res) => {
         let u = Object.keys(DB.users).find(k => DB.users[k].id === data.uid);
         if(u && typeof data.amt === 'number' && !isNaN(data.amt)) {
             DB.users[u].balance += data.amt;
-            // 🛡️ FIXED: Admin အမှားကြောင့် Balance အနှုတ်ပြမသွားစေရန်
             if (DB.users[u].balance < 0) DB.users[u].balance = 0; 
         }
     }
     saveDB(); res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Server running securely (Final Bug-Free Release)'));
+app.listen(process.env.PORT || 3000, () => console.log('Server running securely (Final Perfected)'));
